@@ -35,9 +35,11 @@ def test_variacion_grande_crea_alerta_visible_por_api(client):
 
     alertas_animal = client.get(f"/animales/{animal['id']}/alertas").json()
     assert len(alertas_animal) == 1
+    assert alertas_animal[0]["animal_identificador"] == "AR-ALERTA-01"
 
     alertas_rodeo = client.get("/alertas").json()
-    assert any(a["animal_id"] == animal["id"] for a in alertas_rodeo)
+    alerta_de_este_animal = next(a for a in alertas_rodeo if a["animal_id"] == animal["id"])
+    assert alerta_de_este_animal["animal_identificador"] == "AR-ALERTA-01"
 
 
 def test_variacion_chica_no_crea_alerta(client):

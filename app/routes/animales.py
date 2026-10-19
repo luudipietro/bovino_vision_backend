@@ -89,5 +89,17 @@ def alertas_de_animal(
     animal_service: AnimalService = Depends(get_animal_service),
     analitica_service: AnaliticaService = Depends(get_analitica_service),
 ):
-    animal_service.obtener_ficha(animal_id)
-    return analitica_service.alertas_de_animal(animal_id)
+    animal = animal_service.obtener_ficha(animal_id)
+    return [
+        AlertaRead(
+            id=a.id,
+            animal_id=a.animal_id,
+            tipo=a.tipo,
+            prioridad=a.prioridad,
+            variacion_pct=a.variacion_pct,
+            fecha_generacion=a.fecha_generacion,
+            estado=a.estado,
+            animal_identificador=animal.identificador,
+        )
+        for a in analitica_service.alertas_de_animal(animal_id)
+    ]

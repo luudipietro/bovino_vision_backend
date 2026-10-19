@@ -13,3 +13,4 @@ class AlertaRead(BaseModel):
     variacion_pct: float
     fecha_generacion: datetime
     estado: str
+    animal_identificador: str | None = None

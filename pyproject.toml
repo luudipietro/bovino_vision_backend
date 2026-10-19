@@ -9,6 +9,7 @@ dependencies = [
     "fastapi>=0.148.0",
     "psycopg[binary]>=3.3.6",
     "pydantic-settings>=2.16.0",
+    "python-multipart>=0.0.32",
     "sqlalchemy>=2.1.5",
     "uvicorn[standard]>=0.54.0",
 ]
@@ -22,3 +23,13 @@ dev = [
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+
+[tool.ruff]
+# Las migraciones de Alembic son código generado (plantilla propia de Alembic); no
+# tiene sentido aplicarles nuestras reglas de estilo.
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI usa `Depends(...)` como valor por default de parámetro a propósito (es su
+# forma estándar de inyección de dependencias), no es el antipatrón que B008 detecta.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path", "fastapi.File", "fastapi.Form"]

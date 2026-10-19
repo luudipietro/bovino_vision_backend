@@ -4,9 +4,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-import app.models  # noqa: F401  (registra los modelos en Base.metadata)
+import app.models
 from app.core.database import Base, get_db
+from app.dependencies import get_image_storage
 from app.main import app
+from tests.fakes import FakeImageStorageAdapter
 
 
 @pytest.fixture
@@ -29,5 +31,7 @@ def client():
             db.close()
 
     app.dependency_overrides[get_db] = override_get_db
+    # Evita que los tests de integración escriban imágenes reales en disco.
+    app.dependency_overrides[get_image_storage] = FakeImageStorageAdapter
     yield TestClient(app)
     app.dependency_overrides.clear()

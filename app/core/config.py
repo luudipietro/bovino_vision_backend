@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     # único establecimiento precargado por semilla (ver migración inicial de Alembic).
     default_establecimiento_id: int = 1
 
+    # Carpeta local donde se guardan las imágenes de captura (ver app/storage/). A
+    # futuro, en producción, esto se reemplaza por un bucket de almacenamiento.
+    uploads_dir: str = "uploads"
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -1,7 +1,14 @@
 from fastapi import APIRouter, Depends, Query
 
-from app.dependencies import get_animal_service, get_establecimiento_id
+from app.dependencies import (
+    get_analitica_service,
+    get_animal_service,
+    get_establecimiento_id,
+)
+from app.schemas.alerta import AlertaRead
 from app.schemas.animal import AnimalCreate, AnimalRead, AnimalUpdate
+from app.schemas.pesaje import PesajeHistorialRead
+from app.services.analitica_service import AnaliticaService
 from app.services.animal_service import AnimalService
 
 router = APIRouter(prefix="/animales", tags=["animales"])
@@ -54,3 +61,33 @@ def modificar_animal(
         raza=payload.raza,
         lote_id=payload.lote_id,
     )
+
+
+@router.get("/{animal_id}/pesajes", response_model=list[PesajeHistorialRead])
+def historial_de_pesajes(
+    animal_id: int,
+    animal_service: AnimalService = Depends(get_animal_service),
+    analitica_service: AnaliticaService = Depends(get_analitica_service),
+):
+    animal_service.obtener_ficha(animal_id)
+    return [
+        PesajeHistorialRead(
+            id=item.evento.id,
+            estado=item.evento.estado,
+            peso_kg=item.evento.peso_kg,
+            fecha_pesaje=item.evento.fecha_pesaje,
+            version_modelo=item.evento.version_modelo,
+            gmd_kg_dia=item.gmd_kg_dia,
+        )
+        for item in analitica_service.historial_con_gmd(animal_id)
+    ]
+
+
+@router.get("/{animal_id}/alertas", response_model=list[AlertaRead])
+def alertas_de_animal(
+    animal_id: int,
+    animal_service: AnimalService = Depends(get_animal_service),
+    analitica_service: AnaliticaService = Depends(get_analitica_service),
+):
+    animal_service.obtener_ficha(animal_id)
+    return analitica_service.alertas_de_animal(animal_id)

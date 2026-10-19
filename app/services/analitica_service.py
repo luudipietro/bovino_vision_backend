@@ -39,6 +39,12 @@ class AnaliticaService:
         resultado.reverse()
         return resultado
 
+    def ultimo_peso(self, animal_id: int) -> float | None:
+        estimados = [e for e in self._eventos.list_by_animal(animal_id) if e.estado == "estimado"]
+        if not estimados:
+            return None
+        return max(estimados, key=lambda e: e.id).peso_kg
+
     def alertas_de_animal(self, animal_id: int) -> list[Alerta]:
         return self._alertas.list_by_animal(animal_id)
 

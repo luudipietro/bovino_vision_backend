@@ -31,3 +31,5 @@ class AnimalRead(BaseModel):
     fecha_nacimiento: date | None
     sexo: str | None
     raza: str | None
+    lote_codigo: str | None = None
+    ultimo_peso_kg: float | None = None

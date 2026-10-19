@@ -12,3 +12,6 @@ class LoteService:
 
     def listar_lotes(self, establecimiento_id: int) -> list[Lote]:
         return self._lotes.list_by_establecimiento(establecimiento_id)
+
+    def obtener(self, lote_id: int) -> Lote | None:
+        return self._lotes.get(lote_id)

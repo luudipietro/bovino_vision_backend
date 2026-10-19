@@ -25,6 +25,21 @@ def _pesar(client, animal_id, peso_kg):
     return client.post("/pesajes", json={"captura_id": captura["id"]}).json()
 
 
+def test_listado_y_ficha_incluyen_ultimo_peso(client):
+    animal = _crear_animal(client, "AR-PESO-01")
+    assert animal["ultimo_peso_kg"] is None
+
+    _pesar(client, animal["id"], 300.0)
+    _pesar(client, animal["id"], 320.0)
+
+    ficha = client.get(f"/animales/{animal['id']}").json()
+    assert ficha["ultimo_peso_kg"] == 320.0
+
+    listado = client.get("/animales").json()
+    animal_en_listado = next(a for a in listado if a["id"] == animal["id"])
+    assert animal_en_listado["ultimo_peso_kg"] == 320.0
+
+
 def test_variacion_grande_crea_alerta_visible_por_api(client):
     animal = _crear_animal(client, "AR-ALERTA-01")
     _pesar(client, animal["id"], 300.0)

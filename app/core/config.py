@@ -7,7 +7,11 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     app_name: str = "BovinoVision API"
-    database_url: str = "postgresql+psycopg://bovinovision:bovinovision@localhost:5432/bovinovision"
+    database_url: str = "postgresql+psycopg://bovinovision:bovinovision@localhost:5433/bovinovision"
+
+    # Todavía no existe el módulo de Usuarios/multi-establecimiento: se opera sobre un
+    # único establecimiento precargado por semilla (ver migración inicial de Alembic).
+    default_establecimiento_id: int = 1
 
 
 @lru_cache

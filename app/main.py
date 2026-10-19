@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
+from app.core.exceptions import register_exception_handlers
+from app.routes import animales, lotes
 
 settings = get_settings()
 
@@ -13,6 +15,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+register_exception_handlers(app)
+
+app.include_router(lotes.router)
+app.include_router(animales.router)
 
 
 @app.get("/health")

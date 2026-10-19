@@ -20,27 +20,52 @@ El código vive en `app/`, separado por capas:
 - `dependencies.py` — wiring de inyección de dependencias (qué implementación concreta se
   inyecta en cada puerto).
 
-Estas carpetas se van poblando a medida que se implementan los módulos (por ahora solo
-existen `core/` y el endpoint `/health` en `app/main.py`).
+Estas carpetas se van poblando a medida que se implementan los módulos. Por ahora están
+implementados `Lote` y `Animal` (alta, modificación, listado con filtros y ficha de
+detalle) sobre un único `Establecimiento` precargado — todavía no existe el módulo de
+Usuarios, así que no hay multi-establecimiento ni autenticación.
 
 ## Requisitos
 
 - Python 3.14
 - [uv](https://docs.astral.sh/uv/)
+- Docker (para levantar Postgres localmente)
 
 ## Cómo correrlo localmente
 
 ```bash
+# desde la raíz de BovinoVison/, levanta Postgres en el puerto 5433
+docker compose up -d db
+
+cd backend
 uv sync
+uv run alembic upgrade head   # crea las tablas y precarga el establecimiento
 uv run uvicorn app.main:app --reload
 ```
 
-La API queda en `http://localhost:8000`. Podés probar `GET /health`.
+La API queda en `http://localhost:8000`. Podés probar `GET /health`, o:
+
+```bash
+curl -X POST http://localhost:8000/lotes -H "Content-Type: application/json" -d '{"codigo":"L1"}'
+curl -X POST http://localhost:8000/animales -H "Content-Type: application/json" -d '{"identificador":"AR001","lote_id":1}'
+curl http://localhost:8000/animales
+```
 
 ## Tests
 
 ```bash
 uv run pytest
+```
+
+Los tests no necesitan Postgres: los de servicios (`test_animal_service.py`) usan
+repositorios fake en memoria, y los de la API (`test_animales_api.py`) usan SQLite en
+memoria.
+
+## Migraciones (Alembic)
+
+```bash
+uv run alembic revision --autogenerate -m "descripción del cambio"
+uv run alembic upgrade head
 ```
 
 ## Variables de entorno

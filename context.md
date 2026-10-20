@@ -75,5 +75,6 @@ explícito del usuario fue poder reemplazar piezas sin tocar el resto:
 
 ## Flujo de trabajo con el usuario
 
-Claude no ejecuta `git add` / `commit` / `push` en este repo — el usuario revisa cada
-avance y commitea él mismo, a su ritmo, paso a paso.
+Claude hace los commits automáticamente (Conventional Commits, sin atribución de IA). El
+trabajo grande va en una rama de feature con un commit por unidad de trabajo. Push, PR y
+merge siguen siendo decisión del usuario, que revisa la rama antes de mergear.

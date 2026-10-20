@@ -14,7 +14,9 @@ dotnet build BovinoVision.slnx
 dotnet run --project src/BovinoVision.Api
 ```
 
-La API escucha en `http://localhost:8000`. El perfil local activa `Development`, usa PostgreSQL en `localhost:5433` y aplica las migraciones al iniciar. En ese entorno están disponibles `/openapi/v1.json` y `/scalar/v1`. `GET /health` devuelve `{"status":"ok"}`; no es una comprobación de conectividad con la base.
+La API escucha en `http://localhost:8000`. El perfil local activa `Development`, usa PostgreSQL en `localhost:5433` salvo que se sobrescriba la conexión y aplica las migraciones al iniciar. En ese entorno están disponibles `/openapi/v1.json` y `/scalar/v1`. `GET /health` devuelve `{"status":"ok"}`; no es una comprobación de conectividad con la base.
+
+**Alternativa con Neon:** la API admite User Secrets con ID `bovinovision-api-neon-local` en Development. Con `ConnectionStrings:BovinoVision` configurada fuera del repositorio, usar una conexión **directa** exclusivamente a `develop` / `neondb`; el arranque aplica las migraciones existentes. Las variables de entorno prevalecen sobre los secretos. User Secrets almacena texto plano, no cifra credenciales. Consultar [la guía local de Neon](docs/neon-desarrollo-local.md); no modifica `production`, `neon_auth` ni los tests con Testcontainers.
 
 Alternativa en contenedores:
 
@@ -66,7 +68,7 @@ Dependencias: `Dominio` ← `Aplicacion` ← `Infraestructura` ← `Api`. La API
 
 ## Configuración
 
-ASP.NET Core lee `appsettings.json`, el archivo del entorno y variables de entorno (`__` separa niveles). No hay plantilla `.env`: la del backend Python se retiró junto con su código, y **`dotnet run` no carga archivos `.env`**. Exportar las variables al proceso o configurar explícitamente el servicio. No guardar credenciales reales en el repositorio.
+ASP.NET Core lee, en orden de menor a mayor prioridad, `appsettings.json`, el archivo del entorno, User Secrets en Development (ID `bovinovision-api-neon-local`), variables de entorno (`__` separa niveles) y argumentos de línea de comandos. No hay plantilla `.env`: la del backend Python se retiró junto con su código, y **`dotnet run` no carga archivos `.env`**. Exportar las variables al proceso o configurar explícitamente el servicio. No guardar credenciales reales en el repositorio.
 
 Ejemplo sin secretos para PowerShell (variables del proceso actual):
 
@@ -113,7 +115,7 @@ dotnet tool restore
 dotnet ef migrations add NombreDelCambio -p src/BovinoVision.Infraestructura -s src/BovinoVision.Infraestructura -o Persistencia/Migraciones
 ```
 
-La fábrica de diseño usa `ConnectionStrings__BovinoVision` o la conexión local por defecto. Revisar toda migración antes de aplicarla; no ejecutar cambios de esquema contra datos ajenos sin un plan de respaldo y transición.
+La fábrica de diseño usa solo `ConnectionStrings__BovinoVision` o la conexión local por defecto, no User Secrets: `dotnet ef database update` no usa los secretos de la API. Para aplicar migraciones existentes con User Secrets, usar el arranque en Development descrito en [la guía de Neon](docs/neon-desarrollo-local.md). Revisar toda migración antes de aplicarla; no ejecutar cambios de esquema contra datos ajenos sin un plan de respaldo y transición.
 
 ## Alcance pendiente
 

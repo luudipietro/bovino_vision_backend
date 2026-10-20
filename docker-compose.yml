@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: bovinovision
+      POSTGRES_USER: bovinovision
+      POSTGRES_PASSWORD: bovinovision
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bovinovision -d bovinovision"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    profiles: ["api"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__BovinoVision: "Host=db;Port=5432;Database=bovinovision;Username=bovinovision;Password=bovinovision"
+      BaseDeDatos__AplicarMigracionesAlIniciar: "true"
+      Almacenamiento__DirectorioImagenes: "/app/uploads"
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads:/app/uploads
+
+volumes:
+  postgres-data:
+  uploads:

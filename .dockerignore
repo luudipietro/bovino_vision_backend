@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+**/*.user
+.git/
+.codegraph/
+.atl/
+.venv/
+uploads/
+tests/
+odd/
+app/
+alembic/

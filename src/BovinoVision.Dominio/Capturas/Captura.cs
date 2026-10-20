@@ -63,12 +63,13 @@ public sealed class Captura : Entidad
         }
     }
 
-    public void IniciarProcesamiento()
+    public void IniciarProcesamiento(DateTimeOffset? vencimiento = null)
     {
         ExigirEstado(EstadoCaptura.Pendiente);
         Estado = EstadoCaptura.Procesando;
         Intentos++;
-        ProximoIntento = null;
+        // During processing this timestamp is the lease deadline; while pending it is the retry date.
+        ProximoIntento = vencimiento?.ToUniversalTime();
     }
 
     public void MarcarProcesada()
@@ -76,6 +77,7 @@ public sealed class Captura : Entidad
         ExigirEstado(EstadoCaptura.Procesando);
         Estado = EstadoCaptura.Procesada;
         MotivoFallo = null;
+        ProximoIntento = null;
     }
 
     /// <summary>The estimator answered but could not estimate; no weighing event is created.</summary>
@@ -84,6 +86,7 @@ public sealed class Captura : Entidad
         ExigirEstado(EstadoCaptura.Procesando);
         Estado = EstadoCaptura.Fallida;
         MotivoFallo = motivo;
+        ProximoIntento = null;
     }
 
     /// <summary>The estimator was unavailable; the capture waits for another attempt.</summary>

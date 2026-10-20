@@ -16,7 +16,11 @@ public sealed class Captura : Entidad
     public EstadoCaptura Estado { get; private set; }
     public string? MotivoFallo { get; private set; }
     public int Intentos { get; private set; }
+    /// <summary>Earliest retry date while pending.</summary>
     public DateTimeOffset? ProximoIntento { get; private set; }
+
+    /// <summary>Lease deadline while processing; after it another worker may reclaim the capture.</summary>
+    public DateTimeOffset? VenceProcesamiento { get; private set; }
     public DateTimeOffset? FechaRevision { get; private set; }
 
     public IReadOnlyCollection<Imagen> Imagenes => _imagenes.AsReadOnly();
@@ -68,8 +72,8 @@ public sealed class Captura : Entidad
         ExigirEstado(EstadoCaptura.Pendiente);
         Estado = EstadoCaptura.Procesando;
         Intentos++;
-        // During processing this timestamp is the lease deadline; while pending it is the retry date.
-        ProximoIntento = vencimiento?.ToUniversalTime();
+        ProximoIntento = null;
+        VenceProcesamiento = vencimiento?.ToUniversalTime();
     }
 
     public void MarcarProcesada()
@@ -77,7 +81,7 @@ public sealed class Captura : Entidad
         ExigirEstado(EstadoCaptura.Procesando);
         Estado = EstadoCaptura.Procesada;
         MotivoFallo = null;
-        ProximoIntento = null;
+        VenceProcesamiento = null;
     }
 
     /// <summary>The estimator answered but could not estimate; no weighing event is created.</summary>
@@ -86,7 +90,7 @@ public sealed class Captura : Entidad
         ExigirEstado(EstadoCaptura.Procesando);
         Estado = EstadoCaptura.Fallida;
         MotivoFallo = motivo;
-        ProximoIntento = null;
+        VenceProcesamiento = null;
     }
 
     /// <summary>The estimator was unavailable; the capture waits for another attempt.</summary>
@@ -96,6 +100,7 @@ public sealed class Captura : Entidad
         Estado = EstadoCaptura.Pendiente;
         MotivoFallo = motivo;
         ProximoIntento = proximoIntento.ToUniversalTime();
+        VenceProcesamiento = null;
     }
 
     /// <summary>Operator acknowledges the result (CU-15); it never creates or changes the event.</summary>

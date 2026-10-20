@@ -128,6 +128,10 @@ namespace BovinoVision.Infraestructura.Persistencia.Migraciones
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("proximo_intento");
 
+                    b.Property<DateTimeOffset?>("VenceProcesamiento")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("vence_procesamiento");
+
                     b.HasKey("Id")
                         .HasName("pk_capturas");
 
@@ -142,6 +146,9 @@ namespace BovinoVision.Infraestructura.Persistencia.Migraciones
 
                     b.HasIndex("Estado", "ProximoIntento")
                         .HasDatabaseName("ix_capturas_estado_proximo_intento");
+
+                    b.HasIndex("Estado", "VenceProcesamiento")
+                        .HasDatabaseName("ix_capturas_estado_vence_procesamiento");
 
                     b.ToTable("capturas", (string)null);
                 });

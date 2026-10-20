@@ -16,7 +16,7 @@ internal sealed class ColaInferencia(BovinoVisionDbContext contexto, IUnidadDeTr
         var candidatos = await contexto.Capturas.FromSqlInterpolated($"""
             SELECT * FROM capturas
             WHERE (estado = 'pendiente' AND (proximo_intento IS NULL OR proximo_intento <= {ahora}))
-               OR (estado = 'procesando' AND proximo_intento <= {ahora})
+               OR (estado = 'procesando' AND vence_procesamiento <= {ahora})
             ORDER BY fecha_captura, id LIMIT 1 FOR UPDATE SKIP LOCKED
             """).ToListAsync(cancelacion);
         var captura = candidatos.SingleOrDefault();

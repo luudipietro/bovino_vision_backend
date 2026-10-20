@@ -86,6 +86,42 @@ public class CapturaTests
     }
 
     [Fact]
+    public void El_vencimiento_del_procesamiento_se_guarda_aparte_de_la_fecha_de_reintento()
+    {
+        var captura = CapturaProcesando();
+        captura.ReintentarDespues("Servicio no disponible", Ahora);
+        var vencimiento = Ahora.AddMinutes(2).ToOffset(TimeSpan.FromHours(-3));
+
+        captura.IniciarProcesamiento(vencimiento);
+
+        Assert.Equal(vencimiento, captura.VenceProcesamiento);
+        Assert.Equal(TimeSpan.Zero, captura.VenceProcesamiento!.Value.Offset);
+        Assert.Null(captura.ProximoIntento);
+
+        captura.ReintentarDespues("Servicio no disponible", Ahora.AddMinutes(5));
+        Assert.Null(captura.VenceProcesamiento);
+        Assert.Equal(Ahora.AddMinutes(5), captura.ProximoIntento);
+
+        captura.IniciarProcesamiento(vencimiento);
+        captura.MarcarProcesada();
+        Assert.Null(captura.VenceProcesamiento);
+        Assert.Null(captura.ProximoIntento);
+    }
+
+    [Fact]
+    public void Una_captura_fallida_no_conserva_vencimiento_de_procesamiento()
+    {
+        var captura = NuevaCaptura();
+        captura.AgregarImagen("ref.jpg", "hash", "image/jpeg");
+        captura.SolicitarEstimacion();
+        captura.IniciarProcesamiento(Ahora);
+
+        captura.MarcarFallida("Animal no detectable");
+
+        Assert.Null(captura.VenceProcesamiento);
+    }
+
+    [Fact]
     public void La_revision_solo_se_registra_sobre_una_captura_procesada_y_no_se_pisa()
     {
         var captura = CapturaProcesando();

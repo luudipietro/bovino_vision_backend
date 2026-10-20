@@ -36,6 +36,6 @@ Los límites e intervalos deben ser positivos. El adaptador actual es simulado: 
 
 ## Persistencia y arranque
 
-La cola usa bloqueos breves y arrendamientos persistidos: no mantiene una transacción abierta durante la inferencia y descarta resultados de intentos vencidos. Evento, alerta y transición a procesada se confirman juntos mediante la unidad de trabajo. Se reutilizan las invariantes del agregado `Captura` y la fábrica `EventoPesaje.Registrar`; no hay actualización de eventos.
+La cola usa bloqueos breves y arrendamientos persistidos: no mantiene una transacción abierta durante la inferencia y descarta resultados de intentos vencidos. Cada fecha tiene su columna: `proximo_intento` es el reintento más temprano de una captura `pendiente` y `vence_procesamiento`, el fin del arrendamiento de una `procesando`; la migración `VencimientoProcesamiento` traslada los arrendamientos que estaban en `proximo_intento`. Evento, alerta y transición a procesada se confirman juntos mediante la unidad de trabajo. Se reutilizan las invariantes del agregado `Captura` y la fábrica `EventoPesaje.Registrar`; no hay actualización de eventos.
 
 Con `BaseDeDatos:AplicarMigracionesAlIniciar=true`, la API aplica las migraciones y la semilla antes de arrancar los servicios hospedados. Si se desactiva, la base debe estar migrada antes del arranque. Los tests desactivan el consumidor del host compartido y lo habilitan solo en el host que posee el escenario, para evitar que otro host reclame su trabajo.

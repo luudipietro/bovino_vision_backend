@@ -1,80 +1,44 @@
 # Contexto del backend — BovinoVision
 
-Estado al 19/10/2026, fin de la primera sesión de desarrollo. Esto no reemplaza al
-`README.md` (para correrlo o testearlo, ver ahí); es un resumen de decisiones y alcance
-para retomar el trabajo sin tener que releer todo el historial de la conversación.
+El backend activo de la rama `feat/migracion-dotnet` está implementado en **C# / .NET 10**, con Clean Architecture, EF Core y PostgreSQL 17. Las instrucciones operativas están en el [README](README.md); las decisiones y la trazabilidad del cierre, en [el informe de migración](docs/migracion-dotnet.md) y [ODD](odd/tasks/migracion-dotnet.md).
 
-## Qué es esto
+## Alcance real
 
-API REST (FastAPI) del sistema BovinoVision: estimación de peso de bovinos por visión
-artificial a partir de fotos de celular, más trazabilidad y analítica del rodeo. Proyecto
-final UTN. El contexto completo del proyecto (acta, requisitos, cronograma, diseño) está
-en `../Documentacion/`.
+- Trazabilidad: animales, lotes, catálogo de siete razas e historial de pertenencia a lotes.
+- Capturas: sesiones, carga de imágenes, galería, cierre de sesión y revisión de resultados.
+- Pesajes: cola asíncrona persistida con reclamos exclusivos, arrendamiento, recuperación y reintentos. Eventos inmutables y alerta en la misma unidad de trabajo de publicación.
+- Analítica: historial con GMD calculada, alertas, panel y reportes con filtro temporal y lote histórico.
 
-## Alcance acordado para este MVP
+**No confundir implementación del flujo con disponibilidad de ML:** el adaptador `EstimadorPesoSimulado` devuelve siempre 400 kg (`simulado-v1`). La validación de foto comprueba tipo MIME, contenido no vacío y tamaño (10 MiB), no calidad visual ni presencia de un bovino.
 
-- **Release 1 (21/10/2026):** Captura Móvil + Procesamiento e Inferencia de Peso +
-  Gestión y Trazabilidad. **Implementado.**
-- **Release Final (02/11/2026):** lo anterior + Analítica y Reportes (GMD, alertas,
-  panel, reportes). **Implementado.**
-- **Pospuesto para después del Release Final (fuera de este MVP):** Gestión de Usuarios
-  (login/roles/permisos) y Auditoría. Por eso no hay autenticación todavía: todo opera
-  sobre un único `Establecimiento` precargado (`Settings.default_establecimiento_id`,
-  hoy = 1).
-- **RF-16/RF-17 (modo offline + sincronización de capturas)** tampoco están
-  implementados todavía.
+## Decisiones que deben preservarse
 
-## Arquitectura (por qué está así)
+1. Dependencias hacia el dominio: `Dominio` ← `Aplicacion` ← `Infraestructura` ← `Api`. Los puertos son pequeños y se definen en Aplicación; `IModulo` permite registrar funcionalidades sin modificar `Program.cs`.
+2. UUID v7, vocabulario español y JSON/columnas en `snake_case`. Raza se referencia por `id_raza`, no por texto libre. El cliente necesita una adaptación posterior fuera de esta feature.
+3. `POST /pesajes` devuelve 202 sin cuerpo; el cliente consulta `/capturas/{id}` hasta `procesada` o `fallida`. Una falla no genera un evento de pesaje. Una imagen inválida se rechaza con 422 sin guardarse.
+4. La fecha de pesaje es la de captura. Cada evento referencia la asignación de lote vigente en esa fecha. Confirmar solo registra la revisión en la captura; nunca modifica eventos.
+5. GMD por días calendario en `America/Argentina/Buenos_Aires` por defecto, sin persistirla. Dos pesajes del mismo día no producen GMD. Las alertas usan pérdida de peso (GMD negativa) y estancamiento (por debajo de 0,5 del objetivo del lote, configurable); no porcentajes Python de 15/30%.
+6. La semilla crea establecimiento, rol, usuario Sistema y razas. `ContextoUsuarioPorDefecto` selecciona ese contexto: no equivale a autenticación ni a aislamiento multiusuario completo.
 
-Capas separadas por responsabilidad (el README detalla qué hay en cada carpeta):
-`domain` (entidades + puertos abstractos) → `services` (casos de uso) → `repositories`
-(implementación concreta de los puertos de persistencia, con SQLAlchemy) / `estimators`,
-`storage` (implementación concreta de puertos externos) → `routes` (FastAPI,
-presentación) → `dependencies.py` (wiring de inyección de dependencias). El objetivo
-explícito del usuario fue poder reemplazar piezas sin tocar el resto:
+Los [patrones del README](README.md#arquitectura-y-principios-de-diseño) se separan entre arquitectura/empresariales y diseño/framework. La fábrica estática de eventos no es Factory Method de GoF; las transiciones de captura no implementan State de GoF.
 
-- El estimador de peso real (en desarrollo en otro repo aparte) reemplaza a
-  `MockWeightEstimatorAdapter` el día que esté listo, implementando `WeightEstimatorPort`
-  y cambiando un único provider (`get_weight_estimator`) en `dependencies.py`.
-- El almacenamiento de imágenes (hoy disco local en `uploads/`, vía
-  `LocalImageStorageAdapter`) se reemplaza igual de simple por un adaptador de bucket
-  cuando se despliegue al VPS, implementando `ImageStoragePort`.
+## Datos y ejecución
 
-## Simplificaciones deliberadas (y por qué)
+La migración EF inicial es un esquema nuevo, **no un importador de datos Python**. Mantener respaldos y bases separadas hasta diseñar y validar una conversión de ids, razas, imágenes, historial y fallas. No borrar bases, volúmenes ni `uploads` como parte del retiro de fuentes. La evidencia de tests no certifica una transición de datos reales ni un despliegue productivo.
 
-- **Un solo establecimiento hardcodeado:** no hay multi-tenant porque no hay módulo de
-  Usuarios todavía. `get_establecimiento_id()` en `dependencies.py` es el único lugar a
-  tocar cuando eso cambie.
-- **Validación de imagen simplificada:** `CapturaService` solo valida tipo de archivo y
-  tamaño, no calidad real (nitidez, encuadre, animal detectable) — eso depende del mismo
-  servicio de visión artificial que el estimador, todavía no integrado.
-- **Sin tabla `Raza`:** es un campo de texto libre en `Animal`, no hay catálogo.
-- **Sin endpoint para crear `Establecimiento`:** se precarga por seed en la primera
-  migración (`alembic/versions/24f176bca5d6_crear_tablas_establecimientos_lotes_.py`).
-- **GMD y alertas por día, no por evento:** si dos pesajes caen el mismo día calendario,
-  no se puede calcular GMD entre ellos (coincide con lo que exige el propio documento de
-  diseño del proyecto: "sin datos suficientes se indica que no está disponible").
-- **Umbral de alerta:** variación ≥15% dispara alerta (prioridad "alta" desde 30%). Es un
-  valor que elegí yo, no viene de un requisito numérico — ajustable en
-  `app/services/alerta_service.py`.
-- **No se implementaron "estado sanitario" ni indicadores de grasa/musculatura/precio**,
-  aunque aparecen en algunos mockups: el propio documento de diseño
-  (`TP7_Parte_Avance_de_Diseño_V3.pdf`, página 6) aclara explícitamente que esos
-  indicadores NO forman parte del alcance de este proyecto.
+Docker Compose ofrece PostgreSQL en 5433 y API opcional con perfil `api` en 8000. El perfil local de `dotnet run` activa Development y migraciones al iniciar; el valor base es `false`. Las opciones y sus valores efectivos están en el README. `.env` no se carga automáticamente con `dotnet run`.
 
-## Próximos pasos razonables (ninguno arrancado todavía)
+## Trabajo siguiente
 
-1. Dockerizar en serio para el VPS de DonWeb (hoy solo hay un `Dockerfile` básico, sin
-   probar en producción, y un `docker-compose.yml` en la raíz que solo levanta Postgres
-   para desarrollo local).
-2. Reemplazar `MockWeightEstimatorAdapter` por el adaptador real cuando el otro repo del
-   estimador esté listo.
-3. Módulo de Usuarios (login, roles, permisos) + Auditoría — recién después del Release
-   Final, según lo acordado con el usuario.
-4. Modo offline (RF-16/RF-17): cola local de capturas pendientes + sincronización.
+- Adaptar el frontend React/Vite del repositorio hermano al contrato nuevo y al polling.
+- Integrar estimador y control de calidad reales a través de los puertos existentes.
+- Diseñar migración de datos existentes si deben conservarse en el sistema nuevo.
+- Implementar usuarios, roles y permisos, bloqueo de login y auditoría.
+- Implementar sincronización offline sin duplicados; todavía no se acepta un id de captura generado por el cliente.
+- Trasladar al TP7 los cambios enumerados en el informe. Resolver la discrepancia de MAPE (<20% en ERS frente a <15% en TP2); no afirmar precisión del simulador.
 
-## Flujo de trabajo con el usuario
+Estado del retiro de fuentes y correspondencia de los 38 tests originales: ver [informe de migración](docs/migracion-dotnet.md#matriz-de-los-38-tests-originales). Hay 38 nombres mapeados, con cambios deliberados de B y límites de prueba explícitos; 168 casos .NET verdes no demuestran por sí solos paridad literal. La verificación independiente confirmó suite, compilación, formato y configuración de Compose, pero no estableció el diferencial HTTP contra la versión .NET anterior. El cierre y el retiro de Python quedan pendientes de una decisión explícita sobre esa prueba faltante. `.env.example` sigue heredado y sin cambios por un bloqueo de seguridad; usar las claves y el ejemplo sin secretos del README, no prometer una plantilla .NET migrada.
 
-Claude hace los commits automáticamente (Conventional Commits, sin atribución de IA). El
-trabajo grande va en una rama de feature con un commit por unidad de trabajo. Push, PR y
-merge siguen siendo decisión del usuario, que revisa la rama antes de mergear.
+## Acuerdos de trabajo
+
+Documentación en español; comentarios de código y mensajes de commit en inglés. SOLID y patrones se documentan solo cuando existen en el código. Sin paquetes ni herramientas nuevos sin aprobación. RDD desactivado por decisión del usuario. El orquestador realiza los commits por unidad coherente (Conventional Commits, sin atribución de IA); push, PR y merge los decide el usuario. Los escritores no realizan acciones de git de entrega.

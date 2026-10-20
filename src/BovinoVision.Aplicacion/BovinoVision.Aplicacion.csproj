@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\BovinoVision.Dominio\BovinoVision.Dominio.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BovinoVision.Api/BovinoVision.Api.csproj" />
+    <Project Path="src/BovinoVision.Aplicacion/BovinoVision.Aplicacion.csproj" />
+    <Project Path="src/BovinoVision.Dominio/BovinoVision.Dominio.csproj" />
+    <Project Path="src/BovinoVision.Infraestructura/BovinoVision.Infraestructura.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BovinoVision.Api.Tests/BovinoVision.Api.Tests.csproj" />
+    <Project Path="tests/BovinoVision.Aplicacion.Tests/BovinoVision.Aplicacion.Tests.csproj" />
+    <Project Path="tests/BovinoVision.Dominio.Tests/BovinoVision.Dominio.Tests.csproj" />
+  </Folder>
+</Solution>

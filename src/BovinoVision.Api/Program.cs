@@ -13,6 +13,9 @@ builder.Services.ConfigureHttpJsonOptions(opciones =>
     opciones.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
 });
 builder.Services.AddProblemDetails();
+// Bad requests (missing or malformed parameters) reach the handler in every environment.
+builder.Services.Configure<RouteHandlerOptions>(opciones => opciones.ThrowOnBadRequest = true);
+builder.Services.AddExceptionHandler<ManejadorSolicitudesInvalidas>();
 builder.Services.AddExceptionHandler<ManejadorErroresDeDominio>();
 builder.Services.AddOpenApi();
 

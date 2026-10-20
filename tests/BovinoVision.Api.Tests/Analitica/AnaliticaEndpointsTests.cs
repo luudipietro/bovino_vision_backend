@@ -383,6 +383,10 @@ public class AnaliticaEndpointsTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
         var respuesta = await Cliente.GetAsync(new Uri("/reportes?desde=2026-01-01", UriKind.Relative), Cancelacion);
 
         Assert.Equal(HttpStatusCode.BadRequest, respuesta.StatusCode);
+        // Same ProblemDetails shape as domain errors, in every environment (Development used to answer 500).
+        var cuerpo = await respuesta.LeerAsync<JsonElement>();
+        Assert.Equal(400, cuerpo.GetProperty("status").GetInt32());
+        Assert.Contains("hasta", cuerpo.GetProperty("detail").GetString(), StringComparison.Ordinal);
     }
 
     private sealed class ContadorConsultas : ILoggerProvider, ILogger

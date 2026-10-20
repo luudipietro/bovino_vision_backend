@@ -47,6 +47,32 @@ public class RegistrarCapturaTests
     }
 
     [Fact]
+    public async Task Una_fecha_de_captura_futura_se_rechaza_sin_guardar_nada()
+    {
+        var (sesion, animal) = SesionYAnimal();
+        var futura = Ahora + RegistrarCaptura.ToleranciaRelojCliente + TimeSpan.FromSeconds(1);
+
+        var error = await Assert.ThrowsAsync<OperacionInvalidaError>(() =>
+            CasoDeUso().EjecutarAsync(Comando(sesion, animal, fechaCaptura: futura), TestContext.Current.CancellationToken));
+
+        Assert.Equal("La fecha de captura no puede ser posterior al momento actual", error.Message);
+        AssertNadaGuardado();
+    }
+
+    [Fact]
+    public async Task Una_fecha_de_captura_dentro_de_la_tolerancia_del_reloj_se_acepta()
+    {
+        var (sesion, animal) = SesionYAnimal();
+        var adelantada = Ahora + RegistrarCaptura.ToleranciaRelojCliente;
+
+        var captura = await CasoDeUso().EjecutarAsync(
+            Comando(sesion, animal, fechaCaptura: adelantada), TestContext.Current.CancellationToken);
+
+        Assert.Equal(adelantada, captura.FechaCaptura);
+        Assert.Single(_capturas.Capturas);
+    }
+
+    [Fact]
     public async Task Iniciar_sesion_la_crea_activa_para_el_usuario_actual()
     {
         var caso = new IniciarSesionCaptura(_sesiones, _unidad, _usuario, _tiempo);

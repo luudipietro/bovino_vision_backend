@@ -40,7 +40,7 @@ curl http://localhost:8000/animales
 Para asociar lote o raza, usar `id_lote` e `id_raza` con los UUID devueltos por `/lotes` y `/razas`; `raza` ya no es una entrada de texto libre.
 
 1. `POST /sesiones-captura` sin cuerpo devuelve 201 y el `id` de la sesión.
-2. `POST /capturas`, multipart con `id_sesion`, `id_animal`, `imagen` y opcionalmente `fecha_captura` (fecha ISO 8601 con desplazamiento), devuelve 201 y el `id` de captura. Se aceptan JPEG, PNG y WebP por tipo MIME, no vacíos, hasta 10 MiB. Una imagen inválida devuelve 422 y no se guarda.
+2. `POST /capturas`, multipart con `id_sesion`, `id_animal`, `imagen` y opcionalmente `fecha_captura` (fecha ISO 8601 con desplazamiento), devuelve 201 y el `id` de captura. Se aceptan JPEG, PNG y WebP por tipo MIME, no vacíos, hasta 10 MiB. Una imagen inválida devuelve 422 y no se guarda. `fecha_captura` no puede superar el momento actual en más de 5 minutos (tolerancia de reloj del dispositivo); si lo hace, devuelve 422.
 3. `POST /pesajes` con `{"id_captura":"UUID-DE-LA-CAPTURA"}` devuelve **202 sin cuerpo**, con `Location: /capturas/{id}`. No devuelve el peso en esa respuesta.
 4. Consultar periódicamente `GET /capturas/{id}` hasta `procesada` (leer `id_evento_pesaje` y consultar `GET /pesajes/{id_evento_pesaje}`) o `fallida` (mostrar `motivo_fallo`). Mientras esté `pendiente` o `procesando`, seguir esperando con un plazo acotado en el cliente.
 5. `POST /capturas/{id}/confirmar` registra la revisión de un resultado procesado, sin modificar ni crear pesajes. Repetir la solicitud de pesaje devuelve 409.
@@ -58,7 +58,7 @@ Dependencias: `Dominio` ← `Aplicacion` ← `Infraestructura` ← `Api`. La API
 | `src/BovinoVision.Dominio` | Entidades, invariantes, historial de lotes, transiciones de captura, GMD y reglas de alerta |
 | `src/BovinoVision.Aplicacion` | Casos de uso, DTOs y puertos pequeños por módulo; unidad de trabajo |
 | `src/BovinoVision.Infraestructura` | EF Core/Npgsql, repositorios, consultas, almacenamiento local y consumidor de inferencia |
-| `src/BovinoVision.Api` | Minimal APIs, descubrimiento de `IModulo`, configuración y ProblemDetails |
+| `src/BovinoVision.Api` | Minimal APIs, descubrimiento de `IModulo`, configuración y ProblemDetails (400 por parámetros faltantes o mal formados en todos los entornos; 404, 409 y 422 por errores de negocio) |
 
 **SOLID:** SRP separa casos de uso e invariantes; OCP permite agregar módulos mediante `IModulo`; ISP divide los puertos por responsabilidad; DIP hace que Aplicación defina los puertos y los adaptadores los implementen. LSP exige respetar esos contratos al reemplazar adaptadores; los dobles de tests permiten ejercitar sustituciones, no constituyen una prueba formal del principio.
 

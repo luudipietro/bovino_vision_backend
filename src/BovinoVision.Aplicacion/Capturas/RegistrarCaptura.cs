@@ -25,6 +25,9 @@ public sealed class RegistrarCaptura(
 {
     public const int TamanioMaximoBytes = 10 * 1024 * 1024;
 
+    /// <summary>Allowed clock drift of the device that took the photo.</summary>
+    public static readonly TimeSpan ToleranciaRelojCliente = TimeSpan.FromMinutes(5);
+
     private static readonly HashSet<string> TiposDeImagenValidos =
         new(["image/jpeg", "image/png", "image/webp"], StringComparer.OrdinalIgnoreCase);
 
@@ -43,11 +46,16 @@ public sealed class RegistrarCaptura(
         }
 
         ValidarImagen(comando);
+        var ahora = tiempo.GetUtcNow();
+        if (comando.FechaCaptura > ahora + ToleranciaRelojCliente)
+        {
+            throw new OperacionInvalidaError("La fecha de captura no puede ser posterior al momento actual");
+        }
 
         var referencia = await almacenamiento.GuardarAsync(comando.NombreArchivo, comando.Contenido, cancelacion);
         try
         {
-            var captura = new Captura(comando.IdAnimal, usuario.IdUsuario, sesion.Id, comando.FechaCaptura ?? tiempo.GetUtcNow());
+            var captura = new Captura(comando.IdAnimal, usuario.IdUsuario, sesion.Id, comando.FechaCaptura ?? ahora);
             captura.AgregarImagen(referencia, CalcularHuella(comando.Contenido.Span), comando.TipoContenido);
             capturas.Agregar(captura);
             await unidadDeTrabajo.GuardarCambiosAsync(cancelacion);

@@ -27,6 +27,20 @@ public class CapturasApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
     }
 
     [Fact]
+    public async Task Subir_una_captura_con_fecha_futura_responde_422_sin_guardarla()
+    {
+        var animal = await CrearAnimalAsync();
+        var sesion = await IniciarSesionAsync();
+
+        using var respuesta = await SubirCapturaAsync(sesion.Id, animal.Id, fechaCaptura: DateTimeOffset.UtcNow.AddDays(1));
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, respuesta.StatusCode);
+        var cuerpo = await respuesta.LeerAsync<JsonElement>();
+        Assert.Equal("La fecha de captura no puede ser posterior al momento actual", cuerpo.GetProperty("detail").GetString());
+        Assert.Empty(Almacenamiento.Archivos);
+    }
+
+    [Fact]
     public async Task Subir_una_captura_valida_la_registra_con_su_imagen_y_huella()
     {
         var animal = await CrearAnimalAsync();

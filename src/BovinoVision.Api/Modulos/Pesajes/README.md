@@ -4,7 +4,7 @@ El pesaje se solicita sobre una captura con imagen y se procesa en segundo plano
 
 ## Flujo HTTP
 
-1. Crear una sesión con `POST /sesiones-captura` y subir una imagen mediante `POST /capturas` (multipart: `id_sesion`, `id_animal`, `imagen` y `fecha_captura` opcional).
+1. Crear una sesión con `POST /sesiones-captura` y subir una imagen mediante `POST /capturas` (multipart: `id_sesion`, `id_animal`, `imagen` y `fecha_captura` opcional; una fecha más de 5 minutos posterior al momento actual se rechaza con 422).
 2. Enviar `POST /pesajes` con `{"id_captura":"<UUID>"}`. Responde **202**, sin cuerpo, con `Location: /capturas/{id}`.
 3. Consultar `GET /capturas/{id}` hasta que `estado` sea `procesada` o `fallida`. Los estados intermedios son `pendiente` y `procesando`; antes de solicitar, la captura está `registrada`.
 4. Si está `procesada`, consultar `GET /pesajes/{id_evento_pesaje}` y, cuando el operador revise el resultado, enviar `POST /capturas/{id}/confirmar` sin cuerpo.

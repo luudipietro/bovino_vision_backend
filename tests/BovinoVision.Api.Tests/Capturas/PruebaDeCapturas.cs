@@ -3,8 +3,6 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using BovinoVision.Api.Tests.Infraestructura;
 using BovinoVision.Aplicacion.Capturas;
-using BovinoVision.Aplicacion.Pesajes;
-using Microsoft.Extensions.Options;
 using BovinoVision.Dominio.Trazabilidad;
 using BovinoVision.Infraestructura.Persistencia;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -45,8 +43,6 @@ public abstract class PruebaDeCapturas(FabricaApi fabrica) : PruebaDeApi(fabrica
     public override async ValueTask InitializeAsync()
     {
         await base.InitializeAsync();
-        // The shared host must not consume work queued by a derived test host.
-        Fabrica.Services.GetRequiredService<IOptions<OpcionesInferencia>>().Value.ProcesarEnSegundoPlano = false;
         Almacenamiento.Archivos.Clear();
     }
 

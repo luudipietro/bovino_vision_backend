@@ -66,7 +66,7 @@ Dependencias: `Dominio` ← `Aplicacion` ← `Infraestructura` ← `Api`. La API
 
 ## Configuración
 
-ASP.NET Core lee `appsettings.json`, el archivo del entorno y variables de entorno (`__` separa niveles). **`.env.example` permanece heredado y sin cambios; no es una plantilla migrada a .NET.** Su actualización quedó diferida por el bloqueo de seguridad de la herramienta. Usar las claves de esta sección, no las instrucciones Python de esa plantilla. **`dotnet run` no carga `.env` automáticamente** y Compose no inyecta todas sus claves por tener ese archivo. Exportar las variables al proceso o configurar explícitamente el servicio. No guardar credenciales reales en el repositorio.
+ASP.NET Core lee `appsettings.json`, el archivo del entorno y variables de entorno (`__` separa niveles). No hay plantilla `.env`: la del backend Python se retiró junto con su código, y **`dotnet run` no carga archivos `.env`**. Exportar las variables al proceso o configurar explícitamente el servicio. No guardar credenciales reales en el repositorio.
 
 Ejemplo sin secretos para PowerShell (variables del proceso actual):
 
@@ -117,4 +117,4 @@ La fábrica de diseño usa `ConnectionStrings__BovinoVision` o la conexión loca
 
 ## Alcance pendiente
 
-Estimador real, calidad de imagen, autenticación/roles, auditoría y sincronización offline sin duplicados siguen pendientes. No hay indicadores sanitarios, de grasa, musculatura ni precio. Los módulos .NET están integrados y probados. El cierre de la migración y el retiro de fuentes Python quedan pendientes de una decisión sobre la comparación HTTP contra la versión anterior, que no se logró establecer; la actualización de la plantilla protegida también sigue pendiente. Ver [contexto del proyecto](context.md), [matriz de los 38 tests y límites de prueba](docs/migracion-dotnet.md#matriz-de-los-38-tests-originales) y [seguimiento ODD](odd/tasks/migracion-dotnet.md).
+Estimador real, calidad de imagen, autenticación/roles, auditoría y sincronización offline sin duplicados siguen pendientes. No hay indicadores sanitarios, de grasa, musculatura ni precio. Los módulos .NET están integrados y probados, y el código Python se retiró: sigue disponible en el historial de git (por ejemplo, en la rama `manu`). Ver [contexto del proyecto](context.md), [matriz de los 38 tests y límites de prueba](docs/migracion-dotnet.md#matriz-de-los-38-tests-originales) y [seguimiento ODD](odd/tasks/migracion-dotnet.md).

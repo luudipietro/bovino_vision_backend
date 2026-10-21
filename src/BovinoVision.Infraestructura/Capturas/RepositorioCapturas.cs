@@ -11,4 +11,6 @@ internal sealed class RepositorioCapturas(BovinoVisionDbContext contexto) : IRep
         contexto.Capturas.Include(c => c.Imagenes).SingleOrDefaultAsync(c => c.Id == id, cancelacion);
 
     public void Agregar(Captura captura) => contexto.Capturas.Add(captura);
+
+    public void Eliminar(Captura captura) => contexto.Capturas.Remove(captura);
 }

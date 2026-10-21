@@ -1,6 +1,9 @@
 using BovinoVision.Aplicacion.Capturas;
 using BovinoVision.Aplicacion.Comun;
+using BovinoVision.Aplicacion.Pesajes;
 using BovinoVision.Dominio.Capturas;
+using BovinoVision.Dominio.Comun;
+using BovinoVision.Dominio.Pesajes;
 using BovinoVision.Dominio.Trazabilidad;
 
 namespace BovinoVision.Aplicacion.Tests.Capturas;
@@ -55,6 +58,27 @@ internal sealed class CapturasEnMemoria : IRepositorioCapturas
         Task.FromResult(Capturas.SingleOrDefault(c => c.Id == id));
 
     public void Agregar(Captura captura) => Capturas.Add(captura);
+
+    public void Eliminar(Captura captura) => Capturas.Remove(captura);
+}
+
+/// <summary>Only the row-lock operation is used by capture use cases; it runs the action over the stored capture.</summary>
+internal sealed class ColaInferenciaEnMemoria(CapturasEnMemoria capturas) : IColaInferencia
+{
+    public Task ConCapturaBloqueadaAsync(Guid id, Func<Captura, Task> accion, CancellationToken cancelacion)
+    {
+        var captura = capturas.Capturas.SingleOrDefault(c => c.Id == id)
+            ?? throw NoEncontradoError.De("la captura", id);
+        return accion(captura);
+    }
+
+    public Task<TrabajoInferencia?> ReclamarAsync(DateTimeOffset ahora, TimeSpan arrendamiento, int maximoIntentos, CancellationToken cancelacion) =>
+        throw new NotSupportedException();
+
+    public Task<Guid?> ResolverHistorialAsync(Guid idAnimal, DateTimeOffset fecha, CancellationToken cancelacion) =>
+        throw new NotSupportedException();
+
+    public void Agregar(EventoPesaje evento) => throw new NotSupportedException();
 }
 
 internal sealed class AnimalesEnMemoria : IAnimalesDeCaptura

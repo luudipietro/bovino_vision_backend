@@ -16,6 +16,7 @@ El JSON usa `snake_case` y los identificadores son UUID v7 en texto. La captura 
 | `POST /pesajes` | 202 al encolar; 404 si la captura no existe; 409 si ya está pendiente, procesándose o procesada; 422 si falló o no tiene imágenes. No duplica eventos. |
 | `GET /capturas/{id}` | 200 con el estado y el identificador del evento, o el motivo de falla; 404 si no existe. |
 | `GET /pesajes/{id}` | 200 con peso, fecha de captura como `fecha_pesaje`, versión del modelo, identificador del animal, lote histórico, peso previo y alerta; 404 si no existe el evento. |
+| `DELETE /capturas/{id}` | 204 al descartar una captura `registrada` (borra captura, imagen y archivo); 404 si no existe; 422 si ya fue enviada a estimar o está en otro estado. |
 | `POST /capturas/{id}/confirmar` | 200 con la captura revisada; 404 si no existe; 422 si no está procesada. Repetir la confirmación conserva la primera `fecha_revision`; nunca crea ni modifica eventos. |
 
 Los errores de negocio usan ProblemDetails con el mensaje en `detail`. El historial expone también `fecha_procesamiento`; esta fecha no reemplaza la fecha de captura para calcular la GMD. Ver [analítica y alertas](../Analitica/README.md) para historial, panel, reportes y configuración de reglas.

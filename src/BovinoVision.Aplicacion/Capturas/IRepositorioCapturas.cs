@@ -8,4 +8,7 @@ public interface IRepositorioCapturas
     Task<Captura?> ObtenerAsync(Guid id, CancellationToken cancelacion = default);
 
     void Agregar(Captura captura);
+
+    /// <summary>Prepares the removal of the capture and its images.</summary>
+    void Eliminar(Captura captura);
 }

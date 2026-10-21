@@ -43,7 +43,8 @@ Para asociar lote o raza, usar `id_lote` e `id_raza` con los UUID devueltos por 
 2. `POST /capturas`, multipart con `id_sesion`, `id_animal`, `imagen` y opcionalmente `fecha_captura` (fecha ISO 8601 con desplazamiento), devuelve 201 y el `id` de captura. Se aceptan JPEG, PNG y WebP por tipo MIME, no vacíos, hasta 10 MiB. Una imagen inválida devuelve 422 y no se guarda. `fecha_captura` no puede superar el momento actual en más de 5 minutos (tolerancia de reloj del dispositivo); si lo hace, devuelve 422.
 3. `POST /pesajes` con `{"id_captura":"UUID-DE-LA-CAPTURA"}` devuelve **202 sin cuerpo**, con `Location: /capturas/{id}`. No devuelve el peso en esa respuesta.
 4. Consultar periódicamente `GET /capturas/{id}` hasta `procesada` (leer `id_evento_pesaje` y consultar `GET /pesajes/{id_evento_pesaje}`) o `fallida` (mostrar `motivo_fallo`). Mientras esté `pendiente` o `procesando`, seguir esperando con un plazo acotado en el cliente.
-5. `POST /capturas/{id}/confirmar` registra la revisión de un resultado procesado, sin modificar ni crear pesajes. Repetir la solicitud de pesaje devuelve 409.
+5. `DELETE /capturas/{id}` descarta una captura que sigue `registrada` (foto subida pero no enviada a estimar): borra la captura, su imagen y el archivo, y devuelve 204. Devuelve 404 si no existe y 422 si ya está en otro estado.
+6. `POST /capturas/{id}/confirmar` registra la revisión de un resultado procesado, sin modificar ni crear pesajes. Repetir la solicitud de pesaje devuelve 409.
 
 La fecha del pesaje es la de captura, no la de procesamiento. Solo una estimación válida crea un evento inmutable. Las fallas quedan en la captura, sin evento. [Resumen de todas las rutas y cambios de contrato](docs/migracion-dotnet.md#rutas-públicas).
 

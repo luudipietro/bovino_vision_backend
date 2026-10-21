@@ -110,6 +110,20 @@ public sealed class Captura : Entidad
         FechaRevision ??= fecha.ToUniversalTime();
     }
 
+    /// <summary>
+    /// The operator removes the photo before asking for an estimate. Only a registered capture can be
+    /// discarded; the returned references let the caller delete the stored files.
+    /// </summary>
+    public IReadOnlyList<string> Descartar()
+    {
+        if (Estado != EstadoCaptura.Registrada)
+        {
+            throw new OperacionInvalidaError($"Solo se puede descartar una captura registrada; la captura {Id} está en estado {Estado}");
+        }
+
+        return _imagenes.ConvertAll(i => i.ReferenciaImagen);
+    }
+
     private void ExigirEstado(EstadoCaptura esperado)
     {
         if (Estado != esperado)

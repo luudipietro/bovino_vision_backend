@@ -157,4 +157,32 @@ public class CapturaTests
         Assert.Throws<OperacionInvalidaError>(() => EventoPesaje.Registrar(captura, imagen.Id, null, 0m, Ahora, "v"));
         Assert.Throws<OperacionInvalidaError>(() => EventoPesaje.Registrar(captura, Guid.CreateVersion7(), null, 300m, Ahora, "v"));
     }
+
+    [Fact]
+    public void Descartar_una_captura_registrada_devuelve_las_referencias_de_sus_imagenes()
+    {
+        var captura = NuevaCaptura();
+        captura.AgregarImagen("ref.jpg", "hash", "image/jpeg");
+
+        var referencias = captura.Descartar();
+
+        Assert.Equal(["ref.jpg"], referencias);
+    }
+
+    [Fact]
+    public void Solo_se_puede_descartar_una_captura_registrada()
+    {
+        var pendiente = NuevaCaptura();
+        pendiente.AgregarImagen("ref.jpg", "hash", "image/jpeg");
+        pendiente.SolicitarEstimacion();
+        var procesada = CapturaProcesando();
+        procesada.MarcarProcesada();
+        var fallida = CapturaProcesando();
+        fallida.MarcarFallida("sin animal");
+
+        foreach (var captura in new[] { pendiente, CapturaProcesando(), procesada, fallida })
+        {
+            Assert.Throws<OperacionInvalidaError>(() => captura.Descartar());
+        }
+    }
 }

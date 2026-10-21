@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BovinoVision.Api.Modulos.Capturas;
 
-/// <summary>Capture sessions, photo uploads and their gallery (CU-12, CU-13).</summary>
+/// <summary>Capture sessions, photo uploads and their gallery (CU-12, CU-13), including discarding a photo that was not sent to estimation.</summary>
 internal sealed class ModuloCapturas : IModulo
 {
     public void AgregarServicios(IServiceCollection servicios, IConfiguration configuracion)
@@ -17,6 +17,7 @@ internal sealed class ModuloCapturas : IModulo
         servicios.AddScoped<RegistrarCaptura>();
         servicios.AddScoped<ObtenerCaptura>();
         servicios.AddScoped<ConfirmarCaptura>();
+        servicios.AddScoped<DescartarCaptura>();
         servicios.AgregarInfraestructuraCapturas(configuracion);
     }
 
@@ -31,6 +32,7 @@ internal sealed class ModuloCapturas : IModulo
         capturas.MapPost("", RegistrarCapturaAsync).DisableAntiforgery();
         capturas.MapGet("/{id:guid}", ObtenerCapturaAsync);
         capturas.MapPost("/{id:guid}/confirmar", ConfirmarCapturaAsync);
+        capturas.MapDelete("/{id:guid}", DescartarCapturaAsync);
     }
 
     private static async Task<Created<SesionCapturaRespuesta>> IniciarSesionAsync(
@@ -83,6 +85,15 @@ internal sealed class ModuloCapturas : IModulo
     {
         await confirmar.EjecutarAsync(new ConfirmarCapturaComando(id), cancelacion);
         return TypedResults.Ok(await obtener.EjecutarAsync(new ObtenerCapturaConsulta(id), cancelacion));
+    }
+
+    private static async Task<NoContent> DescartarCapturaAsync(
+        Guid id,
+        DescartarCaptura casoDeUso,
+        CancellationToken cancelacion)
+    {
+        await casoDeUso.EjecutarAsync(new DescartarCapturaComando(id), cancelacion);
+        return TypedResults.NoContent();
     }
 
     private static async Task<Ok<CapturaRespuesta>> ObtenerCapturaAsync(

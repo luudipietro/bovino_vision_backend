@@ -163,4 +163,46 @@ public class CapturasApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
         Assert.Equal(JsonValueKind.Null, items[0].GetProperty("id_evento_pesaje").ValueKind);
         Assert.Equal(HttpStatusCode.NotFound, inexistente.StatusCode);
     }
+
+    [Fact]
+    public async Task Descartar_una_captura_registrada_responde_204_y_borra_captura_imagen_y_archivo()
+    {
+        var animal = await CrearAnimalAsync();
+        var sesion = await IniciarSesionAsync();
+        var captura = await SubirCapturaValidaAsync(sesion.Id, animal.Id);
+
+        using var respuesta = await ClienteCapturas.DeleteAsync(new Uri($"/capturas/{captura.Id}", UriKind.Relative), Cancelacion);
+        using var consulta = await ClienteCapturas.GetAsync(new Uri($"/capturas/{captura.Id}", UriKind.Relative), Cancelacion);
+        using var otraVez = await ClienteCapturas.DeleteAsync(new Uri($"/capturas/{captura.Id}", UriKind.Relative), Cancelacion);
+
+        Assert.Equal(HttpStatusCode.NoContent, respuesta.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, consulta.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, otraVez.StatusCode);
+        Assert.Equal((0, 0), await ContarFilasAsync());
+        Assert.Empty(Almacenamiento.Archivos);
+    }
+
+    [Fact]
+    public async Task Descartar_una_captura_enviada_a_estimar_responde_422_y_no_borra_nada()
+    {
+        var animal = await CrearAnimalAsync();
+        var sesion = await IniciarSesionAsync();
+        var captura = await SubirCapturaValidaAsync(sesion.Id, animal.Id);
+        using var pesaje = await ClienteCapturas.PostAsJsonAsync(new Uri("/pesajes", UriKind.Relative), new { id_captura = captura.Id }, Cancelacion);
+        pesaje.EnsureSuccessStatusCode();
+
+        using var respuesta = await ClienteCapturas.DeleteAsync(new Uri($"/capturas/{captura.Id}", UriKind.Relative), Cancelacion);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, respuesta.StatusCode);
+        Assert.Equal((1, 1), await ContarFilasAsync());
+        Assert.Single(Almacenamiento.Archivos);
+    }
+
+    [Fact]
+    public async Task Descartar_una_captura_inexistente_responde_404()
+    {
+        using var respuesta = await ClienteCapturas.DeleteAsync(new Uri($"/capturas/{Guid.CreateVersion7()}", UriKind.Relative), Cancelacion);
+
+        Assert.Equal(HttpStatusCode.NotFound, respuesta.StatusCode);
+    }
 }

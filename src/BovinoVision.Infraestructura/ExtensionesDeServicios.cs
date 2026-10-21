@@ -21,7 +21,8 @@ public static class ExtensionesDeServicios
 
         servicios.AddDbContext<BovinoVisionDbContext>(opciones => opciones.UseNpgsql(conexion));
         servicios.AddScoped<IUnidadDeTrabajo>(proveedor => proveedor.GetRequiredService<BovinoVisionDbContext>());
-        servicios.AddSingleton<IContextoUsuario, ContextoUsuarioPorDefecto>();
+        servicios.AddHttpContextAccessor();
+        servicios.AddSingleton<IContextoUsuario, ContextoUsuarioHttp>();
         servicios.TryAddSingleton(TimeProvider.System);
 
         // Replaced by the Analítica module's evaluator when it is registered.

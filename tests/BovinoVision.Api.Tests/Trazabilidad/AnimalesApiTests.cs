@@ -64,7 +64,7 @@ public class AnimalesApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
         var asignacion = await contexto.HistorialLotes.SingleAsync(_cancelacion);
         Assert.Equal(id, asignacion.IdAnimal);
         Assert.Equal(lote.Id, asignacion.IdLote);
-        Assert.Equal(DatosSemilla.IdUsuarioSistema, asignacion.IdUsuario);
+        Assert.Equal(Fabrica.IdUsuarioPruebas, asignacion.IdUsuario);
         Assert.Null(asignacion.VigenteHasta);
     }
 

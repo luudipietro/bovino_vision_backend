@@ -1,3 +1,4 @@
+using System.Globalization;
 using BovinoVision.Dominio.Comun;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,17 @@ internal sealed class ManejadorErroresDeDominio(IProblemDetailsService problemDe
 
         var estado = error switch
         {
+            NoAutenticadoError => StatusCodes.Status401Unauthorized,
+            AccesoDenegadoError => StatusCodes.Status403Forbidden,
             NoEncontradoError => StatusCodes.Status404NotFound,
             ConflictoError => StatusCodes.Status409Conflict,
+            UsuarioBloqueadoError => StatusCodes.Status429TooManyRequests,
             _ => StatusCodes.Status422UnprocessableEntity,
         };
+        if (error is UsuarioBloqueadoError bloqueado)
+        {
+            contexto.Response.Headers.RetryAfter = ((int)Math.Ceiling(bloqueado.Restante.TotalSeconds)).ToString(CultureInfo.InvariantCulture);
+        }
 
         contexto.Response.StatusCode = estado;
         return await problemDetails.TryWriteAsync(new ProblemDetailsContext

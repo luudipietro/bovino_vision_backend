@@ -1,3 +1,4 @@
+using BovinoVision.Dominio.Usuarios;
 using BovinoVision.Aplicacion.Capturas;
 using BovinoVision.Dominio.Comun;
 using BovinoVision.Infraestructura.Capturas;
@@ -22,12 +23,12 @@ internal sealed class ModuloCapturas : IModulo
 
     public void MapearEndpoints(IEndpointRouteBuilder rutas)
     {
-        var sesiones = rutas.MapGroup("/sesiones-captura").WithTags("capturas");
+        var sesiones = rutas.MapGroup("/sesiones-captura").WithTags("capturas").RequierePermiso(Permiso.CapturasRegistrar);
         sesiones.MapPost("", IniciarSesionAsync);
         sesiones.MapPost("/{id:guid}/finalizar", FinalizarSesionAsync);
         sesiones.MapGet("/{id:guid}/capturas", ListarCapturasAsync);
 
-        var capturas = rutas.MapGroup("/capturas").WithTags("capturas");
+        var capturas = rutas.MapGroup("/capturas").WithTags("capturas").RequierePermiso(Permiso.CapturasRegistrar);
         capturas.MapPost("", RegistrarCapturaAsync).DisableAntiforgery();
         capturas.MapGet("/{id:guid}", ObtenerCapturaAsync);
         capturas.MapPost("/{id:guid}/confirmar", ConfirmarCapturaAsync);

@@ -1,3 +1,4 @@
+using BovinoVision.Dominio.Usuarios;
 using BovinoVision.Aplicacion.Pesajes;
 using BovinoVision.Infraestructura.Pesajes;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -17,7 +18,7 @@ internal sealed class ModuloPesajes : IModulo
 
     public void MapearEndpoints(IEndpointRouteBuilder rutas)
     {
-        var pesajes = rutas.MapGroup("/pesajes").WithTags("pesajes");
+        var pesajes = rutas.MapGroup("/pesajes").WithTags("pesajes").RequierePermiso(Permiso.CapturasRegistrar);
         pesajes.MapPost("", SolicitarAsync);
         pesajes.MapGet("/{id:guid}", ObtenerAsync);
     }

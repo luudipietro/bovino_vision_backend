@@ -50,6 +50,8 @@ public sealed class IniciarSesion(
 
     public async Task<SesionIniciada> EjecutarAsync(CredencialesUsuario credenciales, CancellationToken cancelacion = default)
     {
+        // A request without fields is just wrong credentials, never a server error.
+        credenciales = new CredencialesUsuario(credenciales.Correo ?? string.Empty, credenciales.Contrasena ?? string.Empty);
         var usuario = await usuarios.ObtenerPorCorreoAsync(Usuario.NormalizarCorreo(credenciales.Correo), cancelacion);
         if (usuario is null)
         {

@@ -102,10 +102,14 @@ public sealed class ModificarUsuario(
             await ReglasUsuarios.ExigirCorreoLibreAsync(usuarios, cambios.Correo, usuario.Id, cancelacion);
         }
 
-        usuario.ModificarDatos(cambios.Nombre ?? usuario.Nombre, cambios.Correo ?? usuario.Correo);
         if (cambios.Contrasena is not null)
         {
             Contrasenas.Validar(cambios.Contrasena);
+        }
+
+        usuario.ModificarDatos(cambios.Nombre ?? usuario.Nombre, cambios.Correo ?? usuario.Correo);
+        if (cambios.Contrasena is not null)
+        {
             usuario.CambiarContrasena(hasher.Generar(cambios.Contrasena));
             await ReglasUsuarios.CerrarSesionesAsync(sesiones, usuario.Id, tiempo.GetUtcNow(), cancelacion);
         }
@@ -205,6 +209,11 @@ public sealed class DefinirPermisosRol(
 {
     public async Task<RolRespuesta> EjecutarAsync(Guid idRol, PermisosRol permisos, CancellationToken cancelacion = default)
     {
+        if (permisos.Permisos is null)
+        {
+            throw new OperacionInvalidaError("Los permisos del rol son obligatorios");
+        }
+
         var rol = await ReglasUsuarios.ObtenerRolAsync(roles, idRol, contexto.IdEstablecimiento, cancelacion);
         if (rol.EsAdministrador && !permisos.Permisos.Contains(Permiso.RolesGestionar))
         {

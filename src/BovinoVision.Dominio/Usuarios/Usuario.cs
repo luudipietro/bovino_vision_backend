@@ -29,7 +29,7 @@ public sealed class Usuario : Entidad
     }
 
     /// <summary>Emails are compared case-insensitively, so they are stored lower-case.</summary>
-    public static string NormalizarCorreo(string correo) => correo.Trim().ToLowerInvariant();
+    public static string NormalizarCorreo(string? correo) => (correo ?? string.Empty).Trim().ToLowerInvariant();
 
     public void ModificarDatos(string nombre, string correo)
     {

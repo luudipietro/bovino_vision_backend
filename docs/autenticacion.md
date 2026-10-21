@@ -95,6 +95,13 @@ En Development, la migración se aplica al arrancar la API. Con los User Secrets
 - **Tests existentes:** la fábrica de tests crea un usuario con todos los permisos e inicia sesión. Los 183 tests actuales siguen probando lo mismo, ahora autenticados.
 - **Frontend:** lógica pura en Vitest (permisos por sección, pantalla de inicio por rol). Las pantallas las prueba el equipo en el navegador.
 
+## Limitaciones conocidas
+
+- **Bloqueo y existencia del correo:** el bloqueo de CU-01 2b solo aplica a cuentas existentes, así que tras 5 intentos un correo existente responde 429 y uno inexistente sigue respondiendo 401. Es inherente a la regla de la ERS.
+- **Tiempo de respuesta con cuenta bloqueada:** una cuenta bloqueada responde sin verificar la contraseña, algo más rápido que el resto.
+- **Concurrencia en la regla del último administrador:** dos operaciones simultáneas sobre distintos administradores podrían pasar ambas la verificación. Con un solo establecimiento y pocos administradores el riesgo es bajo; se resolvería con un bloqueo de fila o una transacción serializable.
+- **Permisos dependientes:** la pantalla de captura busca animales con `GET /animales`, que exige `rodeo_consultar`. Un rol con `capturas_registrar` sin `rodeo_consultar` no puede identificar animales.
+
 ## Fuera de alcance
 
 - Auditoría (CU-30, CU-31), salvo que el permiso ya existe.

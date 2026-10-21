@@ -98,6 +98,19 @@ public class GestionUsuariosTests
     }
 
     [Fact]
+    public async Task Una_contrasena_corta_rechaza_la_modificacion_sin_cambiar_el_usuario()
+    {
+        var ana = AgregarUsuario(_operario);
+
+        await Assert.ThrowsAsync<OperacionInvalidaError>(() =>
+            Modificar().EjecutarAsync(ana.Id, new CambiosUsuario("Otro nombre", "otro@campo.com", "corta"), Cancelacion));
+
+        Assert.Equal("Ana", ana.Nombre);
+        Assert.Equal("ana@campo.com", ana.Correo);
+        Assert.Equal(0, _unidad.Guardados);
+    }
+
+    [Fact]
     public async Task El_unico_administrador_no_puede_perder_el_rol_ni_darse_de_baja()
     {
         var cambio = await Assert.ThrowsAsync<OperacionInvalidaError>(() =>

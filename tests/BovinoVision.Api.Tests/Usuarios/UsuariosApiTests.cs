@@ -155,6 +155,24 @@ public class UsuariosApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
     }
 
     [Fact]
+    public async Task Los_cuerpos_incompletos_responden_un_error_de_negocio_y_no_500()
+    {
+        using var anonimo = Fabrica.CrearClienteAnonimo();
+
+        using var login = await anonimo.PostAsJsonAsync("/auth/sesion", new { }, Cancelacion);
+        using var usuario = await Cliente.PostAsJsonAsync(
+            "/usuarios", new { nombre = "Ana", contrasena = "segura-123", id_rol = DatosSemilla.IdRolOperario }, Cancelacion);
+        using var permisos = await Cliente.PutAsJsonAsync($"/roles/{DatosSemilla.IdRolOperario}/permisos", new { }, Cancelacion);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, login.StatusCode);
+        Assert.Equal("Usuario o contraseña incorrectos.", await DetalleAsync(login));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, usuario.StatusCode);
+        Assert.Equal("El correo electrónico no es válido", await DetalleAsync(usuario));
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, permisos.StatusCode);
+        Assert.Equal("Los permisos del rol son obligatorios", await DetalleAsync(permisos));
+    }
+
+    [Fact]
     public async Task Sin_permiso_de_usuarios_no_se_gestionan_usuarios_ni_roles()
     {
         await RegistrarAsync("ana@campo.com", DatosSemilla.IdRolOperario);

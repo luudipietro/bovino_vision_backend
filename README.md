@@ -82,7 +82,7 @@ dotnet run --project src/BovinoVision.Api
 | --- | --- |
 | `ConnectionStrings__BovinoVision` | Vacía en configuración base; Development usa PostgreSQL local en 5433; Compose usa `db:5432` |
 | `BaseDeDatos__AplicarMigracionesAlIniciar` | `false`; `true` en Development y Compose |
-| `Cors__OrigenesPermitidos__0` | `http://localhost:5173` |
+| `Cors__OrigenesPermitidos__0` | `http://localhost:5173`; Development también permite `http://localhost:5174` (`__1`), el puerto que toma Vite cuando 5173 está ocupado |
 | `Almacenamiento__DirectorioImagenes` | `uploads`, relativo a la raíz de contenido de la aplicación; `/app/uploads` en Compose |
 | `Inferencia__ProcesarEnSegundoPlano` | `true`; con `false` las solicitudes quedan en cola sin este consumidor |
 | `Inferencia__MaximoIntentos` | `3` |

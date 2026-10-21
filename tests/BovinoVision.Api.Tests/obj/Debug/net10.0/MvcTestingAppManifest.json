@@ -1,0 +1,6 @@
+{
+  "BovinoVision.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "E:\\PROYECTO FINAL\\bovino_vision_backend\\src\\BovinoVision.Api",
+  "BovinoVision.Aplicacion, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "E:\\PROYECTO FINAL\\bovino_vision_backend\\src\\BovinoVision.Aplicacion",
+  "BovinoVision.Dominio, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "E:\\PROYECTO FINAL\\bovino_vision_backend\\src\\BovinoVision.Dominio",
+  "BovinoVision.Infraestructura, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "E:\\PROYECTO FINAL\\bovino_vision_backend\\src\\BovinoVision.Infraestructura"
+}

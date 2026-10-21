@@ -5,3 +5,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 uploads/
+.claude/
+.pi/
+.mcp.json
+CLAUDE.md

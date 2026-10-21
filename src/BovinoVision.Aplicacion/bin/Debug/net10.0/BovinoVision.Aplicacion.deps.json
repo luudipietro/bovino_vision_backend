@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "BovinoVision.Aplicacion/1.0.0": {
+        "dependencies": {
+          "BovinoVision.Dominio": "1.0.0"
+        },
+        "runtime": {
+          "BovinoVision.Aplicacion.dll": {}
+        }
+      },
+      "BovinoVision.Dominio/1.0.0": {
+        "runtime": {
+          "BovinoVision.Dominio.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "BovinoVision.Aplicacion/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "BovinoVision.Dominio/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

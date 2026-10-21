@@ -1,0 +1,16 @@
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\bin\Debug\net10.0\BovinoVision.Aplicacion.deps.json
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\bin\Debug\net10.0\BovinoVision.Aplicacion.dll
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\bin\Debug\net10.0\BovinoVision.Aplicacion.pdb
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\bin\Debug\net10.0\BovinoVision.Dominio.dll
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\bin\Debug\net10.0\BovinoVision.Dominio.pdb
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\obj\Debug\net10.0\BovinoVision.Aplicacion.csproj.AssemblyReference.cache
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\obj\Debug\net10.0\BovinoVision.Aplicacion.GeneratedMSBuildEditorConfig.editorconfig
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\obj\Debug\net10.0\BovinoVision.Aplicacion.AssemblyInfoInputs.cache
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\obj\Debug\net10.0\BovinoVision.Aplicacion.AssemblyInfo.cs
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\obj\Debug\net10.0\BovinoVision.Aplicacion.csproj.CoreCompileInputs.cache
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\obj\Debug\net10.0\BovinoVision.Aplicacion.sourcelink.json
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\obj\Debug\net10.0\BovinoVi.95EF736D.Up2Date
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\obj\Debug\net10.0\BovinoVision.Aplicacion.dll
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\obj\Debug\net10.0\refint\BovinoVision.Aplicacion.dll
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\obj\Debug\net10.0\BovinoVision.Aplicacion.pdb
+E:\PROYECTO FINAL\bovino_vision_backend\src\BovinoVision.Aplicacion\obj\Debug\net10.0\ref\BovinoVision.Aplicacion.dll

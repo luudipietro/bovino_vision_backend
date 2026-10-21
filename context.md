@@ -18,7 +18,7 @@ El backend activo de la rama `feat/migracion-dotnet` está implementado en **C# 
 3. `POST /pesajes` devuelve 202 sin cuerpo; el cliente consulta `/capturas/{id}` hasta `procesada` o `fallida`. Una falla no genera un evento de pesaje. Una imagen inválida se rechaza con 422 sin guardarse.
 4. La fecha de pesaje es la de captura. Cada evento referencia la asignación de lote vigente en esa fecha. Confirmar solo registra la revisión en la captura; nunca modifica eventos.
 5. GMD por días calendario en `America/Argentina/Buenos_Aires` por defecto, sin persistirla. Dos pesajes del mismo día no producen GMD. Las alertas usan pérdida de peso (GMD negativa) y estancamiento (por debajo de 0,5 del objetivo del lote, configurable); no porcentajes Python de 15/30%.
-6. La semilla crea establecimiento, rol, usuario Sistema y razas. `ContextoUsuarioPorDefecto` selecciona ese contexto: no equivale a autenticación ni a aislamiento multiusuario completo.
+6. Autenticación con sesiones guardadas en la base y cookie `HttpOnly` (ver [docs/autenticacion.md](docs/autenticacion.md)): el usuario y el establecimiento de cada operación salen de la sesión, y cada endpoint exige un permiso del rol. La semilla crea establecimiento, los tres roles de la ERS, el usuario Sistema (inactivo) y las razas; el primer administrador se crea desde configuración.
 
 Los [patrones del README](README.md#arquitectura-y-principios-de-diseño) se separan entre arquitectura/empresariales y diseño/framework. La fábrica estática de eventos no es Factory Method de GoF; las transiciones de captura no implementan State de GoF.
 
@@ -33,7 +33,7 @@ Docker Compose ofrece PostgreSQL en 5433 y API opcional con perfil `api` en 8000
 - Adaptar el frontend React/Vite del repositorio hermano al contrato nuevo y al polling.
 - Integrar estimador y control de calidad reales a través de los puertos existentes.
 - Diseñar migración de datos existentes si deben conservarse en el sistema nuevo.
-- Implementar usuarios, roles y permisos, bloqueo de login y auditoría.
+- Implementar auditoría (CU-30, CU-31); el permiso `auditoria_consultar` ya existe.
 - Implementar sincronización offline sin duplicados; todavía no se acepta un id de captura generado por el cliente.
 - Trasladar al TP7 los cambios enumerados en el informe. Resolver la discrepancia de MAPE (<20% en ERS frente a <15% en TP2); no afirmar precisión del simulador.
 

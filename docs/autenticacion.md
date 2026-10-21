@@ -1,6 +1,6 @@
 # Autenticación, roles y permisos (propuesta de diseño)
 
-**Estado:** propuesta pendiente de aprobación. Cubre los casos de uso CU-01 a CU-08 de la ERS (módulo Usuarios) en el backend .NET y en el frontend. La auditoría (CU-30 y CU-31) queda para una etapa siguiente, aunque los permisos y las sesiones ya la contemplan.
+**Estado:** aprobado e implementado (seguimiento en `odd/tasks/autenticacion.md`). Cubre los casos de uso CU-01 a CU-08 de la ERS (módulo Usuarios) en el backend .NET y en el frontend. La auditoría (CU-30 y CU-31) queda para una etapa siguiente, aunque los permisos y las sesiones ya la contemplan.
 
 **En una línea:** sesiones guardadas en la base con un token opaco en una cookie `HttpOnly`, contraseñas con el algoritmo de ASP.NET Core Identity, y permisos por rol leídos en cada request. No hace falta ningún paquete NuGet nuevo.
 
@@ -13,7 +13,7 @@
 | D3 | Contraseñas | `PasswordHasher<T>` de ASP.NET Core Identity (PBKDF2), que ya viene en el framework compartido. Mínimo 8 caracteres. | Algoritmo estándar y mantenido, sin escribir criptografía propia. |
 | D4 | Cuánto de Identity | No se usa `UserManager` ni el almacenamiento de Identity en EF (`AspNetUsers` y las demás tablas). `Usuario` y `Rol` siguen siendo entidades del dominio. | Esas tablas duplicarían `usuarios` y `roles`, que ya están referenciadas por capturas y sesiones de captura. El bloqueo por intentos ya está previsto en `Usuario` (`IntentosFallidos`, `BloqueadoHasta`). |
 | D5 | Paquetes | Ninguno nuevo. `Microsoft.AspNetCore.Identity.EntityFrameworkCore` y `Microsoft.AspNetCore.Authentication.JwtBearer` estaban aprobados, pero con D1 y D4 no hacen falta. | Menos dependencias y menos superficie de configuración (no hay clave de firma JWT que custodiar). |
-| D6 | Permisos | Catálogo fijo en el código (ver tabla siguiente). Cada rol tiene un conjunto de permisos editable por el administrador (CU-08), guardado en `rol_permisos`. | Las funcionalidades las define el sistema; lo configurable es qué rol accede a cada una, que es lo que pide CU-08. |
+| D6 | Permisos | Catálogo fijo en el código (ver tabla siguiente). Cada rol tiene un conjunto de permisos editable por el administrador (CU-08), guardado en la columna `roles.permisos` (`text[]`). | Las funcionalidades las define el sistema; lo configurable es qué rol accede a cada una, que es lo que pide CU-08. |
 | D7 | "Administrador" | Un usuario activo cuyo rol tiene el permiso `roles_gestionar`. Ninguna operación puede dejar el sistema sin al menos uno. | Es la regla común a CU-05 (5a), CU-07 (3a) y CU-08 (4a). |
 | D8 | Primer administrador | Al arrancar, si se configuran `Autenticacion:AdministradorInicial:Correo`, `Nombre` y `Contrasena` y no existe un usuario con ese correo, se lo crea con el rol Administrador. Los valores van en User Secrets o en variables de entorno, nunca en el repositorio. | Evita credenciales escritas en el código y deja un camino reproducible para cada entorno. |
 | D9 | Usuario "Sistema" de la semilla | Pasa a inactivo (no puede iniciar sesión ni cuenta como administrador). Se conserva porque es dueño de los datos cargados antes de la autenticación. | No se pierde la autoría de lo ya registrado. |
@@ -75,7 +75,7 @@ Los endpoints actuales de capturas, pesajes, trazabilidad y analítica conservan
 
 ## Modelo de datos (migración nueva)
 
-- `rol_permisos (id_rol, permiso)`: clave compuesta; el permiso se guarda como texto en snake_case, como los demás enums.
+- `roles.permisos text[]`: los permisos se leen siempre junto con el rol; se guardan como texto en snake_case, como los demás enums. (La propuesta original era una tabla `rol_permisos`; se cambió durante la implementación, ver el Log de ODD.)
 - `sesiones_usuario (id, id_usuario, huella, creada_en, expira_en, revocada_en)`: índice único en `huella`.
 - Semilla: roles Productor Ganadero y Operario de Campo, más los permisos iniciales de los tres roles. El usuario Sistema pasa a `activo = false`.
 

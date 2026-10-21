@@ -15,6 +15,7 @@ public sealed class BovinoVisionDbContext(DbContextOptions<BovinoVisionDbContext
     public DbSet<Establecimiento> Establecimientos => Set<Establecimiento>();
     public DbSet<Rol> Roles => Set<Rol>();
     public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<SesionUsuario> SesionesUsuario => Set<SesionUsuario>();
     public DbSet<Raza> Razas => Set<Raza>();
     public DbSet<Lote> Lotes => Set<Lote>();
     public DbSet<Animal> Animales => Set<Animal>();

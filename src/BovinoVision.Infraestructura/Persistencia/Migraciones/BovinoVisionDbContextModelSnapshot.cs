@@ -519,6 +519,11 @@ namespace BovinoVision.Infraestructura.Persistencia.Migraciones
                         .HasColumnType("character varying(100)")
                         .HasColumnName("nombre");
 
+                    b.PrimitiveCollection<string[]>("Permisos")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("permisos");
+
                     b.HasKey("Id")
                         .HasName("pk_roles");
 
@@ -532,8 +537,65 @@ namespace BovinoVision.Infraestructura.Persistencia.Migraciones
                         {
                             Id = new Guid("01920000-0000-7000-8000-000000000002"),
                             IdEstablecimiento = new Guid("01920000-0000-7000-8000-000000000001"),
-                            Nombre = "Administrador"
+                            Nombre = "Administrador",
+                            Permisos = new[] { "usuarios_gestionar", "roles_gestionar", "auditoria_consultar" }
+                        },
+                        new
+                        {
+                            Id = new Guid("01920000-0000-7000-8000-000000000004"),
+                            IdEstablecimiento = new Guid("01920000-0000-7000-8000-000000000001"),
+                            Nombre = "Productor Ganadero",
+                            Permisos = new[] { "rodeo_gestionar", "rodeo_consultar", "analitica_consultar" }
+                        },
+                        new
+                        {
+                            Id = new Guid("01920000-0000-7000-8000-000000000005"),
+                            IdEstablecimiento = new Guid("01920000-0000-7000-8000-000000000001"),
+                            Nombre = "Operario de Campo",
+                            Permisos = new[] { "capturas_registrar", "rodeo_gestionar", "rodeo_consultar" }
                         });
+                });
+
+            modelBuilder.Entity("BovinoVision.Dominio.Usuarios.SesionUsuario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreadaEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("creada_en");
+
+                    b.Property<DateTimeOffset>("ExpiraEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expira_en");
+
+                    b.Property<string>("Huella")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("huella");
+
+                    b.Property<Guid>("IdUsuario")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id_usuario");
+
+                    b.Property<DateTimeOffset?>("RevocadaEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revocada_en");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sesiones_usuario");
+
+                    b.HasIndex("Huella")
+                        .IsUnique()
+                        .HasDatabaseName("ix_sesiones_usuario_huella");
+
+                    b.HasIndex("IdUsuario")
+                        .HasDatabaseName("ix_sesiones_usuario_id_usuario");
+
+                    b.ToTable("sesiones_usuario", (string)null);
                 });
 
             modelBuilder.Entity("BovinoVision.Dominio.Usuarios.Usuario", b =>
@@ -600,7 +662,7 @@ namespace BovinoVision.Infraestructura.Persistencia.Migraciones
                         new
                         {
                             Id = new Guid("01920000-0000-7000-8000-000000000003"),
-                            Activo = true,
+                            Activo = false,
                             Correo = "sistema@bovinovision.local",
                             IdEstablecimiento = new Guid("01920000-0000-7000-8000-000000000001"),
                             IdRol = new Guid("01920000-0000-7000-8000-000000000002"),
@@ -752,6 +814,16 @@ namespace BovinoVision.Infraestructura.Persistencia.Migraciones
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_roles_establecimientos_id_establecimiento");
+                });
+
+            modelBuilder.Entity("BovinoVision.Dominio.Usuarios.SesionUsuario", b =>
+                {
+                    b.HasOne("BovinoVision.Dominio.Usuarios.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("IdUsuario")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sesiones_usuario_usuarios_id_usuario");
                 });
 
             modelBuilder.Entity("BovinoVision.Dominio.Usuarios.Usuario", b =>

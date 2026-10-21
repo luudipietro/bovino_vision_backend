@@ -24,13 +24,29 @@ internal sealed class RolConfiguracion : IEntityTypeConfiguration<Rol>
         builder.ToTable("roles");
         builder.Property(r => r.Nombre).HasMaxLength(100);
         builder.HasOne<Establecimiento>().WithMany().HasForeignKey(r => r.IdEstablecimiento).OnDelete(DeleteBehavior.Restrict);
+        builder.Ignore(r => r.EsAdministrador);
+        // A text[] column: permissions are read with the role on every authenticated request.
+        builder.PrimitiveCollection(r => r.Permisos)
+            .ElementType(elemento => elemento.HasConversion(new ConvencionesDeNombres.EnumComoTexto<Permiso>()));
 
-        builder.HasData(new
+        builder.HasData(DatosSemilla.Roles.Select(rol => new
         {
-            Id = DatosSemilla.IdRolAdministrador,
+            rol.Id,
             IdEstablecimiento = DatosSemilla.IdEstablecimiento,
-            Nombre = "Administrador",
-        });
+            rol.Nombre,
+            Permisos = (IReadOnlyList<Permiso>)rol.Permisos,
+        }));
+    }
+}
+
+internal sealed class SesionUsuarioConfiguracion : IEntityTypeConfiguration<SesionUsuario>
+{
+    public void Configure(EntityTypeBuilder<SesionUsuario> builder)
+    {
+        builder.ToTable("sesiones_usuario");
+        builder.Property(s => s.Huella).HasMaxLength(64);
+        builder.HasIndex(s => s.Huella).IsUnique();
+        builder.HasOne<Usuario>().WithMany().HasForeignKey(s => s.IdUsuario).OnDelete(DeleteBehavior.Cascade);
     }
 }
 
@@ -54,7 +70,7 @@ internal sealed class UsuarioConfiguracion : IEntityTypeConfiguration<Usuario>
             Nombre = "Sistema",
             Correo = DatosSemilla.CorreoUsuarioSistema,
             ResumenContrasena = DatosSemilla.ContrasenaInutilizable,
-            Activo = true,
+            Activo = false,
             IntentosFallidos = 0,
         });
     }

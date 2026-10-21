@@ -53,7 +53,8 @@ internal static class ConvencionesDeNombres
         configuracion.Properties<TEnum>().HaveConversion<EnumComoTexto<TEnum>>().HaveMaxLength(40);
     }
 
-    private sealed class EnumComoTexto<TEnum>() : ValueConverter<TEnum, string>(
+    /// <summary>Also used for enum collections, which the property conventions do not reach.</summary>
+    internal sealed class EnumComoTexto<TEnum>() : ValueConverter<TEnum, string>(
         valor => ATexto(valor),
         texto => DesdeTexto(texto))
         where TEnum : struct, Enum

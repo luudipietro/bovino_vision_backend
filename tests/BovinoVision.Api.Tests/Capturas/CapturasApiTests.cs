@@ -21,7 +21,7 @@ public class CapturasApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
         Assert.Equal(HttpStatusCode.Created, respuesta.StatusCode);
         var cuerpo = await respuesta.LeerAsync<JsonElement>();
         Assert.NotEqual(Guid.Empty, cuerpo.GetProperty("id").GetGuid());
-        Assert.Equal(DatosSemilla.IdUsuarioSistema, cuerpo.GetProperty("id_usuario").GetGuid());
+        Assert.Equal(Fabrica.IdUsuarioPruebas, cuerpo.GetProperty("id_usuario").GetGuid());
         Assert.Equal("activa", cuerpo.GetProperty("estado").GetString());
         Assert.True(cuerpo.TryGetProperty("fecha_inicio", out _));
     }

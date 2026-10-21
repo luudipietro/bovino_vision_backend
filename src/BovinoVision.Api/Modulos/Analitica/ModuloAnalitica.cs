@@ -1,3 +1,4 @@
+using BovinoVision.Dominio.Usuarios;
 using BovinoVision.Aplicacion.Analitica;
 using BovinoVision.Dominio.Analitica;
 using BovinoVision.Infraestructura.Analitica;
@@ -31,26 +32,31 @@ public sealed class ModuloAnalitica : IModulo
         rutas.MapGet("/animales/{id:guid}/pesajes", async (
             Guid id, ConsultarHistorialPesajes casoDeUso, CancellationToken cancelacion) =>
             Results.Ok(await casoDeUso.EjecutarAsync(new ConsultaHistorialPesajes(id), cancelacion)))
-            .WithTags("Analítica");
+            .WithTags("Analítica")
+            .RequierePermiso(Permiso.RodeoConsultar);
 
         rutas.MapGet("/animales/{id:guid}/alertas", async (
             Guid id, ListarAlertasDeAnimal casoDeUso, CancellationToken cancelacion) =>
             Results.Ok(await casoDeUso.EjecutarAsync(new ConsultaAlertasDeAnimal(id), cancelacion)))
-            .WithTags("Analítica");
+            .WithTags("Analítica")
+            .RequierePermiso(Permiso.RodeoConsultar);
 
         rutas.MapGet("/alertas", async (ListarAlertasActivas casoDeUso, CancellationToken cancelacion) =>
             Results.Ok(await casoDeUso.EjecutarAsync(cancelacion)))
-            .WithTags("Analítica");
+            .WithTags("Analítica")
+            .RequierePermiso(Permiso.AnaliticaConsultar);
 
         rutas.MapGet("/panel", async (
             [FromQuery(Name = "id_lote")] Guid? idLote, ConsultarPanel casoDeUso, CancellationToken cancelacion) =>
             Results.Ok(await casoDeUso.EjecutarAsync(new ConsultaPanel(idLote), cancelacion)))
-            .WithTags("Analítica");
+            .WithTags("Analítica")
+            .RequierePermiso(Permiso.AnaliticaConsultar);
 
         rutas.MapGet("/reportes", async (
             DateOnly desde, DateOnly hasta, [FromQuery(Name = "id_lote")] Guid? idLote,
             GenerarReporte casoDeUso, CancellationToken cancelacion) =>
             Results.Ok(await casoDeUso.EjecutarAsync(new ConsultaReporte(desde, hasta, idLote), cancelacion)))
-            .WithTags("Analítica");
+            .WithTags("Analítica")
+            .RequierePermiso(Permiso.AnaliticaConsultar);
     }
 }

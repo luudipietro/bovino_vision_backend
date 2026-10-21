@@ -2,7 +2,7 @@
 
 API REST de trazabilidad, pesajes y analítica del rodeo en **C# / .NET 10**, con Clean Architecture y PostgreSQL 17. Proyecto Final de Ingeniería en Sistemas de Información (UTN-FRT).
 
-> El estimador actual es **simulado**: siempre devuelve **400 kg**, versión `simulado-v1`. No hay un modelo de visión artificial de producción integrado ni validación real de calidad de las fotos. Tampoco hay autenticación. No desplegar como servicio productivo sin resolver estas limitaciones.
+> El estimador actual es **simulado**: siempre devuelve **400 kg**, versión `simulado-v1`. No hay un modelo de visión artificial de producción integrado ni validación real de calidad de las fotos. No desplegar como servicio productivo sin resolver estas limitaciones.
 
 ## Inicio local
 
@@ -27,6 +27,29 @@ docker compose --profile api up -d --build
 Compose publica la API en 8000 y PostgreSQL en 5433; conserva datos en `postgres-data` e imágenes en `uploads`. Las credenciales incluidas son solo para desarrollo. El contenedor ejecuta como usuario `app` y Compose habilita explícitamente las migraciones; no habilita la documentación de Development.
 
 **Transición de datos:** la migración EF `Inicial` crea el esquema nuevo; **no convierte datos de Python/Alembic**, ni ids enteros a UUID. Si ya existe un volumen/base anterior, no iniciar la API nueva contra él: respaldarlo y planificar una importación validada hacia una base separada. No borrar volúmenes, bases ni imágenes para completar la migración de fuentes. Véase [el informe de migración](docs/migracion-dotnet.md).
+
+## Inicio de sesión y permisos
+
+Todos los endpoints, salvo `GET /health` y `POST /auth/sesion`, exigen una sesión. El diseño completo está en [docs/autenticacion.md](docs/autenticacion.md).
+
+1. **Primer administrador.** Configurarlo fuera del repositorio (User Secrets en Development o variables de entorno); se crea al arrancar si no existe un usuario con ese correo:
+
+   ```powershell
+   dotnet user-secrets set "Autenticacion:AdministradorInicial:Correo" "admin@ejemplo.com" --project src/BovinoVision.Api
+   dotnet user-secrets set "Autenticacion:AdministradorInicial:Nombre" "Administrador" --project src/BovinoVision.Api
+   dotnet user-secrets set "Autenticacion:AdministradorInicial:Contrasena" "<al menos 8 caracteres>" --project src/BovinoVision.Api
+   ```
+
+2. **Inicio de sesión.** `POST /auth/sesion` con `{ "correo", "contrasena" }` devuelve el usuario, sus permisos y `expira_en`, y deja la cookie `bovinovision_sesion` (`HttpOnly`, `Secure`, `SameSite=Strict`). El cliente debe enviar `credentials: "include"`. Respuestas de error: 401 credenciales incorrectas, 429 con `Retry-After` tras 5 intentos fallidos (bloqueo de 5 minutos), 403 cuenta dada de baja.
+3. **Sesión.** `GET /auth/sesion` devuelve la sesión actual y `DELETE /auth/sesion` la cierra (204). Sin sesión válida: 401; sin el permiso del endpoint: 403. Los cambios de rol, de permisos, de contraseña y las bajas se aplican en el request siguiente.
+
+| Rol inicial | Permisos |
+| --- | --- |
+| Administrador | `usuarios_gestionar`, `roles_gestionar`, `auditoria_consultar` |
+| Productor Ganadero | `rodeo_gestionar`, `rodeo_consultar`, `analitica_consultar` |
+| Operario de Campo | `capturas_registrar`, `rodeo_gestionar`, `rodeo_consultar` |
+
+Usuarios y roles: `GET/POST /usuarios`, `PUT /usuarios/{id}`, `PUT /usuarios/{id}/rol`, `POST /usuarios/{id}/baja` (`usuarios_gestionar`); `GET /roles`, `GET /permisos` (`usuarios_gestionar` o `roles_gestionar`); `PUT /roles/{id}/permisos` (`roles_gestionar`). Ninguna operación puede dejar el sistema sin un usuario activo con `roles_gestionar`.
 
 ## Contrato y flujo de pesaje
 
@@ -91,10 +114,12 @@ dotnet run --project src/BovinoVision.Api
 | `Inferencia__ArrendamientoSegundos` | `120` (también limita la espera del estimador) |
 | `Inferencia__IntervaloSegundos` | `1` (consulta del consumidor, no instrucción de polling del cliente) |
 | `Analitica__ZonaHoraria` | `America/Argentina/Buenos_Aires` |
+| `Autenticacion__DuracionSesionHoras` | `12` |
+| `Autenticacion__AdministradorInicial__Correo`, `__Nombre`, `__Contrasena` | Sin valor; si hay correo, crea ese administrador al arrancar cuando no existe. Contraseña de al menos 8 caracteres |
 | `Alertas__FraccionEstancamiento` | `0.5` |
 | `Alertas__PrioridadPerdida` / `Alertas__PrioridadEstancamiento` | `1` / `2` |
 
-Los límites e intervalos de inferencia deben ser positivos. No se usa ya `DATABASE_URL` ni `DEFAULT_ESTABLECIMIENTO_ID`: `ContextoUsuarioPorDefecto` selecciona el establecimiento y usuario Sistema de la semilla, sin login real.
+Los límites e intervalos de inferencia deben ser positivos. No se usa ya `DATABASE_URL` ni `DEFAULT_ESTABLECIMIENTO_ID`: el usuario y el establecimiento de cada operación salen de la sesión. El usuario Sistema de la semilla queda inactivo y solo conserva la autoría de los datos anteriores al login.
 
 La GMD se calcula al consultar, por días calendario de la zona configurada; sin intervalo válido es nula. Hay alerta `perdida_peso` si la GMD es negativa; `estancamiento` si queda por debajo de la fracción del `gmd_objetivo` opcional del lote histórico. Ya no se usa el umbral Python de variación porcentual de 15/30%.
 
@@ -120,4 +145,4 @@ La fábrica de diseño usa solo `ConnectionStrings__BovinoVision` o la conexión
 
 ## Alcance pendiente
 
-Estimador real, calidad de imagen, autenticación/roles, auditoría y sincronización offline sin duplicados siguen pendientes. No hay indicadores sanitarios, de grasa, musculatura ni precio. Los módulos .NET están integrados y probados, y el código Python se retiró: sigue disponible en el historial de git (por ejemplo, en la rama `manu`). Ver [contexto del proyecto](context.md), [matriz de los 38 tests y límites de prueba](docs/migracion-dotnet.md#matriz-de-los-38-tests-originales) y [seguimiento ODD](odd/tasks/migracion-dotnet.md).
+Estimador real, calidad de imagen, auditoría y sincronización offline sin duplicados siguen pendientes. No hay indicadores sanitarios, de grasa, musculatura ni precio. Los módulos .NET están integrados y probados, y el código Python se retiró: sigue disponible en el historial de git (por ejemplo, en la rama `manu`). Ver [contexto del proyecto](context.md), [matriz de los 38 tests y límites de prueba](docs/migracion-dotnet.md#matriz-de-los-38-tests-originales) y [seguimiento ODD](odd/tasks/migracion-dotnet.md).

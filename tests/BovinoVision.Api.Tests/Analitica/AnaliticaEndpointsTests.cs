@@ -360,6 +360,8 @@ public class AnaliticaEndpointsTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
             logging.AddProvider(contador).AddFilter<ContadorConsultas>(
                 "Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Information)));
         using var cliente = fabrica.CreateClient();
+        // Every authenticated request first reads its session (one query) before the endpoint runs.
+        const int ConsultaDeSesion = 1;
         (string Ruta, int Consultas)[] rutas =
         [
             ("/panel", 1),
@@ -373,7 +375,7 @@ public class AnaliticaEndpointsTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
             contador.Reiniciar();
             using var respuesta = await cliente.GetAsync(new Uri(ruta, UriKind.Relative), Cancelacion);
             Assert.Equal(HttpStatusCode.OK, respuesta.StatusCode);
-            Assert.Equal(consultas, contador.Cantidad);
+            Assert.Equal(ConsultaDeSesion + consultas, contador.Cantidad);
         }
     }
 

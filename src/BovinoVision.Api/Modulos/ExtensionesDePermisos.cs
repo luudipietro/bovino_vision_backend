@@ -9,4 +9,10 @@ public static class ExtensionesDePermisos
     public static TBuilder RequierePermiso<TBuilder>(this TBuilder endpoint, Permiso permiso)
         where TBuilder : IEndpointConventionBuilder =>
         endpoint.RequireAuthorization(SesionHttp.Politica(permiso));
+
+    /// <summary>The endpoint accepts sessions with at least one of the permissions.</summary>
+    public static TBuilder RequiereAlgunPermiso<TBuilder>(this TBuilder endpoint, params Permiso[] permisos)
+        where TBuilder : IEndpointConventionBuilder =>
+        endpoint.RequireAuthorization(politica => politica.RequireAssertion(contexto =>
+            permisos.Any(permiso => contexto.User.HasClaim(SesionHttp.ReclamoPermiso, SesionHttp.Politica(permiso)))));
 }

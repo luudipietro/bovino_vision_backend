@@ -116,7 +116,7 @@ public sealed class FabricaApi : WebApplicationFactory<Program>, IAsyncLifetime
         await using var alcance = Services.CreateAsyncScope();
         var contexto = alcance.ServiceProvider.GetRequiredService<BovinoVisionDbContext>();
         await contexto.Database.ExecuteSqlRawAsync(SqlLimpieza);
-        // Users, roles and sessions created by a test go away; seeded roles get their permissions back.
+        // Users, roles and sessions created by a test go away; seeded and test roles get their permissions back.
         await contexto.SesionesUsuario.Where(s => s.IdUsuario != IdUsuarioPruebas).ExecuteDeleteAsync();
         await contexto.Usuarios.Where(u => u.Id != IdUsuarioPruebas && u.Id != DatosSemilla.IdUsuarioSistema).ExecuteDeleteAsync();
         var conservados = DatosSemilla.Roles.Select(r => r.Id).Append(IdRolPruebas).ToArray();
@@ -126,6 +126,9 @@ public sealed class FabricaApi : WebApplicationFactory<Program>, IAsyncLifetime
             IReadOnlyList<Permiso> originales = permisos;
             await contexto.Roles.Where(r => r.Id == id).ExecuteUpdateAsync(r => r.SetProperty(x => x.Permisos, originales));
         }
+
+        IReadOnlyList<Permiso> todos = Enum.GetValues<Permiso>();
+        await contexto.Roles.Where(r => r.Id == IdRolPruebas).ExecuteUpdateAsync(r => r.SetProperty(x => x.Permisos, todos));
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

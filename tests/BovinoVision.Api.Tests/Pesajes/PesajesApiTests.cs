@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using BovinoVision.Api.Tests.Capturas;
 using BovinoVision.Api.Tests.Infraestructura;
 using BovinoVision.Aplicacion.Capturas;
@@ -248,6 +249,25 @@ public class PesajesApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
             if (dia == 0) { Assert.Null(evento.UltimoPesoPrevio); }
             else { Assert.Equal(new PesoPrevioRespuesta(400m, fecha), evento.UltimoPesoPrevio); }
         }
+    }
+
+    [Fact]
+    public async Task El_pesaje_expone_el_id_de_la_imagen_utilizada()
+    {
+        var captura = await CrearCapturaAsync();
+        using var solicitud = await ClienteCapturas.PostAsJsonAsync("/pesajes", new { id_captura = captura.Id }, Cancelacion);
+        Assert.Equal(HttpStatusCode.Accepted, solicitud.StatusCode);
+        Assert.True(await ProcesarAsync());
+        var final = (await ConsultarAsync(captura.Id))!;
+
+        var pesaje = await ClienteCapturas.GetFromJsonAsync<JsonElement>($"/pesajes/{final.IdEventoPesaje}", Json.Opciones, Cancelacion);
+
+        var imagen = await EnContextoAsync(contexto => contexto.Imagenes.SingleAsync(i => i.IdCaptura == captura.Id, Cancelacion));
+        var evento = await EnContextoAsync(contexto => contexto.EventosPesaje.SingleAsync(e => e.Id == final.IdEventoPesaje, Cancelacion));
+        Assert.Equal(evento.IdImagenUtilizada, imagen.Id);
+        Assert.Equal(imagen.Id, pesaje.GetProperty("id_imagen").GetGuid());
+        Assert.Equal(captura.Id, pesaje.GetProperty("id_captura").GetGuid());
+        Assert.Equal("estimado", pesaje.GetProperty("estado").GetString());
     }
 
     [Fact]

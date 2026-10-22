@@ -45,4 +45,5 @@ public sealed record CapturaDeSesionRespuesta(
     DateTimeOffset FechaCaptura,
     EstadoCaptura Estado,
     string? MotivoFallo,
-    Guid? IdEventoPesaje);
+    Guid? IdEventoPesaje,
+    Guid? IdImagen);

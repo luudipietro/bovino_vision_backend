@@ -100,9 +100,32 @@ internal sealed class AlmacenamientoEnMemoria : IAlmacenamientoImagenes
         return Task.FromResult(referencia);
     }
 
+    public Task<Stream?> AbrirAsync(string referencia, CancellationToken cancelacion = default) =>
+        Task.FromResult<Stream?>(Archivos.TryGetValue(referencia, out var contenido) ? new MemoryStream(contenido) : null);
+
     public Task EliminarAsync(string referencia, CancellationToken cancelacion = default)
     {
         Archivos.Remove(referencia);
         return Task.CompletedTask;
     }
+}
+
+/// <summary>Only the image lookup is used by the use cases under test; it records the establishment it was asked for.</summary>
+internal sealed class ConsultasCapturasEnMemoria : IConsultasCapturas
+{
+    public Dictionary<Guid, (ImagenAlmacenada Imagen, Guid IdEstablecimiento)> Imagenes { get; } = [];
+
+    public Guid? EstablecimientoConsultado { get; private set; }
+
+    public Task<ImagenAlmacenada?> ObtenerImagenAsync(Guid idImagen, Guid idEstablecimiento, CancellationToken cancelacion = default)
+    {
+        EstablecimientoConsultado = idEstablecimiento;
+        return Task.FromResult(Imagenes.TryGetValue(idImagen, out var fila) && fila.IdEstablecimiento == idEstablecimiento ? fila.Imagen : null);
+    }
+
+    public Task<CapturaRespuesta?> ObtenerCapturaAsync(Guid idCaptura, CancellationToken cancelacion = default) =>
+        throw new NotSupportedException();
+
+    public Task<IReadOnlyList<CapturaDeSesionRespuesta>> ListarDeSesionAsync(Guid idSesion, CancellationToken cancelacion = default) =>
+        throw new NotSupportedException();
 }

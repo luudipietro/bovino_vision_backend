@@ -165,6 +165,47 @@ public class CapturasApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
     }
 
     [Fact]
+    public async Task La_galeria_incluye_el_id_de_la_imagen_de_cada_captura()
+    {
+        var animal = await CrearAnimalAsync();
+        var sesion = await IniciarSesionAsync();
+        var fecha = new DateTimeOffset(2026, 10, 1, 8, 0, 0, TimeSpan.Zero);
+        var primera = await SubirCapturaValidaAsync(sesion.Id, animal.Id, fecha);
+        var segunda = await SubirCapturaValidaAsync(sesion.Id, animal.Id, fecha.AddHours(1));
+
+        var galeria = await ClienteCapturas.GetFromJsonAsync<JsonElement>($"/sesiones-captura/{sesion.Id}/capturas", Json.Opciones, Cancelacion);
+
+        var imagenes = await EnContextoAsync(async contexto =>
+            await contexto.Imagenes.ToDictionaryAsync(i => i.IdCaptura, i => i.Id, Cancelacion));
+        var items = galeria.EnumerateArray().ToList();
+        Assert.Equal([primera.Id, segunda.Id], items.Select(i => i.GetProperty("id").GetGuid()));
+        Assert.Equal([imagenes[primera.Id], imagenes[segunda.Id]], items.Select(i => i.GetProperty("id_imagen").GetGuid()));
+    }
+
+    [Fact]
+    public async Task La_galeria_con_varias_imagenes_por_captura_sigue_listando_una_sola_fila_con_la_primera_imagen()
+    {
+        var animal = await CrearAnimalAsync();
+        var sesion = await IniciarSesionAsync();
+        var captura = await SubirCapturaValidaAsync(sesion.Id, animal.Id);
+        await EnContextoAsync(async contexto =>
+        {
+            var entidad = await contexto.Capturas.Include(c => c.Imagenes).SingleAsync(c => c.Id == captura.Id, Cancelacion);
+            contexto.Imagenes.Add(entidad.AgregarImagen("memoria/segunda.jpg", "huella-2", "image/jpeg"));
+            await contexto.SaveChangesAsync(Cancelacion);
+            return 0;
+        });
+
+        var galeria = await ClienteCapturas.GetFromJsonAsync<JsonElement>($"/sesiones-captura/{sesion.Id}/capturas", Json.Opciones, Cancelacion);
+
+        // The deterministic order is the image id (time-ordered UUID v7), evaluated by the database.
+        var primera = await EnContextoAsync(contexto =>
+            contexto.Imagenes.Where(i => i.IdCaptura == captura.Id).OrderBy(i => i.Id).Select(i => i.Id).FirstAsync(Cancelacion));
+        var item = Assert.Single(galeria.EnumerateArray());
+        Assert.Equal(primera, item.GetProperty("id_imagen").GetGuid());
+    }
+
+    [Fact]
     public async Task Descartar_una_captura_registrada_responde_204_y_borra_captura_imagen_y_archivo()
     {
         var animal = await CrearAnimalAsync();

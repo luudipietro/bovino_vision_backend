@@ -5,7 +5,7 @@ El backend activo de la rama `feat/migracion-dotnet` está implementado en **C# 
 ## Alcance real
 
 - Trazabilidad: animales, lotes, catálogo de siete razas e historial de pertenencia a lotes.
-- Capturas: sesiones, carga de imágenes, galería, cierre de sesión y revisión de resultados.
+- Capturas: sesiones, carga de imágenes, descarga de la foto por id (`GET /imagenes/{id}`, limitada al establecimiento de la sesión), galería con `id_imagen`, cierre de sesión y revisión de resultados.
 - Pesajes: cola asíncrona persistida con reclamos exclusivos, arrendamiento, recuperación y reintentos. Eventos inmutables y alerta en la misma unidad de trabajo de publicación.
 - Analítica: historial con GMD calculada, alertas, panel y reportes con filtro temporal y lote histórico.
 

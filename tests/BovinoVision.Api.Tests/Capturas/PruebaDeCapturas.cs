@@ -136,6 +136,9 @@ public sealed class AlmacenamientoImagenesEnMemoria : IAlmacenamientoImagenes
         return Task.FromResult(referencia);
     }
 
+    public Task<Stream?> AbrirAsync(string referencia, CancellationToken cancelacion = default) =>
+        Task.FromResult<Stream?>(Archivos.TryGetValue(referencia, out var contenido) ? new MemoryStream(contenido) : null);
+
     public Task EliminarAsync(string referencia, CancellationToken cancelacion = default)
     {
         Archivos.TryRemove(referencia, out _);

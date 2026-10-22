@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BovinoVision.Api.Modulos.Capturas;
 
-/// <summary>Capture sessions, photo uploads and their gallery (CU-12, CU-13), including discarding a photo that was not sent to estimation.</summary>
+/// <summary>Capture sessions, photo uploads and downloads and their gallery (CU-12, CU-13), including discarding a photo that was not sent to estimation.</summary>
 internal sealed class ModuloCapturas : IModulo
 {
     public void AgregarServicios(IServiceCollection servicios, IConfiguration configuracion)
@@ -19,6 +19,7 @@ internal sealed class ModuloCapturas : IModulo
         servicios.AddScoped<ObtenerCaptura>();
         servicios.AddScoped<ConfirmarCaptura>();
         servicios.AddScoped<DescartarCaptura>();
+        servicios.AddScoped<ObtenerImagen>();
         servicios.AgregarInfraestructuraCapturas(configuracion);
     }
 
@@ -34,6 +35,23 @@ internal sealed class ModuloCapturas : IModulo
         capturas.MapGet("/{id:guid}", ObtenerCapturaAsync);
         capturas.MapPost("/{id:guid}/confirmar", ConfirmarCapturaAsync);
         capturas.MapDelete("/{id:guid}", DescartarCapturaAsync);
+
+        // Outside the /capturas group: group and endpoint policies combine with AND, and viewing a photo
+        // also belongs to sessions that only consult the herd.
+        rutas.MapGet("/imagenes/{id:guid}", ObtenerImagenAsync)
+            .WithTags("capturas")
+            .RequiereAlgunPermiso(Permiso.CapturasRegistrar, Permiso.RodeoConsultar);
+    }
+
+    private static async Task<FileStreamHttpResult> ObtenerImagenAsync(
+        Guid id,
+        ObtenerImagen casoDeUso,
+        HttpResponse respuesta,
+        CancellationToken cancelacion)
+    {
+        var archivo = await casoDeUso.EjecutarAsync(new ObtenerImagenConsulta(id), cancelacion);
+        respuesta.Headers.CacheControl = "private";
+        return TypedResults.File(archivo.Contenido, archivo.TipoContenido);
     }
 
     private static async Task<Created<SesionCapturaRespuesta>> IniciarSesionAsync(

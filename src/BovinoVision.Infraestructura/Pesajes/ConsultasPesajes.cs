@@ -22,6 +22,6 @@ internal sealed class ConsultasPesajes(BovinoVisionDbContext contexto) : IConsul
             .Select(e => new PesoPrevioRespuesta(e.PesoKg, e.FechaPesaje)).FirstOrDefaultAsync(cancelacion);
         var alerta = await contexto.Alertas.AsNoTracking().SingleOrDefaultAsync(a => a.IdEvento == id, cancelacion);
         return new(evento.Id, evento.IdAnimal, evento.IdCaptura, "estimado", evento.PesoKg, evento.FechaPesaje,
-            evento.VersionModelo, identificador, lote, previo, alerta);
+            evento.VersionModelo, identificador, lote, previo, alerta, evento.IdImagenUtilizada);
     }
 }

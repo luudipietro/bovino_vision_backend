@@ -6,7 +6,7 @@ namespace BovinoVision.Aplicacion.Pesajes;
 public sealed record PesoPrevioRespuesta(decimal PesoKg, DateTimeOffset FechaPesaje);
 public sealed record PesajeRespuesta(Guid Id, Guid IdAnimal, Guid IdCaptura, string Estado, decimal PesoKg,
     DateTimeOffset FechaPesaje, string VersionModelo, string AnimalIdentificador, string? LoteCodigo,
-    PesoPrevioRespuesta? UltimoPesoPrevio, Alerta? Alerta);
+    PesoPrevioRespuesta? UltimoPesoPrevio, Alerta? Alerta, Guid IdImagen);
 
 public interface IConsultasPesajes
 {

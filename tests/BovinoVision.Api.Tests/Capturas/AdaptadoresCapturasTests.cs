@@ -44,6 +44,61 @@ public sealed class AdaptadoresCapturasTests : IDisposable
     }
 
     [Fact]
+    public async Task El_almacenamiento_local_abre_el_contenido_guardado_y_devuelve_null_si_el_archivo_no_existe()
+    {
+        using var proveedor = Proveedor(new() { ["Almacenamiento:DirectorioImagenes"] = "imagenes" });
+        var almacenamiento = proveedor.GetRequiredService<IAlmacenamientoImagenes>();
+        var cancelacion = TestContext.Current.CancellationToken;
+        byte[] contenido = [1, 2, 3];
+        var referencia = await almacenamiento.GuardarAsync("foto.jpg", contenido, cancelacion);
+
+        await using (var abierto = await almacenamiento.AbrirAsync(referencia, cancelacion))
+        {
+            Assert.NotNull(abierto);
+            using var copia = new MemoryStream();
+            await abierto.CopyToAsync(copia, cancelacion);
+            Assert.Equal(contenido, copia.ToArray());
+        }
+
+        Assert.Null(await almacenamiento.AbrirAsync("00000000000000000000000000000000.jpg", cancelacion));
+        await almacenamiento.EliminarAsync(referencia, cancelacion);
+        Assert.Null(await almacenamiento.AbrirAsync(referencia, cancelacion));
+    }
+
+    [Theory]
+    [InlineData("../secreto.txt")]
+    [InlineData("subcarpeta/../../secreto.txt")]
+    [InlineData("../imagenes-otro/dato.jpg")]
+    [InlineData("")]
+    [InlineData(".")]
+    [InlineData("..")]
+    public async Task El_almacenamiento_local_no_abre_referencias_que_salen_de_su_directorio(string referencia)
+    {
+        using var proveedor = Proveedor(new() { ["Almacenamiento:DirectorioImagenes"] = "imagenes" });
+        var almacenamiento = proveedor.GetRequiredService<IAlmacenamientoImagenes>();
+        var cancelacion = TestContext.Current.CancellationToken;
+        // Files that exist next to the storage directory, one of them in a sibling whose name starts with it.
+        Directory.CreateDirectory(Path.Combine(_raiz.FullName, "imagenes", "subcarpeta"));
+        Directory.CreateDirectory(Path.Combine(_raiz.FullName, "imagenes-otro"));
+        await File.WriteAllBytesAsync(Path.Combine(_raiz.FullName, "secreto.txt"), [9], cancelacion);
+        await File.WriteAllBytesAsync(Path.Combine(_raiz.FullName, "imagenes-otro", "dato.jpg"), [9], cancelacion);
+
+        Assert.Null(await almacenamiento.AbrirAsync(referencia, cancelacion));
+    }
+
+    [Fact]
+    public async Task El_almacenamiento_local_no_abre_una_ruta_absoluta_aunque_el_archivo_exista()
+    {
+        using var proveedor = Proveedor(new() { ["Almacenamiento:DirectorioImagenes"] = "imagenes" });
+        var almacenamiento = proveedor.GetRequiredService<IAlmacenamientoImagenes>();
+        var cancelacion = TestContext.Current.CancellationToken;
+        var fuera = Path.Combine(_raiz.FullName, "secreto.txt");
+        await File.WriteAllBytesAsync(fuera, [9], cancelacion);
+
+        Assert.Null(await almacenamiento.AbrirAsync(fuera, cancelacion));
+    }
+
+    [Fact]
     public void El_directorio_de_imagenes_por_defecto_es_uploads()
     {
         Assert.Equal("uploads", new OpcionesAlmacenamiento().DirectorioImagenes);

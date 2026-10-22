@@ -34,6 +34,17 @@ internal sealed class ConsultasCapturas(BovinoVisionDbContext contexto) : IConsu
                 c.FechaCaptura,
                 c.Estado,
                 c.MotivoFallo,
-                contexto.EventosPesaje.Where(e => e.IdCaptura == c.Id).Select(e => (Guid?)e.Id).FirstOrDefault()))
+                contexto.EventosPesaje.Where(e => e.IdCaptura == c.Id).Select(e => (Guid?)e.Id).FirstOrDefault(),
+                // A capture may hold several images; the first by id (time-ordered UUID v7) keeps the row single and stable.
+                contexto.Imagenes.Where(i => i.IdCaptura == c.Id).OrderBy(i => i.Id).Select(i => (Guid?)i.Id).FirstOrDefault()))
             .ToListAsync(cancelacion);
+
+    public Task<ImagenAlmacenada?> ObtenerImagenAsync(Guid idImagen, Guid idEstablecimiento, CancellationToken cancelacion = default) =>
+        (
+            from i in contexto.Imagenes.AsNoTracking()
+            join c in contexto.Capturas on i.IdCaptura equals c.Id
+            join a in contexto.Animales on c.IdAnimal equals a.Id
+            where i.Id == idImagen && a.IdEstablecimiento == idEstablecimiento
+            select new ImagenAlmacenada(i.ReferenciaImagen, i.TipoContenido))
+            .SingleOrDefaultAsync(cancelacion);
 }

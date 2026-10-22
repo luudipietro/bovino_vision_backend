@@ -33,7 +33,7 @@ Verificación: backend con `dotnet build BovinoVision.slnx`, `dotnet format Bovi
 
 | ID | Specs | Ruta | Estado | Evidencia / commit |
 | --- | --- | --- | --- | --- |
-| T1 | S2, S3 | delegada (escritor backend) | pendiente | |
+| T1 | S2, S3 | delegada (escritor backend) | hecha | `c59b486`. RED/GREEN por regla: 200 con bytes, `Content-Type` y `Cache-Control: private`; 403 sin ambos permisos; 200 solo con `rodeo_consultar`; 404 con `detail` para id inexistente, archivo borrado y otro establecimiento; el adaptador rechaza referencias fuera de su directorio (mutación detectada por 4 tests); `id_imagen` en pesaje y galería. 401 anónimo ya estaba cubierto por la política de respaldo. build 0 warnings, format OK, 253/253. |
 | T2 | S4-S7 | delegada (escritor frontend) | pendiente | |
 | T3 | S1-S7 | inline + verificador independiente (S2 toca permisos) | pendiente | |
 

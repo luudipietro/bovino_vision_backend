@@ -49,12 +49,14 @@ Las rutas de negocio se definen en `src/BovinoVision.Api/Modulos/{Trazabilidad,C
 | `GET /animales/{id}/historial-lotes` | Asignaciones desde la más reciente |
 | `POST /sesiones-captura` | Sin cuerpo; sesión activa, 201 |
 | `POST /sesiones-captura/{id}/finalizar` | Sin cuerpo; sesión finalizada, 200 |
-| `GET /sesiones-captura/{id}/capturas` | Galería por fecha de captura |
+| `GET /sesiones-captura/{id}/capturas` | Galería por fecha de captura, con `id_imagen` de cada captura |
 | `POST /capturas` | Multipart `id_sesion`, `id_animal`, `imagen`, `fecha_captura` opcional; 201 |
 | `GET /capturas/{id}` | Estado, intentos, motivo de fallo, revisión e id de evento |
+| `DELETE /capturas/{id}` | Descarta una captura registrada y su foto; 204 |
+| `GET /imagenes/{id}` | Archivo de la foto con su `Content-Type` y `Cache-Control: private`; requiere `capturas_registrar` o `rodeo_consultar`; 404 si es de otro establecimiento o el archivo ya no está |
 | `POST /capturas/{id}/confirmar` | Sin cuerpo; revisión de captura procesada, 200; repetir conserva primera fecha |
 | `POST /pesajes` | JSON `id_captura`; 202 sin cuerpo; repetir una solicitud pendiente/procesando/procesada da 409 |
-| `GET /pesajes/{id}` | Evento con peso, versión, animal, lote histórico, peso previo y alerta |
+| `GET /pesajes/{id}` | Evento con peso, versión, animal, lote histórico, peso previo, alerta e `id_imagen` |
 | `GET /animales/{id}/pesajes` | Historial descendente con GMD, imagen y fecha de procesamiento |
 | `GET /animales/{id}/alertas` | Alertas del animal desde la más reciente |
 | `GET /alertas` | Alertas activas ordenadas por prioridad y fecha |

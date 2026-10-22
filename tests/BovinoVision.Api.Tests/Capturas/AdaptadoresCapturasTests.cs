@@ -65,9 +65,33 @@ public sealed class AdaptadoresCapturasTests : IDisposable
         Assert.Null(await almacenamiento.AbrirAsync(referencia, cancelacion));
     }
 
+    [Fact]
+    public async Task El_almacenamiento_local_elimina_una_imagen_mientras_se_esta_descargando()
+    {
+        using var proveedor = Proveedor(new() { ["Almacenamiento:DirectorioImagenes"] = "imagenes" });
+        var almacenamiento = proveedor.GetRequiredService<IAlmacenamientoImagenes>();
+        var cancelacion = TestContext.Current.CancellationToken;
+        byte[] contenido = [1, 2, 3];
+        var referencia = await almacenamiento.GuardarAsync("foto.jpg", contenido, cancelacion);
+
+        await using (var abierto = await almacenamiento.AbrirAsync(referencia, cancelacion))
+        {
+            // Discarding a capture must not fail because a thumbnail download holds the file.
+            await almacenamiento.EliminarAsync(referencia, cancelacion);
+
+            using var copia = new MemoryStream();
+            await abierto!.CopyToAsync(copia, cancelacion);
+            Assert.Equal(contenido, copia.ToArray());
+        }
+
+        Assert.False(File.Exists(Path.Combine(_raiz.FullName, "imagenes", referencia)));
+    }
+
     [Theory]
     [InlineData("../secreto.txt")]
+    [InlineData("..\\secreto.txt")]
     [InlineData("subcarpeta/../../secreto.txt")]
+    [InlineData("subcarpeta\\..\\..\\secreto.txt")]
     [InlineData("../imagenes-otro/dato.jpg")]
     [InlineData("")]
     [InlineData(".")]

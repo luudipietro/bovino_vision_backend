@@ -113,6 +113,24 @@ public class ImagenesApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
     }
 
     [Fact]
+    public async Task Con_solo_capturas_registrar_la_imagen_se_descarga()
+    {
+        var (_, idImagen) = await SubirFotoAsync();
+        var soloCaptura = new Rol(DatosSemilla.IdEstablecimiento, "Solo captura", [Permiso.CapturasRegistrar]);
+        await EnContextoAsync(contexto =>
+        {
+            contexto.Roles.Add(soloCaptura);
+            return contexto.SaveChangesAsync(Cancelacion);
+        });
+        using var operario = await ClienteConRolAsync(soloCaptura.Id);
+
+        using var respuesta = await operario.GetAsync(RutaImagen(idImagen), Cancelacion);
+
+        Assert.Equal(HttpStatusCode.OK, respuesta.StatusCode);
+        Assert.Equal(ImagenValida, await respuesta.Content.ReadAsByteArrayAsync(Cancelacion));
+    }
+
+    [Fact]
     public async Task Con_solo_rodeo_consultar_la_imagen_se_descarga()
     {
         var (_, idImagen) = await SubirFotoAsync();

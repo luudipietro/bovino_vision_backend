@@ -39,7 +39,9 @@ internal sealed partial class AlmacenamientoLocalImagenes(IOptions<OpcionesAlmac
 
         try
         {
-            return Task.FromResult<Stream?>(new FileStream(ruta, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true));
+            // FileShare.Delete lets a capture be discarded while its photo is being downloaded.
+            return Task.FromResult<Stream?>(new FileStream(
+                ruta, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete, bufferSize: 4096, useAsync: true));
         }
         catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
         {

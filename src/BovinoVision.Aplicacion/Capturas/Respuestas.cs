@@ -47,3 +47,12 @@ public sealed record CapturaDeSesionRespuesta(
     string? MotivoFallo,
     Guid? IdEventoPesaje,
     Guid? IdImagen);
+
+/// <summary>Capture session listed in the recent sessions of a user.</summary>
+public sealed record SesionRecienteRespuesta(
+    Guid Id,
+    DateTimeOffset FechaInicio,
+    DateTimeOffset? FechaFin,
+    EstadoSesionCaptura Estado,
+    int CantidadCapturas,
+    int CantidadProcesadas);

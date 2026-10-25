@@ -1,4 +1,5 @@
 using BovinoVision.Aplicacion.Capturas;
+using BovinoVision.Dominio.Capturas;
 using BovinoVision.Infraestructura.Persistencia;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,21 @@ internal sealed class ConsultasCapturas(BovinoVisionDbContext contexto) : IConsu
                 c.FechaRevision,
                 contexto.EventosPesaje.Where(e => e.IdCaptura == c.Id).Select(e => (Guid?)e.Id).FirstOrDefault()))
             .SingleOrDefaultAsync(cancelacion);
+
+    public async Task<IReadOnlyList<SesionRecienteRespuesta>> ListarSesionesRecientesAsync(
+        Guid idUsuario, int limite, CancellationToken cancelacion = default) =>
+        await contexto.SesionesCaptura.AsNoTracking()
+            .Where(s => s.IdUsuario == idUsuario)
+            .OrderByDescending(s => s.FechaInicio).ThenByDescending(s => s.Id)
+            .Take(limite)
+            .Select(s => new SesionRecienteRespuesta(
+                s.Id,
+                s.FechaInicio,
+                s.FechaFin,
+                s.Estado,
+                contexto.Capturas.Count(c => c.IdSesion == s.Id),
+                contexto.Capturas.Count(c => c.IdSesion == s.Id && c.Estado == EstadoCaptura.Procesada)))
+            .ToListAsync(cancelacion);
 
     public async Task<IReadOnlyList<CapturaDeSesionRespuesta>> ListarDeSesionAsync(Guid idSesion, CancellationToken cancelacion = default) =>
         await (

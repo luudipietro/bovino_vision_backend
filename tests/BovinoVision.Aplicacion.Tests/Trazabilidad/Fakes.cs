@@ -156,6 +156,7 @@ internal sealed class TrazabilidadEnMemoria
             animal.FechaNacimiento,
             null,
             0,
+            null,
             null);
     }
 

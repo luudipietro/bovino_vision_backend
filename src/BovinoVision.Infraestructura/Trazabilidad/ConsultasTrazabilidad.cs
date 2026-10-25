@@ -107,7 +107,8 @@ internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto, Calc
         fila.FechaNacimiento,
         fila.UltimoPesoKg,
         fila.AlertasActivas,
-        CalcularGmd(fila));
+        CalcularGmd(fila),
+        fila.IdImagenUltimoPesaje);
 
     /// <summary>Same rule as the weighing history: calendar days between the last two weighings, null without an interval.</summary>
     private decimal? CalcularGmd(FilaAnimal fila) =>
@@ -156,6 +157,11 @@ internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto, Calc
                 .OrderByDescending(e => e.FechaPesaje).ThenByDescending(e => e.Id)
                 .Skip(1)
                 .Select(e => (DateTimeOffset?)e.FechaPesaje)
+                .FirstOrDefault(),
+            contexto.EventosPesaje
+                .Where(e => e.IdAnimal == a.Id)
+                .OrderByDescending(e => e.FechaPesaje).ThenByDescending(e => e.Id)
+                .Select(e => (Guid?)e.IdImagenUtilizada)
                 .FirstOrDefault()));
 
     /// <summary>A projected animal row: the response fields plus the last two weighings the GMD is computed from.</summary>
@@ -173,5 +179,6 @@ internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto, Calc
         int AlertasActivas,
         DateTimeOffset? UltimaFechaPesaje,
         decimal? PenultimoPesoKg,
-        DateTimeOffset? PenultimaFechaPesaje);
+        DateTimeOffset? PenultimaFechaPesaje,
+        Guid? IdImagenUltimoPesaje);
 }

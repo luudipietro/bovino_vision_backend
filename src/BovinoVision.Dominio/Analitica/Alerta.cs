@@ -43,6 +43,17 @@ public sealed class Alerta : Entidad
         Estado = EstadoAlerta.Activa;
         FechaGeneracion = fechaGeneracion.ToUniversalTime();
     }
+
+    /// <summary>Closes an active alert; an alert that is already resolved cannot be resolved again.</summary>
+    public void Resolver()
+    {
+        if (Estado == EstadoAlerta.Resuelta)
+        {
+            throw new ConflictoError("La alerta ya está resuelta");
+        }
+
+        Estado = EstadoAlerta.Resuelta;
+    }
 }
 
 public enum TipoAlerta

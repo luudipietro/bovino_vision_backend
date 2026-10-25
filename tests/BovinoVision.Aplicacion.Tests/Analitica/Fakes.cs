@@ -62,6 +62,9 @@ internal sealed class RepositorioAlertasEnMemoria : IRepositorioAlertas
     public Task<bool> ExisteParaEventoAsync(Guid idEvento, CancellationToken cancelacion = default) =>
         Task.FromResult(Guardadas.Concat(Preparadas).Any(a => a.IdEvento == idEvento));
 
+    public Task<Alerta?> ObtenerAsync(Guid id, Guid idEstablecimiento, CancellationToken cancelacion = default) =>
+        Task.FromResult(Guardadas.SingleOrDefault(a => a.Id == id));
+
     public void Agregar(Alerta alerta) => Preparadas.Add(alerta);
 }
 

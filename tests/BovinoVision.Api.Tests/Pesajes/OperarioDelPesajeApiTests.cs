@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BovinoVision.Api.Tests.Pesajes;
 
-/// <summary>The weighing detail and the history name the user who owns the capture session of each weighing.</summary>
+/// <summary>El detalle del pesaje y el historial nombran al usuario dueño de la sesión de captura de cada pesaje.</summary>
 public class OperarioDelPesajeApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
 {
     private static readonly DateTimeOffset Inicio = DatosAnalitica.Inicio;

@@ -34,7 +34,7 @@ public sealed class ProcesarSiguienteCaptura(
 
         await cola.ConCapturaBloqueadaAsync(trabajo.IdCaptura, async captura =>
         {
-            // Fencing by attempt discards late responses from an expired/reclaimed lease.
+            // El control por número de intento descarta respuestas tardías de una concesión vencida o recuperada.
             if (captura.Estado != EstadoCaptura.Procesando || captura.Intentos != trabajo.Intento) { return; }
             if (resultado.PesoKg is > 0 and <= 99999.99m && !string.IsNullOrWhiteSpace(resultado.VersionModelo) && resultado.VersionModelo.Length <= 100 && resultado.MotivoFallo is null)
             {

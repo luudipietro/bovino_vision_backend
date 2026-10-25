@@ -6,7 +6,7 @@ using BovinoVision.Infraestructura.Persistencia;
 
 namespace BovinoVision.Api.Tests.Analitica;
 
-/// <summary>Stages lots, animals and weighing events through the domain API; the test decides when to save.</summary>
+/// <summary>Prepara lotes, animales y eventos de pesaje mediante la API del dominio; el test decide cuándo guardar.</summary>
 internal sealed class DatosAnalitica(BovinoVisionDbContext contexto, Guid? idUsuario = null)
 {
     public static readonly DateTimeOffset Inicio = new(2026, 1, 1, 13, 0, 0, TimeSpan.Zero);
@@ -30,7 +30,7 @@ internal sealed class DatosAnalitica(BovinoVisionDbContext contexto, Guid? idUsu
     public static void AsignarLote(Animal animal, Lote lote, DateTimeOffset fecha) =>
         animal.AsignarLote(lote.Id, DatosSemilla.IdUsuarioSistema, fecha);
 
-    /// <summary>A successful estimation captured at <paramref name="fecha"/>, using the lot valid at that date.</summary>
+    /// <summary>Una estimación exitosa capturada en <paramref name="fecha"/>, con el lote vigente en esa fecha.</summary>
     public EventoPesaje Pesar(Animal animal, decimal pesoKg, DateTimeOffset fecha, bool agregar = true)
     {
         if (_sesion is null)

@@ -56,7 +56,7 @@ internal sealed class HistorialLoteConfiguracion : IEntityTypeConfiguration<Hist
         builder.HasOne<Lote>().WithMany().HasForeignKey(h => h.IdLote).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Usuario>().WithMany().HasForeignKey(h => h.IdUsuario).OnDelete(DeleteBehavior.Restrict);
 
-        // An animal has at most one open assignment.
+        // Un animal tiene como máximo una asignación abierta.
         builder.HasIndex(h => h.IdAnimal).IsUnique().HasFilter("vigente_hasta IS NULL");
         builder.HasIndex(h => new { h.IdLote, h.VigenteHasta });
     }

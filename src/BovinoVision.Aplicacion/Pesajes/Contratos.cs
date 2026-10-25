@@ -6,13 +6,13 @@ namespace BovinoVision.Aplicacion.Pesajes;
 public sealed record TrabajoInferencia(Guid IdCaptura, int Intento, string ReferenciaImagen);
 public sealed record ResultadoEstimacion(decimal? PesoKg, string VersionModelo, string? MotivoFallo = null);
 
-/// <summary>Adapter boundary for the external vision service; transport failures are retryable.</summary>
+/// <summary>Frontera del adaptador para el servicio de visión externo; las fallas de transporte se pueden reintentar.</summary>
 public interface IEstimadorPeso
 {
     Task<ResultadoEstimacion> EstimarAsync(string referenciaImagen, CancellationToken cancelacion = default);
 }
 
-/// <summary>Short row locks protect transitions; no lock is held while estimating.</summary>
+/// <summary>Bloqueos de fila cortos protegen las transiciones; no se mantiene ningún bloqueo mientras se estima.</summary>
 public interface IColaInferencia
 {
     Task<TrabajoInferencia?> ReclamarAsync(DateTimeOffset ahora, TimeSpan arrendamiento, int maximoIntentos, CancellationToken cancelacion);
@@ -22,8 +22,8 @@ public interface IColaInferencia
 }
 
 /// <summary>
-/// Options pattern. Section Inferencia: background processing true, 3 attempts,
-/// retry delay 30 seconds, lease/estimator timeout 120 seconds, polling every 1 second.
+/// Patrón Options. Sección Inferencia: procesamiento en segundo plano activo, 3 intentos,
+/// espera de reintento de 30 segundos, vencimiento de la concesión y del estimador de 120 segundos, sondeo cada 1 segundo.
 /// </summary>
 public sealed class OpcionesInferencia
 {

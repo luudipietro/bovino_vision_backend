@@ -35,7 +35,7 @@ internal sealed class ContextoUsuarioFijo : IContextoUsuario
     public Guid IdEstablecimiento { get; } = Guid.CreateVersion7();
 }
 
-/// <summary>Persisted events and alerts in memory; staged alerts are kept apart, as a unit of work would.</summary>
+/// <summary>Eventos y alertas persistidos en memoria; las alertas preparadas se guardan aparte, como haría una unidad de trabajo.</summary>
 internal sealed class RepositorioAlertasEnMemoria : IRepositorioAlertas
 {
     public List<EventoPesaje> Eventos { get; } = [];
@@ -68,7 +68,7 @@ internal sealed class RepositorioAlertasEnMemoria : IRepositorioAlertas
     public void Agregar(Alerta alerta) => Preparadas.Add(alerta);
 }
 
-/// <summary>Read model in memory; applies the same filters the database query applies.</summary>
+/// <summary>Modelo de lectura en memoria; aplica los mismos filtros que la consulta a la base de datos.</summary>
 internal sealed class ConsultasAnaliticaEnMemoria : IConsultasAnalitica
 {
     public HashSet<(Guid IdEstablecimiento, Guid IdAnimal)> Animales { get; } = [];

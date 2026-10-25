@@ -13,7 +13,7 @@ public static class ExtensionesDeServicios
 {
     public const string NombreConexion = "BovinoVision";
 
-    /// <summary>Shared infrastructure every module relies on: persistence, unit of work and user context.</summary>
+    /// <summary>Infraestructura compartida de la que dependen todos los módulos: persistencia, unidad de trabajo y contexto de usuario.</summary>
     public static IServiceCollection AgregarInfraestructuraBase(this IServiceCollection servicios, IConfiguration configuracion)
     {
         var conexion = configuracion.GetConnectionString(NombreConexion)
@@ -25,7 +25,7 @@ public static class ExtensionesDeServicios
         servicios.AddSingleton<IContextoUsuario, ContextoUsuarioHttp>();
         servicios.TryAddSingleton(TimeProvider.System);
 
-        // Replaced by the Analítica module's evaluator when it is registered.
+        // Lo reemplaza el evaluador del módulo Analítica cuando se registra.
         servicios.TryAddScoped<IEvaluadorAlertas, EvaluadorAlertasNulo>();
         return servicios;
     }

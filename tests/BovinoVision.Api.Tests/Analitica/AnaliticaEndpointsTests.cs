@@ -69,7 +69,7 @@ public class AnaliticaEndpointsTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
     [Fact]
     public async Task El_historial_no_tiene_gmd_para_pesajes_del_mismo_dia()
     {
-        // Port of test_historial_incluye_gmd: both weighings on the same day give no GMD.
+        // Port de test_historial_incluye_gmd: dos pesajes el mismo día no dan GMD.
         Guid idAnimal = default;
         await Preparar(datos =>
         {
@@ -99,7 +99,7 @@ public class AnaliticaEndpointsTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
     [Fact]
     public async Task Una_perdida_de_peso_crea_una_alerta_visible_en_el_animal_y_en_el_rodeo()
     {
-        // Port of test_variacion_grande_crea_alerta_visible_por_api, adapted to the GMD rule.
+        // Port de test_variacion_grande_crea_alerta_visible_por_api, adaptado a la regla de GMD.
         Guid idAnimal;
         Guid idEvento;
         await using (var alcance = Fabrica.Services.CreateAsyncScope())
@@ -137,7 +137,7 @@ public class AnaliticaEndpointsTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
     [Fact]
     public async Task Un_aumento_normal_no_crea_alerta()
     {
-        // Port of test_variacion_chica_no_crea_alerta.
+        // Port de test_variacion_chica_no_crea_alerta.
         Guid idAnimal;
         await using (var alcance = Fabrica.Services.CreateAsyncScope())
         {
@@ -184,7 +184,7 @@ public class AnaliticaEndpointsTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
     [Fact]
     public async Task El_panel_agrega_el_ultimo_peso_y_la_gmd_de_cada_animal()
     {
-        // Port of test_panel_del_rodeo_agrega_datos.
+        // Port de test_panel_del_rodeo_agrega_datos.
         await Preparar(datos =>
         {
             var animal1 = datos.CrearAnimal("AR-PANEL-01");
@@ -240,7 +240,7 @@ public class AnaliticaEndpointsTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
     [Fact]
     public async Task El_reporte_filtra_por_periodo_inclusivo()
     {
-        // Port of test_reporte_filtra_por_lapso_de_tiempo.
+        // Port de test_reporte_filtra_por_lapso_de_tiempo.
         await Preparar(datos =>
         {
             var animal1 = datos.CrearAnimal("AR-REPORTE-01");
@@ -360,7 +360,7 @@ public class AnaliticaEndpointsTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
             logging.AddProvider(contador).AddFilter<ContadorConsultas>(
                 "Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Information)));
         using var cliente = fabrica.CreateClient();
-        // Every authenticated request first reads its session (one query) before the endpoint runs.
+        // Cada solicitud autenticada primero lee su sesión (una consulta) antes de que corra el endpoint.
         const int ConsultaDeSesion = 1;
         (string Ruta, int Consultas)[] rutas =
         [
@@ -385,7 +385,7 @@ public class AnaliticaEndpointsTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
         var respuesta = await Cliente.GetAsync(new Uri("/reportes?desde=2026-01-01", UriKind.Relative), Cancelacion);
 
         Assert.Equal(HttpStatusCode.BadRequest, respuesta.StatusCode);
-        // Same ProblemDetails shape as domain errors, in every environment (Development used to answer 500).
+        // Misma forma de ProblemDetails que los errores de dominio, en todos los entornos (Development antes respondía 500).
         var cuerpo = await respuesta.LeerAsync<JsonElement>();
         Assert.Equal(400, cuerpo.GetProperty("status").GetInt32());
         Assert.Contains("hasta", cuerpo.GetProperty("detail").GetString(), StringComparison.Ordinal);

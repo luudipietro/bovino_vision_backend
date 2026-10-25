@@ -1,11 +1,11 @@
 namespace BovinoVision.Dominio.Analitica;
 
-/// <summary>A weight observed at a moment (the capture time of a weighing event).</summary>
+/// <summary>Un peso observado en un momento (la hora de captura de un evento de pesaje).</summary>
 public readonly record struct Medicion(decimal PesoKg, DateTimeOffset FechaPesaje);
 
 /// <summary>
-/// Average daily gain (GMD, kg/day) between weighings. Days are counted between calendar
-/// dates in the establecimiento's time zone, so the hour of each capture does not matter.
+/// Ganancia media diaria (GMD, kg/día) entre pesajes. Los días se cuentan entre fechas
+/// calendario en la zona horaria del establecimiento, así que la hora de cada captura no importa.
 /// </summary>
 public sealed class CalculadoraGmd(TimeZoneInfo zonaHoraria)
 {
@@ -14,11 +14,11 @@ public sealed class CalculadoraGmd(TimeZoneInfo zonaHoraria)
     public DateOnly FechaLocal(DateTimeOffset instante) =>
         DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(instante, ZonaHoraria).DateTime);
 
-    /// <summary>First instant of a local calendar date, in UTC.</summary>
+    /// <summary>Primer instante de una fecha calendario local, en UTC.</summary>
     public DateTimeOffset InicioDelDia(DateOnly fecha) =>
         new(TimeZoneInfo.ConvertTimeToUtc(fecha.ToDateTime(TimeOnly.MinValue), ZonaHoraria), TimeSpan.Zero);
 
-    /// <summary>Null when both weighings fall on the same date or the second one is not later.</summary>
+    /// <summary>Null cuando ambos pesajes caen en la misma fecha o el segundo no es posterior.</summary>
     public decimal? Calcular(Medicion anterior, Medicion siguiente)
     {
         var dias = FechaLocal(siguiente.FechaPesaje).DayNumber - FechaLocal(anterior.FechaPesaje).DayNumber;
@@ -30,7 +30,7 @@ public sealed class CalculadoraGmd(TimeZoneInfo zonaHoraria)
         return Math.Round((siguiente.PesoKg - anterior.PesoKg) / dias, 2, MidpointRounding.ToEven);
     }
 
-    /// <summary>GMD of every pair of consecutive weighings, ordered by date; same-day pairs are skipped.</summary>
+    /// <summary>GMD de cada par de pesajes consecutivos, ordenados por fecha; se omiten los pares del mismo día.</summary>
     public IReadOnlyList<decimal> GmdEntreConsecutivos(IEnumerable<Medicion> mediciones)
     {
         var ordenadas = mediciones.OrderBy(m => m.FechaPesaje).ToList();
@@ -46,7 +46,7 @@ public sealed class CalculadoraGmd(TimeZoneInfo zonaHoraria)
         return gmds;
     }
 
-    /// <summary>Average rounded to one decimal; null when there are no values.</summary>
+    /// <summary>Promedio redondeado a un decimal; null cuando no hay valores.</summary>
     public static decimal? Promediar(IReadOnlyCollection<decimal> valores) =>
         valores.Count == 0 ? null : Math.Round(valores.Average(), 1, MidpointRounding.ToEven);
 }

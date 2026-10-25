@@ -2,7 +2,7 @@ using BovinoVision.Dominio.Comun;
 
 namespace BovinoVision.Dominio.Usuarios;
 
-/// <summary>Login session; only the hash of its token is stored, so a database leak does not expose tokens.</summary>
+/// <summary>Sesión de login; solo se guarda el hash de su token, así una filtración de la base no expone tokens.</summary>
 public sealed class SesionUsuario : Entidad
 {
     public Guid IdUsuario { get; private set; }

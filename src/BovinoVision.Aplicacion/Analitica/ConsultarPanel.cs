@@ -7,7 +7,7 @@ public sealed record ConsultaPanel(Guid? IdLote);
 
 public sealed record PuntoEvolucion(DateOnly Fecha, decimal? PesoPromedioKg);
 
-/// <param name="AnimalesConGmd">Animals that contributed a GMD to the average (CU-28 3b).</param>
+/// <param name="AnimalesConGmd">Animales que aportaron una GMD al promedio (CU-28 3b).</param>
 public sealed record PanelRespuesta(
     int CantidadAnimales,
     decimal? PesoPromedioKg,
@@ -15,7 +15,7 @@ public sealed record PanelRespuesta(
     int AnimalesConGmd,
     IReadOnlyList<PuntoEvolucion> EvolucionPesoPromedio);
 
-/// <summary>Herd panel: latest weight and most recent GMD per animal, and the average weight per date.</summary>
+/// <summary>Panel del rodeo: último peso y GMD más reciente por animal, y el peso promedio por fecha.</summary>
 public sealed class ConsultarPanel(IConsultasAnalitica consultas, IContextoUsuario usuario, CalculadoraGmd calculadora)
 {
     public async Task<PanelRespuesta> EjecutarAsync(ConsultaPanel consulta, CancellationToken cancelacion = default)

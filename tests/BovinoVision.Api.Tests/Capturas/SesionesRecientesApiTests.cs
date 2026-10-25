@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BovinoVision.Api.Tests.Capturas;
 
-/// <summary>GET /sesiones-captura: the latest capture sessions of the logged-in user.</summary>
+/// <summary>GET /sesiones-captura: las últimas sesiones de captura del usuario con sesión iniciada.</summary>
 public class SesionesRecientesApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
 {
     private static readonly DateTimeOffset Inicio = new(2026, 3, 1, 12, 0, 0, TimeSpan.Zero);
@@ -147,7 +147,7 @@ public class SesionesRecientesApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica
         using var anonimo = Fabrica.CrearClienteAnonimo();
         using var sinSesion = await anonimo.GetAsync(new Uri("/sesiones-captura", UriKind.Relative), Cancelacion);
 
-        // The initial administrator role manages users and roles only.
+        // El rol inicial de administrador solo gestiona usuarios y roles.
         using var administrador = Fabrica.CrearClienteConSesion(await IniciarSesionComoAdministradorAsync());
         using var sinPermiso = await administrador.GetAsync(new Uri("/sesiones-captura", UriKind.Relative), Cancelacion);
 

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace BovinoVision.Infraestructura.Seguridad;
 
-/// <summary>User and establecimiento of the session that authenticated the current request.</summary>
+/// <summary>Usuario y establecimiento de la sesión que autenticó la solicitud actual.</summary>
 internal sealed class ContextoUsuarioHttp(IHttpContextAccessor accesor) : IContextoUsuario
 {
     public Guid IdUsuario => Leer(ClaimTypes.NameIdentifier);

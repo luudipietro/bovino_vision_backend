@@ -3,8 +3,8 @@ using System.Reflection;
 namespace BovinoVision.Api.Modulos;
 
 /// <summary>
-/// A functional module of the system (Trazabilidad, Capturas, Analítica, ...). Each module
-/// registers its own services and endpoints, so adding one never touches Program.cs.
+/// Un módulo funcional del sistema (Trazabilidad, Capturas, Analítica, ...). Cada módulo
+/// registra sus propios servicios y endpoints, así que agregar uno nunca toca Program.cs.
 /// </summary>
 public interface IModulo
 {

@@ -13,7 +13,7 @@ public sealed record RegistrarCapturaComando(
     ReadOnlyMemory<byte> Contenido,
     DateTimeOffset? FechaCaptura = null);
 
-/// <summary>Stores the photo of an animal; an invalid image is rejected before anything is stored.</summary>
+/// <summary>Guarda la foto de un animal; una imagen inválida se rechaza antes de almacenar nada.</summary>
 public sealed class RegistrarCaptura(
     IRepositorioSesionesCaptura sesiones,
     IRepositorioCapturas capturas,
@@ -25,7 +25,7 @@ public sealed class RegistrarCaptura(
 {
     public const int TamanioMaximoBytes = 10 * 1024 * 1024;
 
-    /// <summary>Allowed clock drift of the device that took the photo.</summary>
+    /// <summary>Desfase de reloj permitido del dispositivo que tomó la foto.</summary>
     public static readonly TimeSpan ToleranciaRelojCliente = TimeSpan.FromMinutes(5);
 
     private static readonly HashSet<string> TiposDeImagenValidos =
@@ -63,13 +63,13 @@ public sealed class RegistrarCaptura(
         }
         catch
         {
-            // Nothing must stay stored when the capture could not be recorded.
+            // No debe quedar nada almacenado cuando no se pudo registrar la captura.
             await almacenamiento.EliminarAsync(referencia, CancellationToken.None);
             throw;
         }
     }
 
-    // Simplified quality check (type and size); real quality checks depend on the vision service.
+    // Control de calidad simplificado (tipo y tamaño); los controles de calidad reales dependen del servicio de visión.
     private static void ValidarImagen(RegistrarCapturaComando comando)
     {
         if (!TiposDeImagenValidos.Contains(comando.TipoContenido))

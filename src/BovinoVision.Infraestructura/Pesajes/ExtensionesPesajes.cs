@@ -21,7 +21,7 @@ public static class ExtensionesPesajes
     }
 }
 
-/// <summary>Adapter used until the real vision service is integrated; deterministic simulated weight.</summary>
+/// <summary>Adaptador usado hasta integrar el servicio de visión real; peso simulado determinístico.</summary>
 internal sealed class EstimadorPesoSimulado : IEstimadorPeso
 {
     public Task<ResultadoEstimacion> EstimarAsync(string referenciaImagen, CancellationToken cancelacion = default) =>

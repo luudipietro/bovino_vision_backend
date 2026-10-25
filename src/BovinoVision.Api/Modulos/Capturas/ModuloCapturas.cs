@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BovinoVision.Api.Modulos.Capturas;
 
-/// <summary>Capture sessions, photo uploads and downloads and their gallery (CU-12, CU-13), including discarding a photo that was not sent to estimation.</summary>
+/// <summary>Sesiones de captura, subida y descarga de fotos y su galería (CU-12, CU-13), incluido el descarte de una foto que no se envió a estimar.</summary>
 internal sealed class ModuloCapturas : IModulo
 {
     public void AgregarServicios(IServiceCollection servicios, IConfiguration configuracion)
@@ -38,8 +38,8 @@ internal sealed class ModuloCapturas : IModulo
         capturas.MapPost("/{id:guid}/confirmar", ConfirmarCapturaAsync);
         capturas.MapDelete("/{id:guid}", DescartarCapturaAsync);
 
-        // Outside the /capturas group: group and endpoint policies combine with AND, and viewing a photo
-        // also belongs to sessions that only consult the herd.
+        // Fuera del grupo /capturas: las políticas del grupo y del endpoint se combinan con AND, y ver una foto
+        // también corresponde a sesiones que solo consultan el rodeo.
         rutas.MapGet("/imagenes/{id:guid}", ObtenerImagenAsync)
             .WithTags("capturas")
             .RequiereAlgunPermiso(Permiso.CapturasRegistrar, Permiso.RodeoConsultar);

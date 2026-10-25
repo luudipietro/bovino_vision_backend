@@ -62,7 +62,7 @@ internal sealed class CapturasEnMemoria : IRepositorioCapturas
     public void Eliminar(Captura captura) => Capturas.Remove(captura);
 }
 
-/// <summary>Only the row-lock operation is used by capture use cases; it runs the action over the stored capture.</summary>
+/// <summary>Los casos de uso de capturas solo usan la operación con bloqueo de fila; ejecuta la acción sobre la captura almacenada.</summary>
 internal sealed class ColaInferenciaEnMemoria(CapturasEnMemoria capturas) : IColaInferencia
 {
     public Task ConCapturaBloqueadaAsync(Guid id, Func<Captura, Task> accion, CancellationToken cancelacion)
@@ -110,7 +110,7 @@ internal sealed class AlmacenamientoEnMemoria : IAlmacenamientoImagenes
     }
 }
 
-/// <summary>Only the image lookup is used by the use cases under test; it records the establishment it was asked for.</summary>
+/// <summary>Los casos de uso bajo prueba solo usan la búsqueda de imágenes; registra el establecimiento por el que se preguntó.</summary>
 internal sealed class ConsultasCapturasEnMemoria : IConsultasCapturas
 {
     public Dictionary<Guid, (ImagenAlmacenada Imagen, Guid IdEstablecimiento)> Imagenes { get; } = [];

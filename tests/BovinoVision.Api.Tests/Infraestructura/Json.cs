@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace BovinoVision.Api.Tests.Infraestructura;
 
-/// <summary>Same JSON conventions as the API: snake_case properties and enums.</summary>
+/// <summary>Mismas convenciones JSON que la API: propiedades y enums en snake_case.</summary>
 public static class Json
 {
     public static readonly JsonSerializerOptions Opciones = new(JsonSerializerDefaults.Web)

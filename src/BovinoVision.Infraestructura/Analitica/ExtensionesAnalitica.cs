@@ -5,7 +5,7 @@ namespace BovinoVision.Infraestructura.Analitica;
 
 public static class ExtensionesAnalitica
 {
-    /// <summary>EF Core adapters of the Analítica module's ports.</summary>
+    /// <summary>Adaptadores EF Core de los puertos del módulo Analítica.</summary>
     public static IServiceCollection AgregarPersistenciaAnalitica(this IServiceCollection servicios)
     {
         servicios.AddScoped<IRepositorioAlertas, RepositorioAlertas>();

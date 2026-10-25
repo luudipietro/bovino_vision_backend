@@ -80,7 +80,7 @@ public sealed class FlujoPesajeIntegracionTests(FabricaApi fabrica) : PruebaDeAp
         var captura = await SubirAsync(animal, sesion, _reloj.Ahora);
         await SolicitarAsync(captura.Id);
 
-        // Observe multiple default worker intervals, not just the instant after enqueueing.
+        // Observa varios intervalos por defecto del worker, no solo el instante posterior al encolado.
         using var limite = CancellationTokenSource.CreateLinkedTokenSource(Cancelacion);
         limite.CancelAfter(TimeSpan.FromSeconds(10));
         var observacion = Task.Delay(TimeSpan.FromSeconds(3), limite.Token);

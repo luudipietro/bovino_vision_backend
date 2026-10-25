@@ -5,7 +5,7 @@ using BovinoVision.Dominio.Usuarios;
 
 namespace BovinoVision.Aplicacion.Usuarios;
 
-/// <summary>Opaque 256-bit session tokens; only their SHA-256 hash is ever stored.</summary>
+/// <summary>Tokens de sesión opacos de 256 bits; solo se guarda su hash SHA-256.</summary>
 public static class TokensDeSesion
 {
     public static (string Token, string Huella) Generar()
@@ -36,7 +36,7 @@ public static class Contrasenas
 
 public sealed record CredencialesUsuario(string Correo, string Contrasena);
 
-/// <summary>CU-01: login with lockout after five consecutive failures.</summary>
+/// <summary>CU-01: login con bloqueo después de cinco fallas consecutivas.</summary>
 public sealed class IniciarSesion(
     IRepositorioUsuarios usuarios,
     IRepositorioRoles roles,
@@ -50,7 +50,7 @@ public sealed class IniciarSesion(
 
     public async Task<SesionIniciada> EjecutarAsync(CredencialesUsuario credenciales, CancellationToken cancelacion = default)
     {
-        // A request without fields is just wrong credentials, never a server error.
+        // Una solicitud sin campos es solo un caso de credenciales incorrectas, nunca un error del servidor.
         credenciales = new CredencialesUsuario(credenciales.Correo ?? string.Empty, credenciales.Contrasena ?? string.Empty);
         var usuario = await usuarios.ObtenerPorCorreoAsync(Usuario.NormalizarCorreo(credenciales.Correo), cancelacion);
         if (usuario is null)
@@ -78,7 +78,7 @@ public sealed class IniciarSesion(
             throw new NoAutenticadoError(CredencialesIncorrectas);
         }
 
-        // Only someone who knows the password learns that the account was deactivated.
+        // Solo quien conoce la contraseña se entera de que la cuenta fue dada de baja.
         if (!usuario.Activo)
         {
             throw new AccesoDenegadoError("No es posible acceder con esta cuenta. Contactá a un administrador.");
@@ -100,7 +100,7 @@ public sealed class IniciarSesion(
     }
 }
 
-/// <summary>CU-02: the token stops working immediately; an unknown token is ignored.</summary>
+/// <summary>CU-02: el token deja de funcionar de inmediato; un token desconocido se ignora.</summary>
 public sealed class CerrarSesion(IRepositorioSesionesUsuario sesiones, IUnidadDeTrabajo unidadDeTrabajo, TimeProvider tiempo)
 {
     public async Task EjecutarAsync(string token, CancellationToken cancelacion = default)
@@ -116,7 +116,7 @@ public sealed class CerrarSesion(IRepositorioSesionesUsuario sesiones, IUnidadDe
     }
 }
 
-/// <summary>Validates a token for every authenticated request.</summary>
+/// <summary>Valida un token en cada solicitud autenticada.</summary>
 public sealed class ValidarSesion(IConsultasSesion consultas, TimeProvider tiempo)
 {
     public async Task<SesionActiva?> EjecutarAsync(string token, CancellationToken cancelacion = default)
@@ -128,7 +128,7 @@ public sealed class ValidarSesion(IConsultasSesion consultas, TimeProvider tiemp
 
 public sealed record AdministradorInicial(Guid IdEstablecimiento, Guid IdRol, string Nombre, string Correo, string Contrasena);
 
-/// <summary>Creates the first administrator from configuration when no user has that email yet.</summary>
+/// <summary>Crea el primer administrador desde la configuración cuando ningún usuario tiene todavía ese correo.</summary>
 public sealed class CrearAdministradorInicial(
     IRepositorioUsuarios usuarios,
     IRepositorioRoles roles,

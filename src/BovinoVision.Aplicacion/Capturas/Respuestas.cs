@@ -37,7 +37,7 @@ public sealed record CapturaRespuesta(
             idEventoPesaje);
 }
 
-/// <summary>Gallery item of a capture session (CU-13).</summary>
+/// <summary>Elemento de la galería de una sesión de captura (CU-13).</summary>
 public sealed record CapturaDeSesionRespuesta(
     Guid Id,
     Guid IdAnimal,
@@ -48,7 +48,7 @@ public sealed record CapturaDeSesionRespuesta(
     Guid? IdEventoPesaje,
     Guid? IdImagen);
 
-/// <summary>Capture session listed in the recent sessions of a user.</summary>
+/// <summary>Sesión de captura listada entre las sesiones recientes de un usuario.</summary>
 public sealed record SesionRecienteRespuesta(
     Guid Id,
     DateTimeOffset FechaInicio,

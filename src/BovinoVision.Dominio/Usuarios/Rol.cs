@@ -8,7 +8,7 @@ public sealed class Rol : Entidad
     public string Nombre { get; private set; } = null!;
     public IReadOnlyList<Permiso> Permisos { get; private set; } = [];
 
-    /// <summary>An administrator is whoever can manage roles; the system must always keep one.</summary>
+    /// <summary>Es administrador quien puede gestionar roles; el sistema siempre debe conservar uno.</summary>
     public bool EsAdministrador => Tiene(Permiso.RolesGestionar);
 
     private Rol() { }

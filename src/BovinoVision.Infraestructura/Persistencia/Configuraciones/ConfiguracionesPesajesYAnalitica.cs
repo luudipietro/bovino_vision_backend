@@ -19,7 +19,7 @@ internal sealed class EventoPesajeConfiguracion : IEntityTypeConfiguration<Event
         builder.HasOne<Imagen>().WithMany().HasForeignKey(e => e.IdImagenUtilizada).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<HistorialLote>().WithMany().HasForeignKey(e => e.IdHistorialLote).OnDelete(DeleteBehavior.Restrict);
 
-        // At most one weighing event per capture and per image.
+        // Como máximo un evento de pesaje por captura y por imagen.
         builder.HasIndex(e => e.IdCaptura).IsUnique();
         builder.HasIndex(e => e.IdImagenUtilizada).IsUnique();
         builder.HasIndex(e => new { e.IdAnimal, e.FechaPesaje });
@@ -36,7 +36,7 @@ internal sealed class AlertaConfiguracion : IEntityTypeConfiguration<Alerta>
         builder.Property(a => a.VersionRegla).HasMaxLength(50);
         builder.HasOne<EventoPesaje>().WithMany().HasForeignKey(a => a.IdEvento).OnDelete(DeleteBehavior.Restrict);
 
-        // Re-evaluating an event never duplicates its alert.
+        // Reevaluar un evento nunca duplica su alerta.
         builder.HasIndex(a => a.IdEvento).IsUnique();
         builder.HasIndex(a => new { a.Estado, a.Prioridad });
     }

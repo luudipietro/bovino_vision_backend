@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Identity;
 
 namespace BovinoVision.Infraestructura.Usuarios;
 
-/// <summary>Adapter over ASP.NET Core Identity's PBKDF2 hasher (shared framework, no extra package).</summary>
+/// <summary>Adaptador sobre el hasher PBKDF2 de ASP.NET Core Identity (framework compartido, sin paquete extra).</summary>
 internal sealed class HasherContrasenas : IHasherContrasenas
 {
-    // Identity's hasher does not use the user instance; one placeholder serves every call.
+    // El hasher de Identity no usa la instancia del usuario; un único marcador sirve para todas las llamadas.
     private static readonly object SinUsuario = new();
     private static readonly PasswordHasher<object> Hasher = new();
     private static readonly Lazy<string> ResumenFicticio = new(() => Hasher.HashPassword(SinUsuario, Guid.NewGuid().ToString()));
@@ -26,7 +26,7 @@ internal sealed class HasherContrasenas : IHasherContrasenas
         }
         catch (FormatException)
         {
-            // Not a hash (e.g. the seeded system user): nobody can log in with it.
+            // No es un hash (por ejemplo, el usuario del sistema de la semilla): nadie puede iniciar sesión con él.
             return ResultadoContrasena.Incorrecta;
         }
     }

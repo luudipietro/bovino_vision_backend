@@ -1,14 +1,14 @@
 namespace BovinoVision.Aplicacion.Capturas;
 
-/// <summary>Keeps the private image files of captures outside the database.</summary>
+/// <summary>Guarda los archivos de imagen privados de las capturas fuera de la base de datos.</summary>
 public interface IAlmacenamientoImagenes
 {
-    /// <summary>Stores the content and returns the reference that identifies it from now on.</summary>
+    /// <summary>Almacena el contenido y devuelve la referencia que lo identifica de ahora en más.</summary>
     Task<string> GuardarAsync(string nombreSugerido, ReadOnlyMemory<byte> contenido, CancellationToken cancelacion = default);
 
     /// <summary>
-    /// Opens the stored content for reading; the caller disposes the stream. Returns null when the file no
-    /// longer exists or the reference does not point inside the storage.
+    /// Abre el contenido almacenado para lectura; el llamador libera el stream. Devuelve null cuando el archivo ya
+    /// no existe o la referencia no apunta dentro del almacenamiento.
     /// </summary>
     Task<Stream?> AbrirAsync(string referencia, CancellationToken cancelacion = default);
 

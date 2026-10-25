@@ -1,6 +1,6 @@
 namespace BovinoVision.Aplicacion.Capturas;
 
-/// <summary>What the Capturas module needs to know about animals.</summary>
+/// <summary>Lo que el módulo Capturas necesita saber de los animales.</summary>
 public interface IAnimalesDeCaptura
 {
     Task<bool> ExisteAsync(Guid idAnimal, Guid idEstablecimiento, CancellationToken cancelacion = default);

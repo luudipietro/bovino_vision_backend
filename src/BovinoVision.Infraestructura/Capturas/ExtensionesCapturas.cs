@@ -6,7 +6,7 @@ namespace BovinoVision.Infraestructura.Capturas;
 
 public static class ExtensionesCapturas
 {
-    /// <summary>Adapters of the Capturas module: persistence, read queries and image storage.</summary>
+    /// <summary>Adaptadores del módulo Capturas: persistencia, consultas de lectura y almacenamiento de imágenes.</summary>
     public static IServiceCollection AgregarInfraestructuraCapturas(this IServiceCollection servicios, IConfiguration configuracion)
     {
         servicios.AddOptions<OpcionesAlmacenamiento>().Bind(configuracion.GetSection(OpcionesAlmacenamiento.Seccion));

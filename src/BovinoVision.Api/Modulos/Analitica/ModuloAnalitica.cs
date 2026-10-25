@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BovinoVision.Api.Modulos.Analitica;
 
-/// <summary>Analítica y Alertas: weighing history with GMD, herd panel, reports and prioritized alerts.</summary>
+/// <summary>Analítica y Alertas: historial de pesajes con GMD, panel del rodeo, reportes y alertas priorizadas.</summary>
 public sealed class ModuloAnalitica : IModulo
 {
     public const string ZonaHorariaPorDefecto = "America/Argentina/Buenos_Aires";

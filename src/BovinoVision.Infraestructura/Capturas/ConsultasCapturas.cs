@@ -51,7 +51,7 @@ internal sealed class ConsultasCapturas(BovinoVisionDbContext contexto) : IConsu
                 c.Estado,
                 c.MotivoFallo,
                 contexto.EventosPesaje.Where(e => e.IdCaptura == c.Id).Select(e => (Guid?)e.Id).FirstOrDefault(),
-                // A capture may hold several images; the first by id (time-ordered UUID v7) keeps the row single and stable.
+                // Una captura puede tener varias imágenes; la primera por id (UUID v7 ordenado por tiempo) mantiene la fila única y estable.
                 contexto.Imagenes.Where(i => i.IdCaptura == c.Id).OrderBy(i => i.Id).Select(i => (Guid?)i.Id).FirstOrDefault()))
             .ToListAsync(cancelacion);
 

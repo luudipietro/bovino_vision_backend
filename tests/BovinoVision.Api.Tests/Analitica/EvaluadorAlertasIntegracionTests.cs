@@ -34,7 +34,7 @@ public class EvaluadorAlertasIntegracionTests(FabricaApi fabrica) : PruebaDeApi(
             datos.Pesar(animal, 300m, DatosAnalitica.Inicio);
             await datos.GuardarAsync();
 
-            // The new event is only staged when the evaluator runs, as in the weighing use case.
+            // El evento nuevo solo está preparado cuando corre el evaluador, como en el caso de uso de pesaje.
             var evento = datos.Pesar(animal, 303m, DatosAnalitica.Inicio.AddDays(10));
             idEvento = evento.Id;
             var evaluador = alcance.ServiceProvider.GetRequiredService<IEvaluadorAlertas>();

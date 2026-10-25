@@ -14,8 +14,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace BovinoVision.Api.Tests.Capturas;
 
 /// <summary>
-/// Integration tests of the Capturas module: a host with in-memory image storage, so they
-/// never write files. Animals and lots are inserted directly because Trazabilidad owns their endpoints.
+/// Tests de integración del módulo Capturas: un host con almacenamiento de imágenes en memoria, así
+/// nunca escriben archivos. Animales y lotes se insertan directamente porque sus endpoints son de Trazabilidad.
 /// </summary>
 public abstract class PruebaDeCapturas(FabricaApi fabrica) : PruebaDeApi(fabrica)
 {

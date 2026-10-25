@@ -9,11 +9,11 @@ public sealed class OpcionesAlmacenamiento
 {
     public const string Seccion = "Almacenamiento";
 
-    /// <summary>Relative paths are resolved against the application content root.</summary>
+    /// <summary>Las rutas relativas se resuelven respecto del directorio raíz de contenido de la aplicación.</summary>
     public string DirectorioImagenes { get; set; } = "uploads";
 }
 
-/// <summary>Writes images to a local directory; a bucket adapter replaces it in production.</summary>
+/// <summary>Escribe las imágenes en un directorio local; en producción lo reemplaza un adaptador de bucket.</summary>
 internal sealed partial class AlmacenamientoLocalImagenes(IOptions<OpcionesAlmacenamiento> opciones, IHostEnvironment entorno)
     : IAlmacenamientoImagenes
 {
@@ -39,13 +39,13 @@ internal sealed partial class AlmacenamientoLocalImagenes(IOptions<OpcionesAlmac
 
         try
         {
-            // FileShare.Delete lets a capture be discarded while its photo is being downloaded.
+            // FileShare.Delete permite descartar una captura mientras se descarga su foto.
             return Task.FromResult<Stream?>(new FileStream(
                 ruta, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete, bufferSize: 4096, useAsync: true));
         }
         catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
         {
-            // The file was removed between the existence check and the open.
+            // El archivo se borró entre la verificación de existencia y la apertura.
             return Task.FromResult<Stream?>(null);
         }
     }
@@ -61,8 +61,8 @@ internal sealed partial class AlmacenamientoLocalImagenes(IOptions<OpcionesAlmac
         return Task.CompletedTask;
     }
 
-    // The stored reference could have been tampered with, so the resolved path must stay inside the directory.
-    // The separator in the prefix keeps a sibling such as "uploads-otro" from passing as "uploads".
+    // La referencia guardada podría estar adulterada, así que la ruta resuelta debe quedar dentro del directorio.
+    // El separador en el prefijo evita que un hermano como "uploads-otro" pase por "uploads".
     private string? RutaDentroDelDirectorio(string referencia)
     {
         if (string.IsNullOrWhiteSpace(referencia))
@@ -85,7 +85,7 @@ internal sealed partial class AlmacenamientoLocalImagenes(IOptions<OpcionesAlmac
         return ruta.StartsWith(prefijo, comparacion) ? ruta : null;
     }
 
-    // The client chooses the file name, so only short alphanumeric extensions are kept.
+    // El cliente elige el nombre del archivo, así que solo se conservan extensiones alfanuméricas cortas.
     private static string ExtensionSegura(string nombreSugerido)
     {
         var extension = Path.GetExtension(nombreSugerido);

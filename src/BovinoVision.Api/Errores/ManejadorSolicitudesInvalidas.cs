@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BovinoVision.Api.Errores;
 
-/// <summary>Translates request binding failures into ProblemDetails with their status code (usually 400).</summary>
+/// <summary>Traduce las fallas de enlace de la solicitud a ProblemDetails con su código de estado (por lo general 400).</summary>
 internal sealed class ManejadorSolicitudesInvalidas(IProblemDetailsService problemDetails) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext contexto, Exception excepcion, CancellationToken cancelacion)

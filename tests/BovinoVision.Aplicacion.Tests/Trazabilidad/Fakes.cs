@@ -17,8 +17,8 @@ internal sealed class RelojFijo(DateTimeOffset ahora) : TimeProvider
 }
 
 /// <summary>
-/// In-memory implementation of every port of the module. Added entities stay pending
-/// until <see cref="GuardarCambiosAsync"/> runs, so reads only see committed data.
+/// Implementación en memoria de todos los puertos del módulo. Las entidades agregadas quedan pendientes
+/// hasta que corre <see cref="GuardarCambiosAsync"/>, así las lecturas solo ven datos confirmados.
 /// </summary>
 internal sealed class TrazabilidadEnMemoria
     : IRepositorioLotes, IRepositorioAnimales, ICatalogoRazas, IConsultasTrazabilidad, IUnidadDeTrabajo
@@ -79,7 +79,7 @@ internal sealed class TrazabilidadEnMemoria
 
     public void Actualizar(Animal animal)
     {
-        // Tracked by reference: changes are already visible.
+        // Seguido por referencia: los cambios ya son visibles.
     }
 
     public Task<bool> ExisteAsync(Guid id, CancellationToken cancelacion) =>
@@ -109,7 +109,7 @@ internal sealed class TrazabilidadEnMemoria
             animales = animales.Where(a => a.Identificador.Contains(filtro.Busqueda, StringComparison.OrdinalIgnoreCase));
         }
 
-        // No weighings or alerts exist in memory.
+        // No existen pesajes ni alertas en memoria.
         if (filtro.SoloConAlertasActivas)
         {
             animales = [];

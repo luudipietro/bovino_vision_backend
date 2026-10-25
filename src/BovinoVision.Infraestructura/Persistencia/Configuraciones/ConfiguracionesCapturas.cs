@@ -28,7 +28,7 @@ internal sealed class CapturaConfiguracion : IEntityTypeConfiguration<Captura>
         builder.HasMany(c => c.Imagenes).WithOne().HasForeignKey(i => i.IdCaptura).OnDelete(DeleteBehavior.Cascade);
         builder.Navigation(c => c.Imagenes).UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        // Support the inference worker picking pending captures and reclaiming expired leases.
+        // Soportan que el worker de inferencia tome capturas pendientes y recupere concesiones vencidas.
         builder.HasIndex(c => new { c.Estado, c.ProximoIntento });
         builder.HasIndex(c => new { c.Estado, c.VenceProcesamiento });
         builder.HasIndex(c => c.IdSesion);

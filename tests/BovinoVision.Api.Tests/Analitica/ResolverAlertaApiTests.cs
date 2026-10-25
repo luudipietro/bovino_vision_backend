@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BovinoVision.Api.Tests.Analitica;
 
-/// <summary>POST /alertas/{id}/resolver: closes an active alert of the session's establecimiento.</summary>
+/// <summary>POST /alertas/{id}/resolver: cierra una alerta activa del establecimiento de la sesión.</summary>
 public class ResolverAlertaApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
 {
     private static readonly DateTimeOffset Inicio = DatosAnalitica.Inicio;

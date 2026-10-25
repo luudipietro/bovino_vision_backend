@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BovinoVision.Api.Tests.Trazabilidad;
 
-/// <summary>Builds traceability data through the API and weighings directly in the database.</summary>
+/// <summary>Construye datos de trazabilidad mediante la API y los pesajes directamente en la base de datos.</summary>
 internal static class DatosDeTrazabilidad
 {
     public static async Task<LoteRespuesta> CrearLoteAsync(this HttpClient cliente, string codigo, decimal? gmdObjetivo = null)
@@ -34,7 +34,7 @@ internal static class DatosDeTrazabilidad
         return (await respuesta.LeerAsync<T>())!;
     }
 
-    /// <summary>Stores a processed capture and its weighing event, optionally with an alert.</summary>
+    /// <summary>Guarda una captura procesada y su evento de pesaje, opcionalmente con una alerta.</summary>
     public static async Task<EventoPesaje> RegistrarPesajeAsync(
         this FabricaApi fabrica,
         Guid idAnimal,

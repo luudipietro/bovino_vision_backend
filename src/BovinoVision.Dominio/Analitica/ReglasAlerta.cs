@@ -1,8 +1,8 @@
 namespace BovinoVision.Dominio.Analitica;
 
 /// <summary>
-/// Compares the interval GMD of a weighing with the expected GMD of its lot:
-/// a negative GMD is a weight loss; a GMD below a fraction of the lot objective is stagnation.
+/// Compara la GMD del intervalo de un pesaje con la GMD esperada de su lote:
+/// una GMD negativa es una pérdida de peso; una GMD por debajo de una fracción del objetivo del lote es estancamiento.
 /// </summary>
 public sealed class ReglasAlerta
 {

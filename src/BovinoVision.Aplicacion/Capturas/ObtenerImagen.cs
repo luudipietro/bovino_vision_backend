@@ -5,15 +5,15 @@ namespace BovinoVision.Aplicacion.Capturas;
 
 public sealed record ObtenerImagenConsulta(Guid IdImagen);
 
-/// <summary>Where the file of an image lives and the content type it was uploaded with.</summary>
+/// <summary>Dónde vive el archivo de una imagen y el tipo de contenido con el que se subió.</summary>
 public sealed record ImagenAlmacenada(string Referencia, string TipoContenido);
 
-/// <summary>An image opened for reading; whoever receives it disposes <see cref="Contenido"/>.</summary>
+/// <summary>Una imagen abierta para lectura; quien la recibe libera <see cref="Contenido"/>.</summary>
 public sealed record ArchivoImagen(Stream Contenido, string TipoContenido);
 
 /// <summary>
-/// Serves the photo of a capture. Only images of captures whose animal belongs to the establishment
-/// of the session are visible; any other case looks like a missing image.
+/// Sirve la foto de una captura. Solo son visibles las imágenes de capturas cuyo animal pertenece al establecimiento
+/// de la sesión; cualquier otro caso se ve como una imagen inexistente.
 /// </summary>
 public sealed class ObtenerImagen(IConsultasCapturas consultas, IAlmacenamientoImagenes almacenamiento, IContextoUsuario usuario)
 {

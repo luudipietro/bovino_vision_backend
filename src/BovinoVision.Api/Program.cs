@@ -14,7 +14,7 @@ builder.Services.ConfigureHttpJsonOptions(opciones =>
     opciones.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
 });
 builder.Services.AddProblemDetails();
-// Bad requests (missing or malformed parameters) reach the handler in every environment.
+// Las solicitudes inválidas (parámetros faltantes o mal formados) llegan al manejador en todos los entornos.
 builder.Services.Configure<RouteHandlerOptions>(opciones => opciones.ThrowOnBadRequest = true);
 builder.Services.AddExceptionHandler<ManejadorSolicitudesInvalidas>();
 builder.Services.AddExceptionHandler<ManejadorErroresDeDominio>();

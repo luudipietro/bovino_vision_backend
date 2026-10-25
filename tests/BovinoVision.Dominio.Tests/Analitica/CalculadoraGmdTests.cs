@@ -4,7 +4,7 @@ namespace BovinoVision.Dominio.Tests.Analitica;
 
 public class CalculadoraGmdTests
 {
-    // Fixed UTC-3 zone so the tests do not depend on the machine's time zone database.
+    // Zona UTC-3 fija para que los tests no dependan de la base de zonas horarias de la máquina.
     private static readonly TimeZoneInfo UtcMenos3 =
         TimeZoneInfo.CreateCustomTimeZone("UTC-3", TimeSpan.FromHours(-3), "UTC-3", "UTC-3");
 
@@ -47,12 +47,12 @@ public class CalculadoraGmdTests
     [Fact]
     public void Los_dias_se_cuentan_por_fecha_calendario_de_la_zona_configurada()
     {
-        // 02:00 UTC on Jan 2 is still Jan 1 at 23:00 in UTC-3, so both weighings share a day.
+        // Las 02:00 UTC del 2 de enero todavía son las 23:00 del 1 de enero en UTC-3, así que ambos pesajes comparten día.
         var mismaFechaLocal = _calculadora.Calcular(
             new Medicion(300m, new DateTimeOffset(2026, 1, 1, 12, 0, 0, TimeSpan.Zero)),
             new Medicion(310m, new DateTimeOffset(2026, 1, 2, 2, 0, 0, TimeSpan.Zero)));
 
-        // 23:00 at night and 09:00 the next morning (local) are one calendar day apart.
+        // Las 23:00 de la noche y las 09:00 de la mañana siguiente (hora local) están a un día calendario de distancia.
         var diaSiguienteLocal = _calculadora.Calcular(
             new Medicion(300m, new DateTimeOffset(2026, 1, 1, 23, 0, 0, TimeSpan.FromHours(-3))),
             new Medicion(301.5m, new DateTimeOffset(2026, 1, 2, 9, 0, 0, TimeSpan.FromHours(-3))));

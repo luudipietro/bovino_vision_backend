@@ -39,7 +39,7 @@ internal sealed class ColaInferencia(BovinoVisionDbContext contexto, IUnidadDeTr
         await unidadDeTrabajo.GuardarCambiosAsync(cancelacion);
         await transaccion.CommitAsync(cancelacion);
         var trabajo = new TrabajoInferencia(captura.Id, captura.Intentos, captura.Imagenes.OrderBy(i => i.Id).First().ReferenciaImagen);
-        // Completion must re-read the row after inference; the earlier snapshot cannot fence late workers.
+        // Al completar hay que releer la fila después de la inferencia; la foto anterior no puede frenar a workers tardíos.
         contexto.ChangeTracker.Clear();
         return trabajo;
     }

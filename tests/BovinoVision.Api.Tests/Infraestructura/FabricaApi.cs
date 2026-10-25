@@ -15,13 +15,13 @@ using Testcontainers.PostgreSql;
 namespace BovinoVision.Api.Tests.Infraestructura;
 
 /// <summary>
-/// Runs the real API against a disposable PostgreSQL container with all migrations applied.
-/// Shared by every integration test through <see cref="ColeccionApi"/>. Clients are logged in
-/// as a test user whose role has every permission, unless created with <see cref="CrearClienteAnonimo"/>.
+/// Ejecuta la API real contra un contenedor PostgreSQL descartable con todas las migraciones aplicadas.
+/// La comparten todos los tests de integración mediante <see cref="ColeccionApi"/>. Los clientes inician sesión
+/// como un usuario de prueba cuyo rol tiene todos los permisos, salvo que se creen con <see cref="CrearClienteAnonimo"/>.
 /// </summary>
 public sealed class FabricaApi : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    // Tables without seed data, emptied between tests (seeded catalogs stay).
+    // Tablas sin datos de semilla, que se vacían entre tests (los catálogos de semilla se conservan).
     private const string SqlLimpieza =
         "TRUNCATE alertas, eventos_pesaje, imagenes, capturas, sesiones_captura, historial_lotes, animales, lotes CASCADE";
 
@@ -47,7 +47,7 @@ public sealed class FabricaApi : WebApplicationFactory<Program>, IAsyncLifetime
     public async ValueTask InitializeAsync()
     {
         await _postgres.StartAsync();
-        // Program applies migrations before RunAsync starts any hosted consumer.
+        // Program aplica las migraciones antes de que RunAsync inicie cualquier consumidor alojado.
         _ = Services;
         await CrearUsuarioDePruebasAsync();
         using var anonimo = CrearClienteAnonimo();
@@ -57,7 +57,7 @@ public sealed class FabricaApi : WebApplicationFactory<Program>, IAsyncLifetime
         _token = LeerCookieDeSesion(respuesta) ?? throw new InvalidOperationException("El login de pruebas no devolvió la cookie");
     }
 
-    /// <summary>Client without the test session, for login and authorization tests.</summary>
+    /// <summary>Cliente sin la sesión de prueba, para tests de login y autorización.</summary>
     public HttpClient CrearClienteAnonimo()
     {
         var cliente = CreateClient();
@@ -65,7 +65,7 @@ public sealed class FabricaApi : WebApplicationFactory<Program>, IAsyncLifetime
         return cliente;
     }
 
-    /// <summary>Client logged in with the given session token.</summary>
+    /// <summary>Cliente con sesión iniciada con el token dado.</summary>
     public HttpClient CrearClienteConSesion(string token)
     {
         var cliente = CrearClienteAnonimo();
@@ -81,8 +81,8 @@ public sealed class FabricaApi : WebApplicationFactory<Program>, IAsyncLifetime
                 .FirstOrDefault(valor => valor.Length > 0)
             : null;
 
-    // Every client, including the ones of derived hosts, talks HTTPS (the session cookie is
-    // Secure) and carries the test session once it exists.
+    // Todos los clientes, incluidos los de hosts derivados, usan HTTPS (la cookie de sesión es
+    // Secure) y llevan la sesión de prueba una vez que existe.
     protected override void ConfigureClient(HttpClient client)
     {
         base.ConfigureClient(client);
@@ -116,7 +116,7 @@ public sealed class FabricaApi : WebApplicationFactory<Program>, IAsyncLifetime
         await using var alcance = Services.CreateAsyncScope();
         var contexto = alcance.ServiceProvider.GetRequiredService<BovinoVisionDbContext>();
         await contexto.Database.ExecuteSqlRawAsync(SqlLimpieza);
-        // Users, roles and sessions created by a test go away; seeded and test roles get their permissions back.
+        // Los usuarios, roles y sesiones creados por un test se eliminan; los roles de semilla y de prueba recuperan sus permisos.
         await contexto.SesionesUsuario.Where(s => s.IdUsuario != IdUsuarioPruebas).ExecuteDeleteAsync();
         await contexto.Usuarios.Where(u => u.Id != IdUsuarioPruebas && u.Id != DatosSemilla.IdUsuarioSistema).ExecuteDeleteAsync();
         var conservados = DatosSemilla.Roles.Select(r => r.Id).Append(IdRolPruebas).ToArray();
@@ -136,9 +136,9 @@ public sealed class FabricaApi : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseEnvironment("Testing");
         builder.UseSetting($"ConnectionStrings:{ExtensionesDeServicios.NombreConexion}", _postgres.GetConnectionString());
         builder.UseSetting("BaseDeDatos:AplicarMigracionesAlIniciar", "true");
-        // Long enough that hosts with a fake clock never see the test session expire.
+        // Lo bastante larga para que los hosts con reloj falso nunca vean vencer la sesión de prueba.
         builder.UseSetting("Autenticacion:DuracionSesionHoras", "87600");
-        // Derived hosts explicitly opt in; a shared host must never claim their jobs.
+        // Los hosts derivados lo habilitan explícitamente; un host compartido nunca debe tomar sus trabajos.
         builder.UseSetting("Inferencia:ProcesarEnSegundoPlano", _procesarEnSegundoPlano.ToString());
         builder.ConfigureLogging(logging => logging.AddProvider(_registro));
     }
@@ -171,7 +171,7 @@ public sealed class ColeccionApi : ICollectionFixture<FabricaApi>
     public const string Nombre = "Api";
 }
 
-/// <summary>Base class for integration tests: fresh data before each test and a shared client.</summary>
+/// <summary>Clase base de los tests de integración: datos limpios antes de cada test y un cliente compartido.</summary>
 [Collection(ColeccionApi.Nombre)]
 public abstract class PruebaDeApi(FabricaApi fabrica) : IAsyncLifetime
 {

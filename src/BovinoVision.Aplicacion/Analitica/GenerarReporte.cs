@@ -4,8 +4,8 @@ using BovinoVision.Dominio.Comun;
 
 namespace BovinoVision.Aplicacion.Analitica;
 
-/// <param name="Desde">First local calendar date of the period (inclusive).</param>
-/// <param name="Hasta">Last local calendar date of the period (inclusive).</param>
+/// <param name="Desde">Primera fecha calendario local del período (inclusive).</param>
+/// <param name="Hasta">Última fecha calendario local del período (inclusive).</param>
 public sealed record ConsultaReporte(DateOnly Desde, DateOnly Hasta, Guid? IdLote);
 
 public sealed record ReporteRespuesta(
@@ -16,7 +16,7 @@ public sealed record ReporteRespuesta(
     decimal? PesoPromedioKg,
     decimal? GmdPromedioKgDia);
 
-/// <summary>Weighing report of a period: counts, average weight and the GMD between consecutive weighings inside it.</summary>
+/// <summary>Reporte de pesajes de un período: cantidades, peso promedio y la GMD entre pesajes consecutivos dentro de él.</summary>
 public sealed class GenerarReporte(IConsultasAnalitica consultas, IContextoUsuario usuario, CalculadoraGmd calculadora)
 {
     public async Task<ReporteRespuesta> EjecutarAsync(ConsultaReporte consulta, CancellationToken cancelacion = default)

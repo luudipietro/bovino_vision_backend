@@ -2,7 +2,7 @@ using BovinoVision.Dominio.Trazabilidad;
 
 namespace BovinoVision.Aplicacion.Trazabilidad;
 
-/// <summary>Write side for lots; implementations only stage changes.</summary>
+/// <summary>Lado de escritura de los lotes; las implementaciones solo preparan cambios.</summary>
 public interface IRepositorioLotes
 {
     Task<Lote?> ObtenerAsync(Guid id, Guid idEstablecimiento, CancellationToken cancelacion);
@@ -11,21 +11,21 @@ public interface IRepositorioLotes
 
     void Agregar(Lote lote);
 
-    /// <summary>Stand-in until <see cref="Lote"/> exposes a rename operation.</summary>
+    /// <summary>Reemplazo provisorio hasta que <see cref="Lote"/> exponga una operación para renombrar.</summary>
     void Renombrar(Lote lote, string nombre);
 }
 
-/// <summary>Write side for animals; implementations only stage changes.</summary>
+/// <summary>Lado de escritura de los animales; las implementaciones solo preparan cambios.</summary>
 public interface IRepositorioAnimales
 {
-    /// <summary>Returns the animal with its whole lot history, or null when it is not in the establecimiento.</summary>
+    /// <summary>Devuelve el animal con todo su historial de lotes, o null cuando no está en el establecimiento.</summary>
     Task<Animal?> ObtenerAsync(Guid id, Guid idEstablecimiento, CancellationToken cancelacion);
 
     Task<bool> ExisteIdentificadorAsync(Guid idEstablecimiento, string identificador, CancellationToken cancelacion);
 
     void Agregar(Animal animal);
 
-    /// <summary>Stages the changes made to an animal returned by <see cref="ObtenerAsync"/>, including new lot assignments.</summary>
+    /// <summary>Prepara los cambios hechos a un animal devuelto por <see cref="ObtenerAsync"/>, incluidas las nuevas asignaciones de lote.</summary>
     void Actualizar(Animal animal);
 }
 
@@ -36,7 +36,7 @@ public interface ICatalogoRazas
 
 public sealed record FiltroAnimales(Guid? IdLote = null, string? Busqueda = null, bool SoloConAlertasActivas = false);
 
-/// <summary>Read side of the module; every method runs a fixed number of queries.</summary>
+/// <summary>Lado de lectura del módulo; cada método ejecuta una cantidad fija de consultas.</summary>
 public interface IConsultasTrazabilidad
 {
     Task<IReadOnlyList<RazaRespuesta>> ListarRazasAsync(CancellationToken cancelacion);
@@ -49,6 +49,6 @@ public interface IConsultasTrazabilidad
 
     Task<AnimalRespuesta?> ObtenerAnimalAsync(Guid id, Guid idEstablecimiento, CancellationToken cancelacion);
 
-    /// <summary>Lot assignments newest first, or null when the animal is not in the establecimiento.</summary>
+    /// <summary>Asignaciones de lote de la más reciente a la más antigua, o null cuando el animal no está en el establecimiento.</summary>
     Task<IReadOnlyList<AsignacionLoteRespuesta>?> ListarHistorialLotesAsync(Guid idAnimal, Guid idEstablecimiento, CancellationToken cancelacion);
 }

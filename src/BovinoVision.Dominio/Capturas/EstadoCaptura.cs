@@ -1,9 +1,9 @@
 namespace BovinoVision.Dominio.Capturas;
 
 /// <summary>
-/// Lifecycle of a capture, which doubles as the inference work queue:
+/// Ciclo de vida de una captura, que además funciona como cola de trabajo de inferencia:
 /// registrada → pendiente → procesando → procesada | fallida.
-/// A transient estimator failure returns the capture to pendiente.
+/// Una falla transitoria del estimador devuelve la captura a pendiente.
 /// </summary>
 public enum EstadoCaptura
 {

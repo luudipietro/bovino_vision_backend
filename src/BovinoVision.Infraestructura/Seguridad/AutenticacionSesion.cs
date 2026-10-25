@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace BovinoVision.Infraestructura.Seguridad;
 
-/// <summary>Names shared by the authentication handler, the user context and the endpoints.</summary>
+/// <summary>Nombres compartidos por el manejador de autenticación, el contexto de usuario y los endpoints.</summary>
 public static class SesionHttp
 {
     public const string Esquema = "SesionBovinoVision";
@@ -20,7 +20,7 @@ public static class SesionHttp
     public const string ReclamoPermiso = "permiso";
     public const string ReclamoEstablecimiento = "id_establecimiento";
 
-    /// <summary>Authorization policy that requires one permission.</summary>
+    /// <summary>Política de autorización que exige un permiso.</summary>
     public static string Politica(Permiso permiso) => $"permiso:{ConvencionesDeNombres.ASnakeCase(permiso.ToString())}";
 
     public static CookieOptions OpcionesCookie(DateTimeOffset expira) => new()
@@ -32,12 +32,12 @@ public static class SesionHttp
         Expires = expira,
     };
 
-    /// <summary>The session validated for this request, set by the handler.</summary>
+    /// <summary>La sesión validada para esta solicitud, asignada por el manejador.</summary>
     public static SesionActiva? SesionActual(this HttpContext contexto) =>
         contexto.Items.TryGetValue(typeof(SesionActiva), out var sesion) ? sesion as SesionActiva : null;
 }
 
-/// <summary>Validates the session cookie on every request and turns the session into claims.</summary>
+/// <summary>Valida la cookie de sesión en cada solicitud y convierte la sesión en claims.</summary>
 internal sealed class ManejadorAutenticacionSesion(
     IOptionsMonitor<AuthenticationSchemeOptions> opciones,
     ILoggerFactory registro,

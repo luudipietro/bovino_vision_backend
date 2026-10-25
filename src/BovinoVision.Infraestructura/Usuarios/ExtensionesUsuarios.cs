@@ -13,7 +13,7 @@ public static partial class ExtensionesUsuarios
 {
     private const string SeccionAutenticacion = "Autenticacion";
 
-    /// <summary>Adapters of the Usuarios module plus the session authentication and the permission policies.</summary>
+    /// <summary>Adaptadores del módulo Usuarios más la autenticación por sesión y las políticas de permisos.</summary>
     public static IServiceCollection AgregarInfraestructuraUsuarios(this IServiceCollection servicios, IConfiguration configuracion)
     {
         var horas = configuracion.GetValue<double?>($"{SeccionAutenticacion}:DuracionSesionHoras") ?? 12;
@@ -33,7 +33,7 @@ public static partial class ExtensionesUsuarios
             .AddScheme<AuthenticationSchemeOptions, ManejadorAutenticacionSesion>(SesionHttp.Esquema, _ => { });
         servicios.AddAuthorization(opciones =>
         {
-            // Every endpoint needs a session unless it explicitly allows anonymous access.
+            // Todo endpoint exige una sesión salvo que permita explícitamente el acceso anónimo.
             opciones.FallbackPolicy = opciones.DefaultPolicy;
             foreach (var permiso in Enum.GetValues<Permiso>())
             {
@@ -44,7 +44,7 @@ public static partial class ExtensionesUsuarios
         return servicios;
     }
 
-    /// <summary>Creates the configured first administrator (D8); credentials never live in the repository.</summary>
+    /// <summary>Crea el primer administrador configurado (D8); las credenciales nunca viven en el repositorio.</summary>
     public static async Task CrearAdministradorInicialAsync(
         this IServiceProvider proveedor, IConfiguration configuracion, CancellationToken cancelacion = default)
     {

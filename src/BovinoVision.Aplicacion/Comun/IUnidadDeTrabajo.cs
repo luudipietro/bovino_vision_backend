@@ -1,8 +1,8 @@
 namespace BovinoVision.Aplicacion.Comun;
 
 /// <summary>
-/// Commits every change tracked during a use case in a single transaction.
-/// Repositories only stage changes; each use case calls this once at the end.
+/// Confirma en una sola transacción todos los cambios registrados durante un caso de uso.
+/// Los repositorios solo preparan cambios; cada caso de uso llama a esto una vez al final.
 /// </summary>
 public interface IUnidadDeTrabajo
 {

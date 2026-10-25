@@ -6,17 +6,17 @@ namespace BovinoVision.Aplicacion.Usuarios;
 
 public sealed record NuevoUsuario(string Nombre, string Correo, string Contrasena, Guid IdRol);
 
-/// <summary>Null values keep the current data.</summary>
+/// <summary>Los valores null conservan los datos actuales.</summary>
 public sealed record CambiosUsuario(string? Nombre = null, string? Correo = null, string? Contrasena = null);
 
 public sealed record CambioRol(Guid IdRol);
 
 public sealed record PermisosRol(IReadOnlyList<Permiso> Permisos);
 
-/// <summary>Shared checks of the user management use cases.</summary>
+/// <summary>Verificaciones compartidas de los casos de uso de gestión de usuarios.</summary>
 internal static class ReglasUsuarios
 {
-    /// <summary>CU-05 5a, CU-07 3a and CU-08 4a: an operation cannot leave the system without an administrator.</summary>
+    /// <summary>CU-05 5a, CU-07 3a y CU-08 4a: una operación no puede dejar el sistema sin administrador.</summary>
     public static async Task ExigirOtroAdministradorAsync(
         IRepositorioUsuarios usuarios, Guid idEstablecimiento, Guid? exceptoUsuario, Guid? exceptoRol, CancellationToken cancelacion)
     {
@@ -43,7 +43,7 @@ internal static class ReglasUsuarios
         IRepositorioUsuarios usuarios, Guid idUsuario, Guid idEstablecimiento, CancellationToken cancelacion) =>
         await usuarios.ObtenerAsync(idUsuario, idEstablecimiento, cancelacion) ?? throw NoEncontradoError.De("el usuario", idUsuario);
 
-    /// <summary>Response of an existing user, with the creation time of their most recent login session.</summary>
+    /// <summary>Respuesta de un usuario existente, con la hora de creación de su sesión de login más reciente.</summary>
     public static async Task<UsuarioRespuesta> ARespuestaAsync(
         IRepositorioSesionesUsuario sesiones, Usuario usuario, Rol rol, CancellationToken cancelacion)
     {
@@ -61,7 +61,7 @@ internal static class ReglasUsuarios
     }
 }
 
-/// <summary>CU-06: users of the establecimiento, optionally filtered by role.</summary>
+/// <summary>CU-06: usuarios del establecimiento, opcionalmente filtrados por rol.</summary>
 public sealed class ListarUsuarios(
     IRepositorioUsuarios usuarios,
     IRepositorioRoles roles,
@@ -77,7 +77,7 @@ public sealed class ListarUsuarios(
     }
 }
 
-/// <summary>CU-03: the new user starts active with a hashed password.</summary>
+/// <summary>CU-03: el usuario nuevo empieza activo con una contraseña hasheada.</summary>
 public sealed class RegistrarUsuario(
     IRepositorioUsuarios usuarios,
     IRepositorioRoles roles,
@@ -97,7 +97,7 @@ public sealed class RegistrarUsuario(
     }
 }
 
-/// <summary>CU-04: name, email or password; a new password closes the user's open sessions.</summary>
+/// <summary>CU-04: nombre, correo o contraseña; una contraseña nueva cierra las sesiones abiertas del usuario.</summary>
 public sealed class ModificarUsuario(
     IRepositorioUsuarios usuarios,
     IRepositorioRoles roles,
@@ -133,7 +133,7 @@ public sealed class ModificarUsuario(
     }
 }
 
-/// <summary>CU-07: the new role applies on the user's next request.</summary>
+/// <summary>CU-07: el rol nuevo se aplica en la próxima solicitud del usuario.</summary>
 public sealed class AsignarRolUsuario(
     IRepositorioUsuarios usuarios,
     IRepositorioRoles roles,
@@ -146,7 +146,7 @@ public sealed class AsignarRolUsuario(
         var usuario = await ReglasUsuarios.ObtenerUsuarioAsync(usuarios, idUsuario, contexto.IdEstablecimiento, cancelacion);
         var actual = await ReglasUsuarios.ObtenerRolAsync(roles, usuario.IdRol, contexto.IdEstablecimiento, cancelacion);
         var nuevo = await ReglasUsuarios.ObtenerRolAsync(roles, cambio.IdRol, contexto.IdEstablecimiento, cancelacion);
-        // Rules are checked before changing the user, so a rejected change leaves it untouched.
+        // Las reglas se verifican antes de cambiar al usuario, así un cambio rechazado lo deja intacto.
         if (usuario.Activo && actual.EsAdministrador && !nuevo.EsAdministrador)
         {
             await ReglasUsuarios.ExigirOtroAdministradorAsync(usuarios, contexto.IdEstablecimiento, usuario.Id, null, cancelacion);
@@ -159,7 +159,7 @@ public sealed class AsignarRolUsuario(
     }
 }
 
-/// <summary>CU-05: logical deactivation; the user's sessions stop working at once.</summary>
+/// <summary>CU-05: baja lógica; las sesiones del usuario dejan de funcionar de inmediato.</summary>
 public sealed class DarDeBajaUsuario(
     IRepositorioUsuarios usuarios,
     IRepositorioRoles roles,
@@ -197,7 +197,7 @@ public sealed class ListarRoles(IRepositorioRoles roles, IRepositorioUsuarios us
     }
 }
 
-/// <summary>Catalog of permissions with the functionality each one enables.</summary>
+/// <summary>Catálogo de permisos con la funcionalidad que habilita cada uno.</summary>
 public sealed class ListarPermisos
 {
     private readonly IReadOnlyList<PermisoRespuesta> _catalogo =
@@ -214,7 +214,7 @@ public sealed class ListarPermisos
     public IReadOnlyList<PermisoRespuesta> Ejecutar() => _catalogo;
 }
 
-/// <summary>CU-08: the permissions apply to every user of the role on their next request.</summary>
+/// <summary>CU-08: los permisos se aplican a todos los usuarios del rol en su próxima solicitud.</summary>
 public sealed class DefinirPermisosRol(
     IRepositorioRoles roles,
     IRepositorioUsuarios usuarios,

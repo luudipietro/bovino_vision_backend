@@ -1,6 +1,6 @@
 namespace BovinoVision.Aplicacion.Comun;
 
-/// <summary>Identity of whoever runs the current operation: the user of the request's session.</summary>
+/// <summary>Identidad de quien ejecuta la operación actual: el usuario de la sesión de la solicitud.</summary>
 public interface IContextoUsuario
 {
     Guid IdUsuario { get; }

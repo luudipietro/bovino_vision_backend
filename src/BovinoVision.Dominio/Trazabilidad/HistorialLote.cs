@@ -2,7 +2,7 @@ using BovinoVision.Dominio.Comun;
 
 namespace BovinoVision.Dominio.Trazabilidad;
 
-/// <summary>Assignment of an animal to a lot during a period; open while VigenteHasta is null.</summary>
+/// <summary>Asignación de un animal a un lote durante un período; abierta mientras VigenteHasta es null.</summary>
 public sealed class HistorialLote : Entidad
 {
     public Guid IdAnimal { get; private set; }

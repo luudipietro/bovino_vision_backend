@@ -7,10 +7,10 @@ public sealed class Alerta : Entidad
     public Guid IdEvento { get; private set; }
     public TipoAlerta Tipo { get; private set; }
 
-    /// <summary>1 is the most urgent.</summary>
+    /// <summary>1 es la más urgente.</summary>
     public int Prioridad { get; private set; }
 
-    /// <summary>Average daily gain (kg/day) of the interval that triggered the alert.</summary>
+    /// <summary>Ganancia media diaria (kg/día) del intervalo que disparó la alerta.</summary>
     public decimal Variacion { get; private set; }
 
     public decimal? GmdEsperada { get; private set; }
@@ -44,7 +44,7 @@ public sealed class Alerta : Entidad
         FechaGeneracion = fechaGeneracion.ToUniversalTime();
     }
 
-    /// <summary>Closes an active alert; an alert that is already resolved cannot be resolved again.</summary>
+    /// <summary>Cierra una alerta activa; una alerta ya resuelta no se puede volver a resolver.</summary>
     public void Resolver()
     {
         if (Estado == EstadoAlerta.Resuelta)

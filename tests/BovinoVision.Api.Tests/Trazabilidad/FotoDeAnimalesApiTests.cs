@@ -3,7 +3,7 @@ using BovinoVision.Api.Tests.Infraestructura;
 
 namespace BovinoVision.Api.Tests.Trazabilidad;
 
-/// <summary>The herd list and the animal record carry the photo of the animal's latest weighing.</summary>
+/// <summary>La lista del rodeo y la ficha del animal llevan la foto del último pesaje del animal.</summary>
 public class FotoDeAnimalesApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
 {
     private static readonly DateTimeOffset Inicio = new(2026, 1, 10, 12, 0, 0, TimeSpan.Zero);

@@ -3,7 +3,7 @@ using BovinoVision.Dominio.Usuarios;
 
 namespace BovinoVision.Aplicacion.Tests.Usuarios;
 
-/// <summary>Password "correcta" matches any hash "hash:correcta"; hashes starting with "viejo:" ask for a rehash.</summary>
+/// <summary>La contraseña "correcta" coincide con cualquier hash "hash:correcta"; los hashes que empiezan con "viejo:" piden un rehash.</summary>
 internal sealed class HasherDePrueba : IHasherContrasenas
 {
     public int VerificacionesFicticias { get; private set; }

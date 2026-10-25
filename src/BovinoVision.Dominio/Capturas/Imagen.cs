@@ -2,7 +2,7 @@ using BovinoVision.Dominio.Comun;
 
 namespace BovinoVision.Dominio.Capturas;
 
-/// <summary>Private image file of a capture; the database keeps only its reference and hash.</summary>
+/// <summary>Archivo de imagen privado de una captura; la base de datos guarda solo su referencia y su hash.</summary>
 public sealed class Imagen : Entidad
 {
     public Guid IdCaptura { get; private set; }

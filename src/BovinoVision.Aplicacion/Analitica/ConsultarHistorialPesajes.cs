@@ -17,7 +17,7 @@ public sealed record PesajeHistorialRespuesta(
     decimal? GmdKgDia,
     string? Operario);
 
-/// <summary>Weighing history of an animal, newest first, with the GMD against the previous weighing.</summary>
+/// <summary>Historial de pesajes de un animal, del más reciente al más antiguo, con la GMD respecto del pesaje anterior.</summary>
 public sealed class ConsultarHistorialPesajes(IConsultasAnalitica consultas, IContextoUsuario usuario, CalculadoraGmd calculadora)
 {
     public async Task<IReadOnlyList<PesajeHistorialRespuesta>> EjecutarAsync(

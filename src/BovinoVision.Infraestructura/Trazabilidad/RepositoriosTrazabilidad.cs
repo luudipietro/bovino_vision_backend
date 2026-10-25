@@ -40,8 +40,8 @@ internal sealed class RepositorioAnimales(BovinoVisionDbContext contexto) : IRep
 
     public void Actualizar(Animal animal)
     {
-        // Keys are generated on the client, so change detection tracks an assignment reached
-        // through the navigation as an existing (Modified) row. Anything not loaded is new.
+        // Las claves se generan en el cliente, así que la detección de cambios trata una asignación alcanzada
+        // por la navegación como una fila existente (Modified). Todo lo que no se cargó es nuevo.
         foreach (var asignacion in animal.HistorialLotes.Where(h => !_asignacionesCargadas.Contains(h.Id)))
         {
             contexto.Entry(asignacion).State = EntityState.Added;

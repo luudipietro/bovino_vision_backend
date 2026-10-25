@@ -32,7 +32,7 @@ public sealed class Animal : Entidad
         FechaNacimiento = fechaNacimiento;
     }
 
-    /// <summary>Updates only the provided values; omitted values keep their current state.</summary>
+    /// <summary>Actualiza solo los valores provistos; los omitidos conservan su estado actual.</summary>
     public void ModificarDatos(Guid? idRaza, Sexo? sexo, DateOnly? fechaNacimiento)
     {
         IdRaza = idRaza ?? IdRaza;
@@ -41,8 +41,8 @@ public sealed class Animal : Entidad
     }
 
     /// <summary>
-    /// Closes the current lot assignment and opens a new one. Returns false when the
-    /// animal already belongs to that lot, in which case nothing is recorded.
+    /// Cierra la asignación de lote vigente y abre una nueva. Devuelve false cuando el
+    /// animal ya pertenece a ese lote, en cuyo caso no se registra nada.
     /// </summary>
     public bool AsignarLote(Guid idLote, Guid idUsuario, DateTimeOffset fecha)
     {

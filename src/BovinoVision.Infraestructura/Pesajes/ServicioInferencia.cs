@@ -15,7 +15,7 @@ internal sealed class ServicioInferencia(IServiceScopeFactory alcances, IOptions
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            // Also leaves startup migrations time to complete before the first poll.
+            // También deja tiempo a que terminen las migraciones de arranque antes del primer sondeo.
             await Task.Delay(TimeSpan.FromSeconds(opciones.Value.IntervaloSegundos), stoppingToken);
             if (!opciones.Value.ProcesarEnSegundoPlano) { continue; }
             try
@@ -26,7 +26,7 @@ internal sealed class ServicioInferencia(IServiceScopeFactory alcances, IOptions
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { return; }
             catch (Exception error)
             {
-                // A failed final transaction leaves the persisted lease available for recovery.
+                // Una transacción final fallida deja la concesión persistida disponible para su recuperación.
                 ErrorProcesamiento(registro, error);
             }
         }

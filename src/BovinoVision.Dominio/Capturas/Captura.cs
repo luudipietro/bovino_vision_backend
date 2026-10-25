@@ -10,16 +10,16 @@ public sealed class Captura : Entidad
     public Guid IdUsuario { get; private set; }
     public Guid IdSesion { get; private set; }
 
-    /// <summary>Moment the photo was taken; it becomes the weighing date even if processing happens later.</summary>
+    /// <summary>Momento en que se tomó la foto; pasa a ser la fecha del pesaje aunque el procesamiento ocurra después.</summary>
     public DateTimeOffset FechaCaptura { get; private set; }
 
     public EstadoCaptura Estado { get; private set; }
     public string? MotivoFallo { get; private set; }
     public int Intentos { get; private set; }
-    /// <summary>Earliest retry date while pending.</summary>
+    /// <summary>Fecha más temprana de reintento mientras está pendiente.</summary>
     public DateTimeOffset? ProximoIntento { get; private set; }
 
-    /// <summary>Lease deadline while processing; after it another worker may reclaim the capture.</summary>
+    /// <summary>Vencimiento de la concesión mientras se procesa; después, otro worker puede recuperar la captura.</summary>
     public DateTimeOffset? VenceProcesamiento { get; private set; }
     public DateTimeOffset? FechaRevision { get; private set; }
 
@@ -48,7 +48,7 @@ public sealed class Captura : Entidad
         return imagen;
     }
 
-    /// <summary>Operator confirms sending the capture to estimation (CU-14 step 1).</summary>
+    /// <summary>El operario confirma el envío de la captura a estimación (CU-14 paso 1).</summary>
     public void SolicitarEstimacion()
     {
         switch (Estado)
@@ -84,7 +84,7 @@ public sealed class Captura : Entidad
         VenceProcesamiento = null;
     }
 
-    /// <summary>The estimator answered but could not estimate; no weighing event is created.</summary>
+    /// <summary>El estimador respondió pero no pudo estimar; no se crea ningún evento de pesaje.</summary>
     public void MarcarFallida(string motivo)
     {
         ExigirEstado(EstadoCaptura.Procesando);
@@ -93,7 +93,7 @@ public sealed class Captura : Entidad
         VenceProcesamiento = null;
     }
 
-    /// <summary>The estimator was unavailable; the capture waits for another attempt.</summary>
+    /// <summary>El estimador no estaba disponible; la captura espera otro intento.</summary>
     public void ReintentarDespues(string motivo, DateTimeOffset proximoIntento)
     {
         ExigirEstado(EstadoCaptura.Procesando);
@@ -103,7 +103,7 @@ public sealed class Captura : Entidad
         VenceProcesamiento = null;
     }
 
-    /// <summary>Operator acknowledges the result (CU-15); it never creates or changes the event.</summary>
+    /// <summary>El operario confirma el resultado (CU-15); nunca crea ni modifica el evento.</summary>
     public void RegistrarRevision(DateTimeOffset fecha)
     {
         ExigirEstado(EstadoCaptura.Procesada);
@@ -111,8 +111,8 @@ public sealed class Captura : Entidad
     }
 
     /// <summary>
-    /// The operator removes the photo before asking for an estimate. Only a registered capture can be
-    /// discarded; the returned references let the caller delete the stored files.
+    /// El operario quita la foto antes de pedir una estimación. Solo se puede descartar una captura
+    /// registrada; las referencias devueltas le permiten al llamador borrar los archivos almacenados.
     /// </summary>
     public IReadOnlyList<string> Descartar()
     {

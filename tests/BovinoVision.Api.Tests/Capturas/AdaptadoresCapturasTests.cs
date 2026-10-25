@@ -76,7 +76,7 @@ public sealed class AdaptadoresCapturasTests : IDisposable
 
         await using (var abierto = await almacenamiento.AbrirAsync(referencia, cancelacion))
         {
-            // Discarding a capture must not fail because a thumbnail download holds the file.
+            // Descartar una captura no debe fallar porque una descarga de miniatura tenga el archivo abierto.
             await almacenamiento.EliminarAsync(referencia, cancelacion);
 
             using var copia = new MemoryStream();
@@ -101,7 +101,7 @@ public sealed class AdaptadoresCapturasTests : IDisposable
         using var proveedor = Proveedor(new() { ["Almacenamiento:DirectorioImagenes"] = "imagenes" });
         var almacenamiento = proveedor.GetRequiredService<IAlmacenamientoImagenes>();
         var cancelacion = TestContext.Current.CancellationToken;
-        // Files that exist next to the storage directory, one of them in a sibling whose name starts with it.
+        // Archivos que existen junto al directorio de almacenamiento, uno de ellos en un hermano cuyo nombre empieza igual.
         Directory.CreateDirectory(Path.Combine(_raiz.FullName, "imagenes", "subcarpeta"));
         Directory.CreateDirectory(Path.Combine(_raiz.FullName, "imagenes-otro"));
         await File.WriteAllBytesAsync(Path.Combine(_raiz.FullName, "secreto.txt"), [9], cancelacion);

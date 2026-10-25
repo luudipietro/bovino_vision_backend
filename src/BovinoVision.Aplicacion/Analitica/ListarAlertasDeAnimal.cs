@@ -4,7 +4,7 @@ namespace BovinoVision.Aplicacion.Analitica;
 
 public sealed record ConsultaAlertasDeAnimal(Guid IdAnimal);
 
-/// <summary>Every alert of an animal (active or resolved), newest first.</summary>
+/// <summary>Todas las alertas de un animal (activas o resueltas), de la más reciente a la más antigua.</summary>
 public sealed class ListarAlertasDeAnimal(IConsultasAnalitica consultas, IContextoUsuario usuario)
 {
     public async Task<IReadOnlyList<AlertaRespuesta>> EjecutarAsync(

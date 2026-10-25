@@ -8,7 +8,7 @@ public sealed class Lote : Entidad
     public string Codigo { get; private set; } = null!;
     public string? Nombre { get; private set; }
 
-    /// <summary>Expected average daily gain (kg/day) used by the stagnation alert.</summary>
+    /// <summary>Ganancia media diaria esperada (kg/día) que usa la alerta de estancamiento.</summary>
     public decimal? GmdObjetivo { get; private set; }
 
     private Lote() { }

@@ -6,7 +6,7 @@ using BovinoVision.Infraestructura.Usuarios;
 
 namespace BovinoVision.Api.Modulos.Usuarios;
 
-/// <summary>Usuarios module: login sessions (CU-01, CU-02), users, roles and permissions (CU-03 to CU-08).</summary>
+/// <summary>Módulo Usuarios: sesiones de login (CU-01, CU-02), usuarios, roles y permisos (CU-03 a CU-08).</summary>
 public sealed class ModuloUsuarios : IModulo
 {
     public void AgregarServicios(IServiceCollection servicios, IConfiguration configuracion)

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace BovinoVision.Infraestructura.Persistencia;
 
-/// <summary>Lets `dotnet ef` build the model without starting the API.</summary>
+/// <summary>Permite que `dotnet ef` construya el modelo sin iniciar la API.</summary>
 internal sealed class FabricaDbContextDeDiseno : IDesignTimeDbContextFactory<BovinoVisionDbContext>
 {
     private const string ConexionLocal =

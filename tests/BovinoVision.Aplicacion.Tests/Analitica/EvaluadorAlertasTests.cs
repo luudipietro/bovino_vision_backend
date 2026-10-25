@@ -51,7 +51,7 @@ public class EvaluadorAlertasTests
     [Fact]
     public async Task Compara_con_el_pesaje_inmediatamente_anterior_por_fecha_de_pesaje()
     {
-        // Registered out of order: the later weighing must be the base, not the last inserted.
+        // Registrados fuera de orden: la base debe ser el pesaje posterior, no el último insertado.
         _repositorio.Eventos.Add(Prueba.Evento(_idAnimal, 310m, Prueba.Inicio.AddDays(5)));
         _repositorio.Eventos.Add(Prueba.Evento(_idAnimal, 400m, Prueba.Inicio));
         _repositorio.Eventos.Add(Prueba.Evento(_idAnimal, 250m, Prueba.Inicio.AddDays(30)));

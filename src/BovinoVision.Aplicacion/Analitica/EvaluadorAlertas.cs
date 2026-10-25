@@ -4,8 +4,8 @@ using BovinoVision.Dominio.Pesajes;
 namespace BovinoVision.Aplicacion.Analitica;
 
 /// <summary>
-/// Applies the GMD alert rule to a newly registered weighing event. The event is only
-/// staged by the caller, so the previous weighing comes from persisted data.
+/// Aplica la regla de alerta por GMD a un evento de pesaje recién registrado. El llamador solo
+/// prepara el evento, así que el pesaje anterior sale de los datos persistidos.
 /// </summary>
 public sealed class EvaluadorAlertas(
     IRepositorioAlertas repositorio,

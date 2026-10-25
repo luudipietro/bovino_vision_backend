@@ -6,7 +6,7 @@ namespace BovinoVision.Aplicacion.Capturas;
 
 public sealed record DescartarCapturaComando(Guid IdCaptura);
 
-/// <summary>Removes a registered capture and its photo when the operator retakes it.</summary>
+/// <summary>Elimina una captura registrada y su foto cuando el operario la vuelve a tomar.</summary>
 public sealed class DescartarCaptura(
     IColaInferencia cola,
     IRepositorioCapturas capturas,
@@ -19,7 +19,7 @@ public sealed class DescartarCaptura(
     {
         IReadOnlyList<string> referencias = [];
 
-        // The row lock keeps a concurrent estimation request from racing with the discard.
+        // El bloqueo de fila evita que una solicitud de estimación concurrente compita con el descarte.
         await cola.ConCapturaBloqueadaAsync(comando.IdCaptura, async captura =>
         {
             if (!await animales.ExisteAsync(captura.IdAnimal, usuario.IdEstablecimiento, cancelacion))
@@ -32,7 +32,7 @@ public sealed class DescartarCaptura(
             await unidadDeTrabajo.GuardarCambiosAsync(cancelacion);
         }, cancelacion);
 
-        // Files go only after the database change is saved: a leftover file is harmless, a dangling reference is not.
+        // Los archivos se borran solo después de guardar el cambio en la base: un archivo sobrante es inofensivo, una referencia colgante no.
         foreach (var referencia in referencias)
         {
             await almacenamiento.EliminarAsync(referencia, CancellationToken.None);

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BovinoVision.Infraestructura.Analitica;
 
-/// <summary>Read-side adapter: projects batches without loading aggregates or issuing per-animal queries.</summary>
+/// <summary>Adaptador del lado de lectura: proyecta lotes de datos sin cargar agregados ni hacer consultas por animal.</summary>
 internal sealed class ConsultasAnalitica(BovinoVisionDbContext contexto) : IConsultasAnalitica
 {
     public Task<bool> ExisteAnimalAsync(Guid idEstablecimiento, Guid idAnimal, CancellationToken cancelacion = default) =>
@@ -53,7 +53,7 @@ internal sealed class ConsultasAnalitica(BovinoVisionDbContext contexto) : ICons
 
         if (filtro.IdLote is { } idLote)
         {
-            // Use the event's historical assignment, never the animal's current lot.
+            // Usa la asignación histórica del evento, nunca el lote actual del animal.
             consulta = consulta.Where(e => contexto.HistorialLotes.Any(h => h.Id == e.IdHistorialLote && h.IdLote == idLote));
         }
 

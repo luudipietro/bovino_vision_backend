@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BovinoVision.Api.Modulos.Trazabilidad;
 
-/// <summary>Breeds catalog, lots, animals and their lot history.</summary>
+/// <summary>Catálogo de razas, lotes, animales y su historial de lotes.</summary>
 public sealed class ModuloTrazabilidad : IModulo
 {
     public void AgregarServicios(IServiceCollection servicios, IConfiguration configuracion)

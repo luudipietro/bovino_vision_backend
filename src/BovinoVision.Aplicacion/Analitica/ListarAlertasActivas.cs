@@ -2,7 +2,7 @@ using BovinoVision.Aplicacion.Comun;
 
 namespace BovinoVision.Aplicacion.Analitica;
 
-/// <summary>Active alerts of the establecimiento: most urgent first, then newest first.</summary>
+/// <summary>Alertas activas del establecimiento: primero las más urgentes y luego las más recientes.</summary>
 public sealed class ListarAlertasActivas(IConsultasAnalitica consultas, IContextoUsuario usuario)
 {
     public async Task<IReadOnlyList<AlertaRespuesta>> EjecutarAsync(CancellationToken cancelacion = default)

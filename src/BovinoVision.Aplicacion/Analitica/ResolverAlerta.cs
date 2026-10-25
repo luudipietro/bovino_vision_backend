@@ -5,7 +5,7 @@ namespace BovinoVision.Aplicacion.Analitica;
 
 public sealed record ResolverAlertaComando(Guid IdAlerta);
 
-/// <summary>Closes an active alert of the establecimiento; it stops showing up among the active ones.</summary>
+/// <summary>Cierra una alerta activa del establecimiento; deja de aparecer entre las activas.</summary>
 public sealed class ResolverAlerta(IRepositorioAlertas alertas, IContextoUsuario usuario, IUnidadDeTrabajo unidadDeTrabajo)
 {
     public async Task EjecutarAsync(ResolverAlertaComando comando, CancellationToken cancelacion = default)

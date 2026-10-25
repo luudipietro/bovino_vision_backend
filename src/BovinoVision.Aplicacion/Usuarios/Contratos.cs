@@ -4,7 +4,7 @@ namespace BovinoVision.Aplicacion.Usuarios;
 
 public interface IRepositorioUsuarios
 {
-    /// <summary>The email must already be normalized with <see cref="Usuario.NormalizarCorreo"/>.</summary>
+    /// <summary>El correo ya debe estar normalizado con <see cref="Usuario.NormalizarCorreo"/>.</summary>
     Task<Usuario?> ObtenerPorCorreoAsync(string correo, CancellationToken cancelacion = default);
 
     Task<Usuario?> ObtenerAsync(Guid id, Guid idEstablecimiento, CancellationToken cancelacion = default);
@@ -13,7 +13,7 @@ public interface IRepositorioUsuarios
 
     Task<IReadOnlyList<Usuario>> ListarAsync(Guid idEstablecimiento, Guid? idRol, CancellationToken cancelacion = default);
 
-    /// <summary>Active users whose role can manage roles, leaving out one user or one role.</summary>
+    /// <summary>Usuarios activos cuyo rol puede gestionar roles, dejando afuera a un usuario o a un rol.</summary>
     Task<int> ContarAdministradoresActivosAsync(
         Guid idEstablecimiento, Guid? exceptoUsuario, Guid? exceptoRol, CancellationToken cancelacion = default);
 
@@ -35,7 +35,7 @@ public interface IRepositorioSesionesUsuario
 
     Task<IReadOnlyList<SesionUsuario>> ListarVigentesAsync(Guid idUsuario, DateTimeOffset ahora, CancellationToken cancelacion = default);
 
-    /// <summary>Creation time of each user's most recent session; users who never logged in are absent.</summary>
+    /// <summary>Hora de creación de la sesión más reciente de cada usuario; los que nunca iniciaron sesión no aparecen.</summary>
     Task<IReadOnlyDictionary<Guid, DateTimeOffset>> ObtenerUltimosAccesosAsync(
         IReadOnlyCollection<Guid> idsUsuario, CancellationToken cancelacion = default);
 }
@@ -47,18 +47,18 @@ public enum ResultadoContrasena
     CorrectaDebeActualizarse,
 }
 
-/// <summary>Password hashing; an invalid or unknown hash is just an incorrect password.</summary>
+/// <summary>Hash de contraseñas; un hash inválido o desconocido es simplemente una contraseña incorrecta.</summary>
 public interface IHasherContrasenas
 {
     string Generar(string contrasena);
 
     ResultadoContrasena Verificar(string resumen, string contrasena);
 
-    /// <summary>Spends the same time as a real check, so unknown emails cannot be told apart by timing.</summary>
+    /// <summary>Tarda lo mismo que una verificación real, para que los correos desconocidos no se distingan por el tiempo.</summary>
     void VerificarFicticio(string contrasena);
 }
 
-/// <summary>Everything an authenticated request needs, read in a single query by token hash.</summary>
+/// <summary>Todo lo que necesita una solicitud autenticada, leído en una sola consulta por el hash del token.</summary>
 public interface IConsultasSesion
 {
     Task<SesionActiva?> ObtenerAsync(string huella, CancellationToken cancelacion = default);

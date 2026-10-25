@@ -3,8 +3,8 @@ using BovinoVision.Dominio.Usuarios;
 namespace BovinoVision.Infraestructura.Persistencia;
 
 /// <summary>
-/// Fixed identifiers of the seeded rows. The single establecimiento and the system user
-/// stand in for real tenants and users until the Users module exists.
+/// Identificadores fijos de las filas de la semilla. El único establecimiento y el usuario del sistema
+/// reemplazan a inquilinos y usuarios reales hasta que exista el módulo Usuarios.
 /// </summary>
 public static class DatosSemilla
 {
@@ -14,7 +14,7 @@ public static class DatosSemilla
     public static readonly Guid IdRolProductor = new("01920000-0000-7000-8000-000000000004");
     public static readonly Guid IdRolOperario = new("01920000-0000-7000-8000-000000000005");
 
-    /// <summary>Initial roles, following the actors of each use case in the ERS (editable through CU-08).</summary>
+    /// <summary>Roles iniciales, según los actores de cada caso de uso de la ERS (editables con CU-08).</summary>
     public static readonly IReadOnlyList<(Guid Id, string Nombre, Permiso[] Permisos)> Roles =
     [
         (IdRolAdministrador, "Administrador", [Permiso.UsuariosGestionar, Permiso.RolesGestionar, Permiso.AuditoriaConsultar]),
@@ -25,7 +25,7 @@ public static class DatosSemilla
     public const string NombreEstablecimiento = "Establecimiento principal";
     public const string CorreoUsuarioSistema = "sistema@bovinovision.local";
 
-    /// <summary>Not a valid hash, so nobody can log in as the system user (which is also inactive).</summary>
+    /// <summary>No es un hash válido, así que nadie puede iniciar sesión como el usuario del sistema (que además está inactivo).</summary>
     public const string ContrasenaInutilizable = "!";
 
     public static readonly IReadOnlyList<(Guid Id, string Nombre)> Razas =

@@ -3,14 +3,14 @@ using BovinoVision.Dominio.Comun;
 
 namespace BovinoVision.Dominio.Pesajes;
 
-/// <summary>Immutable weighing record created only from a successful estimation.</summary>
+/// <summary>Registro de pesaje inmutable, creado solo a partir de una estimación exitosa.</summary>
 public sealed class EventoPesaje : Entidad
 {
     public Guid IdAnimal { get; private set; }
     public Guid IdCaptura { get; private set; }
     public Guid IdImagenUtilizada { get; private set; }
 
-    /// <summary>Lot assignment valid at FechaPesaje; null when the animal had no lot then.</summary>
+    /// <summary>Asignación de lote vigente en FechaPesaje; null cuando el animal no tenía lote en ese momento.</summary>
     public Guid? IdHistorialLote { get; private set; }
 
     public DateTimeOffset FechaPesaje { get; private set; }

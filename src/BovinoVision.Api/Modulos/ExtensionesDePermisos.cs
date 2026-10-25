@@ -5,12 +5,12 @@ namespace BovinoVision.Api.Modulos;
 
 public static class ExtensionesDePermisos
 {
-    /// <summary>The endpoint answers 403 to sessions whose role lacks the permission.</summary>
+    /// <summary>El endpoint responde 403 a las sesiones cuyo rol no tiene el permiso.</summary>
     public static TBuilder RequierePermiso<TBuilder>(this TBuilder endpoint, Permiso permiso)
         where TBuilder : IEndpointConventionBuilder =>
         endpoint.RequireAuthorization(SesionHttp.Politica(permiso));
 
-    /// <summary>The endpoint accepts sessions with at least one of the permissions.</summary>
+    /// <summary>El endpoint acepta sesiones con al menos uno de los permisos.</summary>
     public static TBuilder RequiereAlgunPermiso<TBuilder>(this TBuilder endpoint, params Permiso[] permisos)
         where TBuilder : IEndpointConventionBuilder =>
         endpoint.RequireAuthorization(politica => politica.RequireAssertion(contexto =>

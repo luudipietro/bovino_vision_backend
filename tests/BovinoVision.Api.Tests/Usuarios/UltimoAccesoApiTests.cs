@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BovinoVision.Api.Tests.Usuarios;
 
-/// <summary>The user DTO carries ultimo_acceso: the creation time of the user's most recent login session.</summary>
+/// <summary>El DTO de usuario lleva ultimo_acceso: la hora de creación de la sesión de login más reciente del usuario.</summary>
 public class UltimoAccesoApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
 {
     private const string Correo = "ana@campo.com";

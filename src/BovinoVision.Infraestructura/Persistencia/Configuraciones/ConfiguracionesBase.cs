@@ -25,7 +25,7 @@ internal sealed class RolConfiguracion : IEntityTypeConfiguration<Rol>
         builder.Property(r => r.Nombre).HasMaxLength(100);
         builder.HasOne<Establecimiento>().WithMany().HasForeignKey(r => r.IdEstablecimiento).OnDelete(DeleteBehavior.Restrict);
         builder.Ignore(r => r.EsAdministrador);
-        // A text[] column: permissions are read with the role on every authenticated request.
+        // Una columna text[]: los permisos se leen con el rol en cada solicitud autenticada.
         builder.PrimitiveCollection(r => r.Permisos)
             .ElementType(elemento => elemento.HasConversion(new ConvencionesDeNombres.EnumComoTexto<Permiso>()));
 

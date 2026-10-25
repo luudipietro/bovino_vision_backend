@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BovinoVision.Api.Tests.Capturas;
 
-/// <summary>GET /imagenes/{id}: serves the stored photo of a capture to sessions of the same establishment.</summary>
+/// <summary>GET /imagenes/{id}: sirve la foto almacenada de una captura a las sesiones del mismo establecimiento.</summary>
 public class ImagenesApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
 {
     private const string CorreoLimitado = "limitado@campo.com";
@@ -36,7 +36,7 @@ public class ImagenesApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
 
     private static Uri RutaImagen(Guid idImagen) => new($"/imagenes/{idImagen}", UriKind.Relative);
 
-    /// <summary>Client of the capture host (in-memory storage) logged in as a user of the given seeded role.</summary>
+    /// <summary>Cliente del host de capturas (almacenamiento en memoria) con sesión de un usuario del rol de semilla dado.</summary>
     private async Task<HttpClient> ClienteConRolAsync(Guid idRol)
     {
         await using (var alcance = Fabrica.Services.CreateAsyncScope())
@@ -67,7 +67,7 @@ public class ImagenesApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
         return cliente;
     }
 
-    // The domain error answers ProblemDetails; a missing route would answer a bare 404.
+    // El error de dominio responde ProblemDetails; una ruta inexistente respondería un 404 vacío.
     private static async Task AssertImagenNoEncontradaAsync(HttpResponseMessage respuesta)
     {
         Assert.Equal(HttpStatusCode.NotFound, respuesta.StatusCode);
@@ -104,7 +104,7 @@ public class ImagenesApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
     public async Task Sin_capturas_registrar_ni_rodeo_consultar_responde_403()
     {
         var (_, idImagen) = await SubirFotoAsync();
-        // The initial administrator role manages users and roles only.
+        // El rol inicial de administrador solo gestiona usuarios y roles.
         using var administrador = await ClienteConRolAsync(DatosSemilla.IdRolAdministrador);
 
         using var respuesta = await administrador.GetAsync(RutaImagen(idImagen), Cancelacion);
@@ -134,7 +134,7 @@ public class ImagenesApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
     public async Task Con_solo_rodeo_consultar_la_imagen_se_descarga()
     {
         var (_, idImagen) = await SubirFotoAsync();
-        // The initial producer role consults the herd but cannot register captures.
+        // El rol inicial de productor consulta el rodeo pero no puede registrar capturas.
         using var productor = await ClienteConRolAsync(DatosSemilla.IdRolProductor);
 
         using var respuesta = await productor.GetAsync(RutaImagen(idImagen), Cancelacion);
@@ -189,7 +189,7 @@ public class ImagenesApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
         }
         finally
         {
-            // The cleanup script does not empty establishments.
+            // El script de limpieza no vacía los establecimientos.
             await Fabrica.LimpiarBaseAsync();
             await EnContextoAsync(contexto => contexto.Establecimientos.Where(e => e.Id == otroEstablecimiento).ExecuteDeleteAsync(Cancelacion));
         }

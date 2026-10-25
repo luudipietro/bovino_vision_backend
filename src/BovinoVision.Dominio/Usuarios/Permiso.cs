@@ -1,6 +1,6 @@
 namespace BovinoVision.Dominio.Usuarios;
 
-/// <summary>Functionalities a role can enable (CU-08); stored and serialized as snake_case text.</summary>
+/// <summary>Funcionalidades que un rol puede habilitar (CU-08); se guardan y serializan como texto snake_case.</summary>
 public enum Permiso
 {
     CapturasRegistrar,

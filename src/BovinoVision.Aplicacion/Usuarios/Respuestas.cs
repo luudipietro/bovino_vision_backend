@@ -18,7 +18,7 @@ public sealed record UsuarioRespuesta(
 
 public sealed record SesionRespuesta(UsuarioRespuesta Usuario, IReadOnlyList<Permiso> Permisos, DateTimeOffset ExpiraEn);
 
-/// <summary>The token goes only into the cookie; the body never carries it.</summary>
+/// <summary>El token va solo en la cookie; el cuerpo nunca lo lleva.</summary>
 public sealed record SesionIniciada(string Token, SesionRespuesta Sesion);
 
 public sealed record SesionActiva(

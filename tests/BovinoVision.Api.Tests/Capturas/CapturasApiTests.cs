@@ -78,7 +78,7 @@ public class CapturasApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
         var obtenida = await ClienteCapturas.GetFromJsonAsync<CapturaRespuesta>($"/capturas/{captura.Id}", Json.Opciones, Cancelacion);
         using var inexistente = await ClienteCapturas.GetAsync(new Uri($"/capturas/{Guid.CreateVersion7()}", UriKind.Relative), Cancelacion);
 
-        // PostgreSQL keeps microseconds, so the stored date may lose the last tick digit.
+        // PostgreSQL guarda microsegundos, así que la fecha guardada puede perder el último dígito de tick.
         Assert.Equal(captura.FechaCaptura, obtenida!.FechaCaptura, TimeSpan.FromMilliseconds(1));
         Assert.Equal(captura, obtenida with { FechaCaptura = captura.FechaCaptura });
         Assert.Equal(HttpStatusCode.NotFound, inexistente.StatusCode);
@@ -198,7 +198,7 @@ public class CapturasApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
 
         var galeria = await ClienteCapturas.GetFromJsonAsync<JsonElement>($"/sesiones-captura/{sesion.Id}/capturas", Json.Opciones, Cancelacion);
 
-        // The deterministic order is the image id (time-ordered UUID v7), evaluated by the database.
+        // El orden determinístico es el id de la imagen (UUID v7 ordenado por tiempo), evaluado por la base de datos.
         var primera = await EnContextoAsync(contexto =>
             contexto.Imagenes.Where(i => i.IdCaptura == captura.Id).OrderBy(i => i.Id).Select(i => i.Id).FirstAsync(Cancelacion));
         var item = Assert.Single(galeria.EnumerateArray());

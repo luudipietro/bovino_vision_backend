@@ -3,7 +3,7 @@ using BovinoVision.Api.Tests.Infraestructura;
 
 namespace BovinoVision.Api.Tests.Trazabilidad;
 
-/// <summary>The herd list and the animal record carry the GMD between the animal's last two weighings.</summary>
+/// <summary>La lista del rodeo y la ficha del animal llevan la GMD entre los dos últimos pesajes del animal.</summary>
 public class GmdDeAnimalesApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
 {
     private static readonly DateTimeOffset Inicio = new(2026, 1, 10, 12, 0, 0, TimeSpan.Zero);
@@ -33,7 +33,7 @@ public class GmdDeAnimalesApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
     [Fact]
     public async Task Cuenta_dias_calendario_de_la_zona_horaria_igual_que_el_historial()
     {
-        // 27 hours apart but two local calendar days (UTC-3): 10 kg over 2 days.
+        // 27 horas de diferencia pero dos días calendario locales (UTC-3): 10 kg en 2 días.
         var animal = await Cliente.CrearAnimalAsync("AR-GMD-02");
         await Fabrica.RegistrarPesajeAsync(animal.Id, 300m, new DateTimeOffset(2026, 1, 10, 1, 0, 0, TimeSpan.Zero));
         await Fabrica.RegistrarPesajeAsync(animal.Id, 310m, new DateTimeOffset(2026, 1, 11, 4, 0, 0, TimeSpan.Zero));

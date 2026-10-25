@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BovinoVision.Infraestructura.Persistencia;
 
-/// <summary>Maps C# names to the ER naming: snake_case columns, keys and indexes; enums as snake_case text.</summary>
+/// <summary>Mapea los nombres de C# a la nomenclatura del ER: columnas, claves e índices en snake_case; enums como texto snake_case.</summary>
 internal static class ConvencionesDeNombres
 {
     public static string ASnakeCase(string nombre) => JsonNamingPolicy.SnakeCaseLower.ConvertName(nombre);
@@ -53,7 +53,7 @@ internal static class ConvencionesDeNombres
         configuracion.Properties<TEnum>().HaveConversion<EnumComoTexto<TEnum>>().HaveMaxLength(40);
     }
 
-    /// <summary>Also used for enum collections, which the property conventions do not reach.</summary>
+    /// <summary>También se usa para colecciones de enums, a las que no llegan las convenciones de propiedades.</summary>
     internal sealed class EnumComoTexto<TEnum>() : ValueConverter<TEnum, string>(
         valor => ATexto(valor),
         texto => DesdeTexto(texto))

@@ -111,7 +111,7 @@ public class UsuariosApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
     public async Task El_unico_administrador_no_puede_darse_de_baja_ni_perder_el_rol()
     {
         var id = (await RegistrarAsync("admin@campo.com", DatosSemilla.IdRolAdministrador)).GetProperty("id").GetGuid();
-        // The test user's role also manages roles; take that permission away so "admin" is the only administrator.
+        // El rol del usuario de prueba también gestiona roles; se le quita ese permiso para que "admin" sea el único administrador.
         using var sinAdminDePruebas = await Cliente.PutAsJsonAsync(
             $"/roles/{Fabrica.IdRolPruebas}/permisos",
             Permisos("usuarios_gestionar", "capturas_registrar"),
@@ -129,7 +129,7 @@ public class UsuariosApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
             Assert.Equal("No puede quedar el sistema sin un administrador", await DetalleAsync(respuesta));
         }
 
-        // The test session lost roles_gestionar, so it cannot edit role permissions anymore.
+        // La sesión de prueba perdió roles_gestionar, así que ya no puede editar permisos de roles.
         Assert.Equal(HttpStatusCode.Forbidden, permisos.StatusCode);
     }
 

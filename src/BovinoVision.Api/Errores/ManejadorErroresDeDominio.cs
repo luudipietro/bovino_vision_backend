@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BovinoVision.Api.Errores;
 
-/// <summary>Translates domain errors into ProblemDetails responses (the "detail" field carries the message).</summary>
+/// <summary>Traduce los errores de dominio a respuestas ProblemDetails (el campo "detail" lleva el mensaje).</summary>
 internal sealed class ManejadorErroresDeDominio(IProblemDetailsService problemDetails) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext contexto, Exception excepcion, CancellationToken cancelacion)

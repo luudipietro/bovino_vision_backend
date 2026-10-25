@@ -11,7 +11,7 @@ public sealed record NuevoAnimal(
     DateOnly? FechaNacimiento = null,
     Guid? IdLote = null);
 
-/// <summary>Null values keep the current state.</summary>
+/// <summary>Los valores null conservan el estado actual.</summary>
 public sealed record CambiosAnimal(
     Guid? IdRaza = null,
     Sexo? Sexo = null,

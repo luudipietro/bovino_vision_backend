@@ -264,7 +264,7 @@ public class AnimalesApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
         var animal = await Cliente.CrearAnimalAsync("AR-PESO-01");
         Assert.Null(animal.UltimoPesoKg);
 
-        // Inserted out of order: the latest fecha_pesaje wins, not the latest row.
+        // Insertados fuera de orden: gana la fecha_pesaje más reciente, no la última fila.
         await Fabrica.RegistrarPesajeAsync(animal.Id, 320m, Marzo);
         await Fabrica.RegistrarPesajeAsync(animal.Id, 300m, Enero);
 

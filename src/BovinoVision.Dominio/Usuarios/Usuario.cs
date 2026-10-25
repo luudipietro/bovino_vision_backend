@@ -2,7 +2,7 @@ using BovinoVision.Dominio.Comun;
 
 namespace BovinoVision.Dominio.Usuarios;
 
-/// <summary>System user; owns its lockout state (CU-01) and its logical deactivation (CU-05).</summary>
+/// <summary>Usuario del sistema; es dueño de su estado de bloqueo (CU-01) y de su baja lógica (CU-05).</summary>
 public sealed class Usuario : Entidad
 {
     public const int MaximoIntentosFallidos = 5;
@@ -28,7 +28,7 @@ public sealed class Usuario : Entidad
         Activo = true;
     }
 
-    /// <summary>Emails are compared case-insensitively, so they are stored lower-case.</summary>
+    /// <summary>Los correos se comparan sin distinguir mayúsculas, así que se guardan en minúsculas.</summary>
     public static string NormalizarCorreo(string? correo) => (correo ?? string.Empty).Trim().ToLowerInvariant();
 
     public void ModificarDatos(string nombre, string correo)
@@ -76,7 +76,7 @@ public sealed class Usuario : Entidad
     public TimeSpan TiempoRestanteDeBloqueo(DateTimeOffset ahora) =>
         EstaBloqueado(ahora) ? BloqueadoHasta!.Value - ahora : TimeSpan.Zero;
 
-    /// <summary>The fifth consecutive failure locks the account; an expired lock starts a new count.</summary>
+    /// <summary>La quinta falla consecutiva bloquea la cuenta; un bloqueo vencido inicia un conteo nuevo.</summary>
     public void RegistrarIntentoFallido(DateTimeOffset ahora)
     {
         if (EstaBloqueado(ahora))

@@ -3,10 +3,10 @@ using BovinoVision.Dominio.Comun;
 
 namespace BovinoVision.Aplicacion.Capturas;
 
-/// <param name="Limite">How many sessions to return; <see cref="ListarSesionesRecientes.LimitePorDefecto"/> when null.</param>
+/// <param name="Limite">Cuántas sesiones devolver; <see cref="ListarSesionesRecientes.LimitePorDefecto"/> cuando es null.</param>
 public sealed record ListarSesionesRecientesConsulta(int? Limite = null);
 
-/// <summary>The latest capture sessions of the user of the request, newest first, with their capture counts.</summary>
+/// <summary>Las últimas sesiones de captura del usuario de la solicitud, de la más reciente a la más antigua, con sus cantidades de capturas.</summary>
 public sealed class ListarSesionesRecientes(IConsultasCapturas consultas, IContextoUsuario usuario)
 {
     public const int LimitePorDefecto = 5;

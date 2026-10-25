@@ -109,7 +109,7 @@ public class ConsultasAnaliticaTests
     [Fact]
     public async Task El_panel_promedia_el_ultimo_peso_y_la_gmd_mas_reciente_de_cada_animal()
     {
-        // Port of test_panel_promedia_el_ultimo_peso_de_cada_animal.
+        // Port de test_panel_promedia_el_ultimo_peso_de_cada_animal.
         var animal1 = Guid.CreateVersion7();
         var animal2 = Guid.CreateVersion7();
         Pesaje(animal1, 300m, Prueba.Inicio);
@@ -130,7 +130,7 @@ public class ConsultasAnaliticaTests
     {
         var animal1 = Guid.CreateVersion7();
         var animal2 = Guid.CreateVersion7();
-        // 01:00 UTC on Jan 11 is Jan 10 in UTC-3.
+        // Las 01:00 UTC del 11 de enero son el 10 de enero en UTC-3.
         Pesaje(animal1, 320m, new DateTimeOffset(2026, 1, 11, 1, 0, 0, TimeSpan.Zero));
         Pesaje(animal2, 410m, new DateTimeOffset(2026, 1, 10, 15, 0, 0, TimeSpan.Zero));
         Pesaje(animal1, 300m, Prueba.Inicio);
@@ -189,7 +189,7 @@ public class ConsultasAnaliticaTests
         Pesaje(animal1, 350m, Prueba.Inicio.AddDays(20));
         Pesaje(animal2, 400m, Prueba.Inicio);
         Pesaje(animal2, 404m, Prueba.Inicio.AddDays(4));
-        Pesaje(animal2, 500m, Prueba.Inicio.AddDays(40)); // outside the period
+        Pesaje(animal2, 500m, Prueba.Inicio.AddDays(40)); // fuera del período
 
         var reporte = await new GenerarReporte(_consultas, _usuario, _calculadora).EjecutarAsync(
             new ConsultaReporte(new DateOnly(2026, 1, 1), new DateOnly(2026, 1, 31), null), Cancelacion);

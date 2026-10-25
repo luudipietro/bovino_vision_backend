@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace BovinoVision.Api.Modulos.Pesajes;
 
-/// <summary>Persistent asynchronous inference queue and immutable weighing results (CU-14).</summary>
+/// <summary>Cola de inferencia asíncrona persistida y resultados de pesaje inmutables (CU-14).</summary>
 internal sealed class ModuloPesajes : IModulo
 {
     public void AgregarServicios(IServiceCollection servicios, IConfiguration configuracion)

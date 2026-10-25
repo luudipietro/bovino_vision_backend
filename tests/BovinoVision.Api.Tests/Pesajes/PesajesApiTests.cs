@@ -230,7 +230,7 @@ public class PesajesApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
             var entidad = await contexto.Animales.Include(a => a.HistorialLotes).SingleAsync(a => a.Id == animal.Id, Cancelacion);
             entidad.AsignarLote(lote.Id, DatosSemilla.IdUsuarioSistema, fecha.AddDays(-1));
             entidad.AsignarLote(actual.Id, DatosSemilla.IdUsuarioSistema, fecha.AddDays(2));
-            // UUIDs are assigned by the domain; explicitly stage the newly created assignments.
+            // Los UUID los asigna el dominio; se preparan explícitamente las asignaciones recién creadas.
             contexto.HistorialLotes.AddRange(entidad.HistorialLotes);
             await contexto.SaveChangesAsync(Cancelacion);
             return true;

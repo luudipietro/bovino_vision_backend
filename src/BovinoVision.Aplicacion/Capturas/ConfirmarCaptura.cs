@@ -5,7 +5,7 @@ namespace BovinoVision.Aplicacion.Capturas;
 
 public sealed record ConfirmarCapturaComando(Guid IdCaptura);
 
-/// <summary>Records acknowledgment only; weighing events remain immutable.</summary>
+/// <summary>Solo registra la confirmación; los eventos de pesaje siguen siendo inmutables.</summary>
 public sealed class ConfirmarCaptura(IColaInferencia cola, IUnidadDeTrabajo unidadDeTrabajo, TimeProvider tiempo)
 {
     public Task EjecutarAsync(ConfirmarCapturaComando comando, CancellationToken cancelacion = default) =>

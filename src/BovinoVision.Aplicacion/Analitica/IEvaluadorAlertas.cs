@@ -4,16 +4,16 @@ using BovinoVision.Dominio.Pesajes;
 namespace BovinoVision.Aplicacion.Analitica;
 
 /// <summary>
-/// Evaluates a newly registered weighing event and stages an alert when the weight
-/// trend is anomalous. It runs inside the caller's unit of work, so the event and its
-/// alert are committed together; implementations must not save changes themselves.
+/// Evalúa un evento de pesaje recién registrado y prepara una alerta cuando la tendencia
+/// del peso es anómala. Corre dentro de la unidad de trabajo del llamador, así que el evento y su
+/// alerta se confirman juntos; las implementaciones no deben guardar cambios por su cuenta.
 /// </summary>
 public interface IEvaluadorAlertas
 {
     Task<Alerta?> EvaluarAsync(EventoPesaje evento, CancellationToken cancelacion = default);
 }
 
-/// <summary>Placeholder used until the Analítica module registers the real evaluator.</summary>
+/// <summary>Implementación provisoria hasta que el módulo Analítica registre el evaluador real.</summary>
 public sealed class EvaluadorAlertasNulo : IEvaluadorAlertas
 {
     public Task<Alerta?> EvaluarAsync(EventoPesaje evento, CancellationToken cancelacion = default) =>

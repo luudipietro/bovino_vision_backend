@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BovinoVision.Infraestructura.Trazabilidad;
 
-/// <summary>Read models projected in a single SQL statement each, so lists never issue per-row queries.</summary>
+/// <summary>Modelos de lectura proyectados en una sola sentencia SQL cada uno, así las listas nunca hacen consultas por fila.</summary>
 internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto, CalculadoraGmd calculadora) : IConsultasTrazabilidad
 {
     public async Task<IReadOnlyList<RazaRespuesta>> ListarRazasAsync(CancellationToken cancelacion) =>
@@ -81,7 +81,7 @@ internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto, Calc
             .ToListAsync(cancelacion);
     }
 
-    // Backslash is PostgreSQL's default LIKE escape character.
+    // La barra invertida es el carácter de escape por defecto de LIKE en PostgreSQL.
     private static string EscaparComodines(string texto) =>
         texto.Replace(@"\", @"\\", StringComparison.Ordinal)
             .Replace("%", @"\%", StringComparison.Ordinal)
@@ -110,7 +110,7 @@ internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto, Calc
         CalcularGmd(fila),
         fila.IdImagenUltimoPesaje);
 
-    /// <summary>Same rule as the weighing history: calendar days between the last two weighings, null without an interval.</summary>
+    /// <summary>Misma regla que el historial de pesajes: días calendario entre los dos últimos pesajes, null sin intervalo.</summary>
     private decimal? CalcularGmd(FilaAnimal fila) =>
         fila is { UltimoPesoKg: { } peso, UltimaFechaPesaje: { } fecha, PenultimoPesoKg: { } pesoAnterior, PenultimaFechaPesaje: { } fechaAnterior }
             ? calculadora.Calcular(new Medicion(pesoAnterior, fechaAnterior), new Medicion(peso, fecha))
@@ -164,7 +164,7 @@ internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto, Calc
                 .Select(e => (Guid?)e.IdImagenUtilizada)
                 .FirstOrDefault()));
 
-    /// <summary>A projected animal row: the response fields plus the last two weighings the GMD is computed from.</summary>
+    /// <summary>Una fila de animal proyectada: los campos de la respuesta más los dos últimos pesajes con los que se calcula la GMD.</summary>
     private sealed record FilaAnimal(
         Guid Id,
         string Identificador,

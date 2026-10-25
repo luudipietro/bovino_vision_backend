@@ -18,11 +18,16 @@ internal sealed class ConsultasAnalitica(BovinoVisionDbContext contexto) : ICons
                from historial in historiales.DefaultIfEmpty()
                join lote in contexto.Lotes on historial.IdLote equals lote.Id into lotes
                from lote in lotes.DefaultIfEmpty()
+               join captura in contexto.Capturas on evento.IdCaptura equals captura.Id
+               join sesion in contexto.SesionesCaptura on captura.IdSesion equals sesion.Id
+               join operario in contexto.Usuarios on sesion.IdUsuario equals operario.Id into operarios
+               from operario in operarios.DefaultIfEmpty()
                where evento.IdAnimal == idAnimal
                orderby evento.FechaPesaje, evento.Id
                select new PesajeDeAnimal(
                    evento.Id, evento.PesoKg, evento.FechaPesaje, evento.FechaProcesamiento,
-                   evento.VersionModelo, evento.IdImagenUtilizada, lote == null ? null : lote.Codigo))
+                   evento.VersionModelo, evento.IdImagenUtilizada, lote == null ? null : lote.Codigo,
+                   operario == null ? null : operario.Nombre))
             .ToListAsync(cancelacion);
 
     public async Task<IReadOnlyList<AlertaRespuesta>> ListarAlertasAsync(

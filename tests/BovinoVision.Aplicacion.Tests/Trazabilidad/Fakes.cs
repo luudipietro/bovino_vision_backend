@@ -155,7 +155,8 @@ internal sealed class TrazabilidadEnMemoria
             animal.Sexo,
             animal.FechaNacimiento,
             null,
-            0);
+            0,
+            null);
     }
 
     private string? CodigoDe(Guid idLote) => _lotes.SingleOrDefault(l => l.Id == idLote)?.Codigo;

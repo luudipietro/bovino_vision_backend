@@ -69,4 +69,11 @@ internal sealed class SesionesUsuarioEnMemoria : IRepositorioSesionesUsuario
     public Task<IReadOnlyList<SesionUsuario>> ListarVigentesAsync(
         Guid idUsuario, DateTimeOffset ahora, CancellationToken cancelacion = default) =>
         Task.FromResult<IReadOnlyList<SesionUsuario>>([.. Sesiones.Where(s => s.IdUsuario == idUsuario && s.EstaVigente(ahora))]);
+
+    public Task<IReadOnlyDictionary<Guid, DateTimeOffset>> ObtenerUltimosAccesosAsync(
+        IReadOnlyCollection<Guid> idsUsuario, CancellationToken cancelacion = default) =>
+        Task.FromResult<IReadOnlyDictionary<Guid, DateTimeOffset>>(Sesiones
+            .Where(s => idsUsuario.Contains(s.IdUsuario))
+            .GroupBy(s => s.IdUsuario)
+            .ToDictionary(g => g.Key, g => g.Max(s => s.CreadaEn)));
 }

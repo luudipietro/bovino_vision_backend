@@ -37,7 +37,7 @@ public class GestionUsuariosTests
 
     private ModificarUsuario Modificar() => new(_usuarios, _roles, _sesiones, _hasher, _unidad, _contexto, _tiempo);
 
-    private AsignarRolUsuario AsignarRol() => new(_usuarios, _roles, _unidad, _contexto);
+    private AsignarRolUsuario AsignarRol() => new(_usuarios, _roles, _sesiones, _unidad, _contexto);
 
     private DarDeBajaUsuario DarDeBaja() => new(_usuarios, _roles, _sesiones, _unidad, _contexto, _tiempo);
 

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BovinoVision.Infraestructura.Trazabilidad;
 
 /// <summary>Read models projected in a single SQL statement each, so lists never issue per-row queries.</summary>
-internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto) : IConsultasTrazabilidad
+internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto, CalculadoraGmd calculadora) : IConsultasTrazabilidad
 {
     public async Task<IReadOnlyList<RazaRespuesta>> ListarRazasAsync(CancellationToken cancelacion) =>
         await contexto.Razas.AsNoTracking()
@@ -51,12 +51,16 @@ internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto) : IC
                 && contexto.EventosPesaje.Any(e => e.Id == al.IdEvento && e.IdAnimal == a.Id)));
         }
 
-        return await ProyectarAnimales(animales.OrderBy(a => a.Identificador)).ToListAsync(cancelacion);
+        var filas = await ProyectarAnimales(animales.OrderBy(a => a.Identificador)).ToListAsync(cancelacion);
+        return [.. filas.Select(Mapear)];
     }
 
-    public Task<AnimalRespuesta?> ObtenerAnimalAsync(Guid id, Guid idEstablecimiento, CancellationToken cancelacion) =>
-        ProyectarAnimales(contexto.Animales.Where(a => a.Id == id && a.IdEstablecimiento == idEstablecimiento))
+    public async Task<AnimalRespuesta?> ObtenerAnimalAsync(Guid id, Guid idEstablecimiento, CancellationToken cancelacion)
+    {
+        var fila = await ProyectarAnimales(contexto.Animales.Where(a => a.Id == id && a.IdEstablecimiento == idEstablecimiento))
             .SingleOrDefaultAsync(cancelacion);
+        return fila is null ? null : Mapear(fila);
+    }
 
     public async Task<IReadOnlyList<AsignacionLoteRespuesta>?> ListarHistorialLotesAsync(
         Guid idAnimal,
@@ -91,8 +95,28 @@ internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto) : IC
             l.GmdObjetivo,
             contexto.HistorialLotes.Count(h => h.IdLote == l.Id && h.VigenteHasta == null)));
 
-    private IQueryable<AnimalRespuesta> ProyectarAnimales(IQueryable<Animal> animales) =>
-        animales.AsNoTracking().Select(a => new AnimalRespuesta(
+    private AnimalRespuesta Mapear(FilaAnimal fila) => new(
+        fila.Id,
+        fila.Identificador,
+        fila.IdEstablecimiento,
+        fila.IdLote,
+        fila.LoteCodigo,
+        fila.IdRaza,
+        fila.Raza,
+        fila.Sexo,
+        fila.FechaNacimiento,
+        fila.UltimoPesoKg,
+        fila.AlertasActivas,
+        CalcularGmd(fila));
+
+    /// <summary>Same rule as the weighing history: calendar days between the last two weighings, null without an interval.</summary>
+    private decimal? CalcularGmd(FilaAnimal fila) =>
+        fila is { UltimoPesoKg: { } peso, UltimaFechaPesaje: { } fecha, PenultimoPesoKg: { } pesoAnterior, PenultimaFechaPesaje: { } fechaAnterior }
+            ? calculadora.Calcular(new Medicion(pesoAnterior, fechaAnterior), new Medicion(peso, fecha))
+            : null;
+
+    private IQueryable<FilaAnimal> ProyectarAnimales(IQueryable<Animal> animales) =>
+        animales.AsNoTracking().Select(a => new FilaAnimal(
             a.Id,
             a.Identificador,
             a.IdEstablecimiento,
@@ -110,10 +134,44 @@ internal sealed class ConsultasTrazabilidad(BovinoVisionDbContext contexto) : IC
             a.FechaNacimiento,
             contexto.EventosPesaje
                 .Where(e => e.IdAnimal == a.Id)
-                .OrderByDescending(e => e.FechaPesaje)
+                .OrderByDescending(e => e.FechaPesaje).ThenByDescending(e => e.Id)
                 .Select(e => (decimal?)e.PesoKg)
                 .FirstOrDefault(),
             contexto.Alertas.Count(al =>
                 al.Estado == EstadoAlerta.Activa
-                && contexto.EventosPesaje.Any(e => e.Id == al.IdEvento && e.IdAnimal == a.Id))));
+                && contexto.EventosPesaje.Any(e => e.Id == al.IdEvento && e.IdAnimal == a.Id)),
+            contexto.EventosPesaje
+                .Where(e => e.IdAnimal == a.Id)
+                .OrderByDescending(e => e.FechaPesaje).ThenByDescending(e => e.Id)
+                .Select(e => (DateTimeOffset?)e.FechaPesaje)
+                .FirstOrDefault(),
+            contexto.EventosPesaje
+                .Where(e => e.IdAnimal == a.Id)
+                .OrderByDescending(e => e.FechaPesaje).ThenByDescending(e => e.Id)
+                .Skip(1)
+                .Select(e => (decimal?)e.PesoKg)
+                .FirstOrDefault(),
+            contexto.EventosPesaje
+                .Where(e => e.IdAnimal == a.Id)
+                .OrderByDescending(e => e.FechaPesaje).ThenByDescending(e => e.Id)
+                .Skip(1)
+                .Select(e => (DateTimeOffset?)e.FechaPesaje)
+                .FirstOrDefault()));
+
+    /// <summary>A projected animal row: the response fields plus the last two weighings the GMD is computed from.</summary>
+    private sealed record FilaAnimal(
+        Guid Id,
+        string Identificador,
+        Guid IdEstablecimiento,
+        Guid? IdLote,
+        string? LoteCodigo,
+        Guid? IdRaza,
+        string? Raza,
+        Sexo? Sexo,
+        DateOnly? FechaNacimiento,
+        decimal? UltimoPesoKg,
+        int AlertasActivas,
+        DateTimeOffset? UltimaFechaPesaje,
+        decimal? PenultimoPesoKg,
+        DateTimeOffset? PenultimaFechaPesaje);
 }

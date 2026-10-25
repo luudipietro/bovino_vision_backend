@@ -125,6 +125,14 @@ Los límites e intervalos de inferencia deben ser positivos. No se usa ya `DATAB
 
 La GMD se calcula al consultar, por días calendario de la zona configurada; sin intervalo válido es nula. Hay alerta `perdida_peso` si la GMD es negativa; `estancamiento` si queda por debajo de la fracción del `gmd_objetivo` opcional del lote histórico. Ya no se usa el umbral Python de variación porcentual de 15/30%.
 
+`POST /alertas/{id}/resolver` (permiso `rodeo_gestionar`) cierra una alerta: responde 204 sin cuerpo, la alerta pasa de `activa` a `resuelta` y deja de aparecer en `GET /alertas`. Devuelve 404 si no existe o es de otro establecimiento y 409 si ya estaba resuelta. No requiere migración: usa el estado que la alerta ya guardaba.
+
+Campos calculados al consultar (sin migración, nunca se guardan):
+
+- `operario` (texto o `null`) en `GET /pesajes/{id}` y en cada elemento de `GET /animales/{id}/pesajes`: el nombre del usuario dueño de la sesión de captura del pesaje.
+- `gmd_kg_dia` (número o `null`) en cada elemento de `GET /animales` y en `GET /animales/{id}`: la GMD entre los dos últimos pesajes del animal, con la misma regla del historial (días calendario de la zona configurada). Es `null` con menos de dos pesajes o si ambos son del mismo día.
+- `ultimo_acceso` (fecha-hora o `null`) en los usuarios de `GET /usuarios` y en toda respuesta que devuelva el mismo usuario (alta, `PUT /usuarios/{id}`, `PUT /usuarios/{id}/rol`, baja, `POST` y `GET /auth/sesion`): la creación de su sesión de inicio de sesión más reciente. Es `null` si nunca ingresó.
+
 ## Verificación y migraciones
 
 ```bash

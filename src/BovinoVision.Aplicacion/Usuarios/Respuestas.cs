@@ -9,10 +9,11 @@ public sealed record UsuarioRespuesta(
     Guid IdRol,
     string Rol,
     bool Activo,
-    DateTimeOffset? BloqueadoHasta)
+    DateTimeOffset? BloqueadoHasta,
+    DateTimeOffset? UltimoAcceso = null)
 {
-    public static UsuarioRespuesta Desde(Usuario usuario, Rol rol) => new(
-        usuario.Id, usuario.Nombre, usuario.Correo, rol.Id, rol.Nombre, usuario.Activo, usuario.BloqueadoHasta);
+    public static UsuarioRespuesta Desde(Usuario usuario, Rol rol, DateTimeOffset? ultimoAcceso = null) => new(
+        usuario.Id, usuario.Nombre, usuario.Correo, rol.Id, rol.Nombre, usuario.Activo, usuario.BloqueadoHasta, ultimoAcceso);
 }
 
 public sealed record SesionRespuesta(UsuarioRespuesta Usuario, IReadOnlyList<Permiso> Permisos, DateTimeOffset ExpiraEn);

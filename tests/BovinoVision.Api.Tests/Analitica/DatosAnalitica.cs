@@ -7,7 +7,7 @@ using BovinoVision.Infraestructura.Persistencia;
 namespace BovinoVision.Api.Tests.Analitica;
 
 /// <summary>Stages lots, animals and weighing events through the domain API; the test decides when to save.</summary>
-internal sealed class DatosAnalitica(BovinoVisionDbContext contexto)
+internal sealed class DatosAnalitica(BovinoVisionDbContext contexto, Guid? idUsuario = null)
 {
     public static readonly DateTimeOffset Inicio = new(2026, 1, 1, 13, 0, 0, TimeSpan.Zero);
 
@@ -35,11 +35,11 @@ internal sealed class DatosAnalitica(BovinoVisionDbContext contexto)
     {
         if (_sesion is null)
         {
-            _sesion = new SesionCaptura(DatosSemilla.IdUsuarioSistema, Inicio.AddDays(-1));
+            _sesion = new SesionCaptura(idUsuario ?? DatosSemilla.IdUsuarioSistema, Inicio.AddDays(-1));
             contexto.SesionesCaptura.Add(_sesion);
         }
 
-        var captura = new Captura(animal.Id, DatosSemilla.IdUsuarioSistema, _sesion.Id, fecha);
+        var captura = new Captura(animal.Id, idUsuario ?? DatosSemilla.IdUsuarioSistema, _sesion.Id, fecha);
         var imagen = captura.AgregarImagen($"capturas/{captura.Id}.jpg", Guid.NewGuid().ToString("N"), "image/jpeg");
         captura.SolicitarEstimacion();
         captura.IniciarProcesamiento();

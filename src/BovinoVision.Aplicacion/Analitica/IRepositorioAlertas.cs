@@ -14,5 +14,8 @@ public interface IRepositorioAlertas
     /// <summary>True when the event already has an alert, persisted or staged in the current unit of work.</summary>
     Task<bool> ExisteParaEventoAsync(Guid idEvento, CancellationToken cancelacion = default);
 
+    /// <summary>Alert tracked for update; null when it does not exist or belongs to another establecimiento.</summary>
+    Task<Alerta?> ObtenerAsync(Guid id, Guid idEstablecimiento, CancellationToken cancelacion = default);
+
     void Agregar(Alerta alerta);
 }

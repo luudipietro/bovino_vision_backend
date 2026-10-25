@@ -14,7 +14,8 @@ public sealed record PesajeHistorialRespuesta(
     string VersionModelo,
     Guid IdImagenUtilizada,
     string? LoteCodigo,
-    decimal? GmdKgDia);
+    decimal? GmdKgDia,
+    string? Operario);
 
 /// <summary>Weighing history of an animal, newest first, with the GMD against the previous weighing.</summary>
 public sealed class ConsultarHistorialPesajes(IConsultasAnalitica consultas, IContextoUsuario usuario, CalculadoraGmd calculadora)
@@ -37,7 +38,7 @@ public sealed class ConsultarHistorialPesajes(IConsultasAnalitica consultas, ICo
                 : calculadora.Calcular(new Medicion(anterior.PesoKg, anterior.FechaPesaje), new Medicion(pesaje.PesoKg, pesaje.FechaPesaje));
             historial.Add(new PesajeHistorialRespuesta(
                 pesaje.Id, pesaje.PesoKg, pesaje.FechaPesaje, pesaje.FechaProcesamiento, pesaje.VersionModelo,
-                pesaje.IdImagenUtilizada, pesaje.LoteCodigo, gmd));
+                pesaje.IdImagenUtilizada, pesaje.LoteCodigo, gmd, pesaje.Operario));
             anterior = pesaje;
         }
 

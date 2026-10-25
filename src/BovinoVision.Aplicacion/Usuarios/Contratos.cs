@@ -34,6 +34,10 @@ public interface IRepositorioSesionesUsuario
     Task<SesionUsuario?> ObtenerPorHuellaAsync(string huella, CancellationToken cancelacion = default);
 
     Task<IReadOnlyList<SesionUsuario>> ListarVigentesAsync(Guid idUsuario, DateTimeOffset ahora, CancellationToken cancelacion = default);
+
+    /// <summary>Creation time of each user's most recent session; users who never logged in are absent.</summary>
+    Task<IReadOnlyDictionary<Guid, DateTimeOffset>> ObtenerUltimosAccesosAsync(
+        IReadOnlyCollection<Guid> idsUsuario, CancellationToken cancelacion = default);
 }
 
 public enum ResultadoContrasena

@@ -15,6 +15,7 @@ internal sealed class ModuloCapturas : IModulo
         servicios.AddScoped<IniciarSesionCaptura>();
         servicios.AddScoped<FinalizarSesionCaptura>();
         servicios.AddScoped<ListarCapturasDeSesion>();
+        servicios.AddScoped<ListarSesionesRecientes>();
         servicios.AddScoped<RegistrarCaptura>();
         servicios.AddScoped<ObtenerCaptura>();
         servicios.AddScoped<ConfirmarCaptura>();
@@ -27,6 +28,7 @@ internal sealed class ModuloCapturas : IModulo
     {
         var sesiones = rutas.MapGroup("/sesiones-captura").WithTags("capturas").RequierePermiso(Permiso.CapturasRegistrar);
         sesiones.MapPost("", IniciarSesionAsync);
+        sesiones.MapGet("", ListarSesionesAsync);
         sesiones.MapPost("/{id:guid}/finalizar", FinalizarSesionAsync);
         sesiones.MapGet("/{id:guid}/capturas", ListarCapturasAsync);
 
@@ -61,6 +63,12 @@ internal sealed class ModuloCapturas : IModulo
         var sesion = await casoDeUso.EjecutarAsync(cancelacion);
         return TypedResults.Created($"/sesiones-captura/{sesion.Id}", sesion);
     }
+
+    private static async Task<Ok<IReadOnlyList<SesionRecienteRespuesta>>> ListarSesionesAsync(
+        int? limite,
+        ListarSesionesRecientes casoDeUso,
+        CancellationToken cancelacion) =>
+        TypedResults.Ok(await casoDeUso.EjecutarAsync(new ListarSesionesRecientesConsulta(limite), cancelacion));
 
     private static async Task<Ok<SesionCapturaRespuesta>> FinalizarSesionAsync(
         Guid id,

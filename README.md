@@ -69,6 +69,7 @@ Para asociar lote o raza, usar `id_lote` e `id_raza` con los UUID devueltos por 
 5. `DELETE /capturas/{id}` descarta una captura que sigue `registrada` (foto subida pero no enviada a estimar): borra la captura, su imagen y el archivo, y devuelve 204. Devuelve 404 si no existe y 422 si ya está en otro estado.
 6. `POST /capturas/{id}/confirmar` registra la revisión de un resultado procesado, sin modificar ni crear pesajes. Repetir la solicitud de pesaje devuelve 409.
 7. `GET /imagenes/{id}` devuelve el archivo de la foto con el `Content-Type` con el que se subió y `Cache-Control: private`. Exige sesión y `capturas_registrar` o `rodeo_consultar` (sin sesión, 401; sin ninguno de los dos permisos, 403). Solo sirve fotos de capturas de animales del establecimiento de la sesión: una imagen inexistente, de otro establecimiento o cuyo archivo ya no está devuelve 404 con ProblemDetails. El `id` de la imagen sale de `id_imagen`, campo de `GET /pesajes/{id}` (la imagen utilizada por el evento) y de cada elemento de `GET /sesiones-captura/{id}/capturas` (la primera imagen de la captura, ordenada por id); el historial de pesajes ya trae `id_imagen_utilizada`.
+8. `GET /sesiones-captura?limite=N` (`capturas_registrar`) lista las sesiones de captura del usuario de la sesión, de la más nueva a la más vieja: `[{ id, fecha_inicio, fecha_fin, estado, cantidad_capturas, cantidad_procesadas }]`. `limite` va de 1 a 20 (5 por defecto); fuera de ese rango responde 422 con ProblemDetails, y 400 si no es un número. `cantidad_procesadas` cuenta las capturas en estado `procesada`.
 
 La fecha del pesaje es la de captura, no la de procesamiento. Solo una estimación válida crea un evento inmutable. Las fallas quedan en la captura, sin evento. [Resumen de todas las rutas y cambios de contrato](docs/migracion-dotnet.md#rutas-públicas).
 
@@ -123,6 +124,14 @@ dotnet run --project src/BovinoVision.Api
 Los límites e intervalos de inferencia deben ser positivos. No se usa ya `DATABASE_URL` ni `DEFAULT_ESTABLECIMIENTO_ID`: el usuario y el establecimiento de cada operación salen de la sesión. El usuario Sistema de la semilla queda inactivo y solo conserva la autoría de los datos anteriores al login.
 
 La GMD se calcula al consultar, por días calendario de la zona configurada; sin intervalo válido es nula. Hay alerta `perdida_peso` si la GMD es negativa; `estancamiento` si queda por debajo de la fracción del `gmd_objetivo` opcional del lote histórico. Ya no se usa el umbral Python de variación porcentual de 15/30%.
+
+`POST /alertas/{id}/resolver` (permiso `rodeo_gestionar`) cierra una alerta: responde 204 sin cuerpo, la alerta pasa de `activa` a `resuelta` y deja de aparecer en `GET /alertas`. Devuelve 404 si no existe o es de otro establecimiento y 409 si ya estaba resuelta. No requiere migración: usa el estado que la alerta ya guardaba.
+
+Campos calculados al consultar (sin migración, nunca se guardan):
+
+- `operario` (texto o `null`) en `GET /pesajes/{id}` y en cada elemento de `GET /animales/{id}/pesajes`: el nombre del usuario dueño de la sesión de captura del pesaje.
+- `gmd_kg_dia` (número o `null`) en cada elemento de `GET /animales` y en `GET /animales/{id}`: la GMD entre los dos últimos pesajes del animal, con la misma regla del historial (días calendario de la zona configurada). Es `null` con menos de dos pesajes o si ambos son del mismo día.
+- `ultimo_acceso` (fecha-hora o `null`) en los usuarios de `GET /usuarios` y en toda respuesta que devuelva el mismo usuario (alta, `PUT /usuarios/{id}`, `PUT /usuarios/{id}/rol`, baja, `POST` y `GET /auth/sesion`): la creación de su sesión de inicio de sesión más reciente. Es `null` si nunca ingresó.
 
 ## Verificación y migraciones
 

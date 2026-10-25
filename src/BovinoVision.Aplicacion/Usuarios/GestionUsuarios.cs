@@ -43,6 +43,14 @@ internal static class ReglasUsuarios
         IRepositorioUsuarios usuarios, Guid idUsuario, Guid idEstablecimiento, CancellationToken cancelacion) =>
         await usuarios.ObtenerAsync(idUsuario, idEstablecimiento, cancelacion) ?? throw NoEncontradoError.De("el usuario", idUsuario);
 
+    /// <summary>Response of an existing user, with the creation time of their most recent login session.</summary>
+    public static async Task<UsuarioRespuesta> ARespuestaAsync(
+        IRepositorioSesionesUsuario sesiones, Usuario usuario, Rol rol, CancellationToken cancelacion)
+    {
+        var accesos = await sesiones.ObtenerUltimosAccesosAsync([usuario.Id], cancelacion);
+        return UsuarioRespuesta.Desde(usuario, rol, accesos.TryGetValue(usuario.Id, out var acceso) ? acceso : null);
+    }
+
     public static async Task CerrarSesionesAsync(
         IRepositorioSesionesUsuario sesiones, Guid idUsuario, DateTimeOffset ahora, CancellationToken cancelacion)
     {
@@ -54,13 +62,18 @@ internal static class ReglasUsuarios
 }
 
 /// <summary>CU-06: users of the establecimiento, optionally filtered by role.</summary>
-public sealed class ListarUsuarios(IRepositorioUsuarios usuarios, IRepositorioRoles roles, IContextoUsuario contexto)
+public sealed class ListarUsuarios(
+    IRepositorioUsuarios usuarios,
+    IRepositorioRoles roles,
+    IRepositorioSesionesUsuario sesiones,
+    IContextoUsuario contexto)
 {
     public async Task<IReadOnlyList<UsuarioRespuesta>> EjecutarAsync(Guid? idRol, CancellationToken cancelacion = default)
     {
         var porId = (await roles.ListarAsync(contexto.IdEstablecimiento, cancelacion)).ToDictionary(r => r.Id);
         var lista = await usuarios.ListarAsync(contexto.IdEstablecimiento, idRol, cancelacion);
-        return [.. lista.Select(u => UsuarioRespuesta.Desde(u, porId[u.IdRol]))];
+        var accesos = await sesiones.ObtenerUltimosAccesosAsync([.. lista.Select(u => u.Id)], cancelacion);
+        return [.. lista.Select(u => UsuarioRespuesta.Desde(u, porId[u.IdRol], accesos.TryGetValue(u.Id, out var acceso) ? acceso : null))];
     }
 }
 
@@ -116,7 +129,7 @@ public sealed class ModificarUsuario(
 
         var rol = await ReglasUsuarios.ObtenerRolAsync(roles, usuario.IdRol, contexto.IdEstablecimiento, cancelacion);
         await unidadDeTrabajo.GuardarCambiosAsync(cancelacion);
-        return UsuarioRespuesta.Desde(usuario, rol);
+        return await ReglasUsuarios.ARespuestaAsync(sesiones, usuario, rol, cancelacion);
     }
 }
 
@@ -124,6 +137,7 @@ public sealed class ModificarUsuario(
 public sealed class AsignarRolUsuario(
     IRepositorioUsuarios usuarios,
     IRepositorioRoles roles,
+    IRepositorioSesionesUsuario sesiones,
     IUnidadDeTrabajo unidadDeTrabajo,
     IContextoUsuario contexto)
 {
@@ -141,7 +155,7 @@ public sealed class AsignarRolUsuario(
         usuario.AsignarRol(nuevo.Id);
 
         await unidadDeTrabajo.GuardarCambiosAsync(cancelacion);
-        return UsuarioRespuesta.Desde(usuario, nuevo);
+        return await ReglasUsuarios.ARespuestaAsync(sesiones, usuario, nuevo, cancelacion);
     }
 }
 
@@ -167,7 +181,7 @@ public sealed class DarDeBajaUsuario(
 
         await ReglasUsuarios.CerrarSesionesAsync(sesiones, usuario.Id, tiempo.GetUtcNow(), cancelacion);
         await unidadDeTrabajo.GuardarCambiosAsync(cancelacion);
-        return UsuarioRespuesta.Desde(usuario, rol);
+        return await ReglasUsuarios.ARespuestaAsync(sesiones, usuario, rol, cancelacion);
     }
 }
 

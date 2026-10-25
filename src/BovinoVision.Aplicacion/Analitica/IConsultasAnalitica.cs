@@ -30,7 +30,8 @@ public sealed record PesajeDeAnimal(
     DateTimeOffset FechaProcesamiento,
     string VersionModelo,
     Guid IdImagenUtilizada,
-    string? LoteCodigo);
+    string? LoteCodigo,
+    string? Operario);
 
 public sealed record AlertaRespuesta(
     Guid Id,

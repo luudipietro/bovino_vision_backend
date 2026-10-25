@@ -53,6 +53,14 @@ internal sealed class RepositorioSesionesUsuario(BovinoVisionDbContext contexto)
         await contexto.SesionesUsuario
             .Where(s => s.IdUsuario == idUsuario && s.RevocadaEn == null && s.ExpiraEn > ahora)
             .ToListAsync(cancelacion);
+
+    public async Task<IReadOnlyDictionary<Guid, DateTimeOffset>> ObtenerUltimosAccesosAsync(
+        IReadOnlyCollection<Guid> idsUsuario, CancellationToken cancelacion = default) =>
+        await contexto.SesionesUsuario.AsNoTracking()
+            .Where(s => idsUsuario.Contains(s.IdUsuario))
+            .GroupBy(s => s.IdUsuario)
+            .Select(g => new { IdUsuario = g.Key, UltimoAcceso = g.Max(s => s.CreadaEn) })
+            .ToDictionaryAsync(x => x.IdUsuario, x => x.UltimoAcceso, cancelacion);
 }
 
 internal sealed class ConsultasSesion(BovinoVisionDbContext contexto) : IConsultasSesion
@@ -67,7 +75,8 @@ internal sealed class ConsultasSesion(BovinoVisionDbContext contexto) : IConsult
              usuario.IdEstablecimiento,
              sesion.ExpiraEn,
              sesion.RevocadaEn,
-             new UsuarioRespuesta(usuario.Id, usuario.Nombre, usuario.Correo, rol.Id, rol.Nombre, usuario.Activo, usuario.BloqueadoHasta),
+             new UsuarioRespuesta(usuario.Id, usuario.Nombre, usuario.Correo, rol.Id, rol.Nombre, usuario.Activo, usuario.BloqueadoHasta,
+                 contexto.SesionesUsuario.Where(s => s.IdUsuario == usuario.Id).Max(s => (DateTimeOffset?)s.CreadaEn)),
              rol.Permisos))
         .SingleOrDefaultAsync(cancelacion);
 }

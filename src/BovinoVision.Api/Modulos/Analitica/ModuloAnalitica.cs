@@ -22,6 +22,7 @@ public sealed class ModuloAnalitica : IModulo
         servicios.AddScoped<ConsultarHistorialPesajes>();
         servicios.AddScoped<ListarAlertasDeAnimal>();
         servicios.AddScoped<ListarAlertasActivas>();
+        servicios.AddScoped<ResolverAlerta>();
         servicios.AddScoped<ConsultarPanel>();
         servicios.AddScoped<GenerarReporte>();
         servicios.AgregarPersistenciaAnalitica();
@@ -45,6 +46,15 @@ public sealed class ModuloAnalitica : IModulo
             Results.Ok(await casoDeUso.EjecutarAsync(cancelacion)))
             .WithTags("Analítica")
             .RequierePermiso(Permiso.AnaliticaConsultar);
+
+        rutas.MapPost("/alertas/{id:guid}/resolver", async (
+            Guid id, ResolverAlerta casoDeUso, CancellationToken cancelacion) =>
+        {
+            await casoDeUso.EjecutarAsync(new ResolverAlertaComando(id), cancelacion);
+            return Results.NoContent();
+        })
+            .WithTags("Analítica")
+            .RequierePermiso(Permiso.RodeoGestionar);
 
         rutas.MapGet("/panel", async (
             [FromQuery(Name = "id_lote")] Guid? idLote, ConsultarPanel casoDeUso, CancellationToken cancelacion) =>

@@ -96,7 +96,7 @@ public sealed class IniciarSesion(
         var sesion = new SesionUsuario(usuario.Id, huella, ahora, opciones.Duracion);
         sesiones.Agregar(sesion);
         await unidadDeTrabajo.GuardarCambiosAsync(cancelacion);
-        return new SesionIniciada(token, new SesionRespuesta(UsuarioRespuesta.Desde(usuario, rol), rol.Permisos, sesion.ExpiraEn));
+        return new SesionIniciada(token, new SesionRespuesta(UsuarioRespuesta.Desde(usuario, rol, sesion.CreadaEn), rol.Permisos, sesion.ExpiraEn));
     }
 }
 

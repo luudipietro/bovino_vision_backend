@@ -22,7 +22,7 @@ public class ConsultasAnaliticaTests
     private PesajeDeAnimal PesajeDeAnimal(Guid idAnimal, decimal pesoKg, int dias, string? lote = null)
     {
         var fecha = Prueba.Inicio.AddDays(dias);
-        var pesaje = new PesajeDeAnimal(Guid.CreateVersion7(), pesoKg, fecha, fecha.AddMinutes(5), "fake-v1", Guid.CreateVersion7(), lote);
+        var pesaje = new PesajeDeAnimal(Guid.CreateVersion7(), pesoKg, fecha, fecha.AddMinutes(5), "fake-v1", Guid.CreateVersion7(), lote, "F. López");
         _consultas.PesajesDeAnimal.Add((pesaje, idAnimal));
         return pesaje;
     }

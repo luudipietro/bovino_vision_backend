@@ -125,8 +125,9 @@ public class RegistrarCapturaTests
 
     [Theory]
     [InlineData("application/pdf", 10, "Formato de imagen no soportado")]
+    [InlineData("image/webp", 10, "Formato de imagen no soportado")]
     [InlineData("image/png", 0, "El archivo está vacío")]
-    [InlineData("image/webp", RegistrarCaptura.TamanioMaximoBytes + 1, "La imagen supera el tamaño máximo permitido")]
+    [InlineData("image/jpeg", RegistrarCaptura.TamanioMaximoBytes + 1, "La imagen supera el tamaño máximo permitido")]
     public async Task Una_imagen_invalida_se_rechaza_sin_guardar_nada(string tipoContenido, int bytes, string motivo)
     {
         var (sesion, animal) = SesionYAnimal();

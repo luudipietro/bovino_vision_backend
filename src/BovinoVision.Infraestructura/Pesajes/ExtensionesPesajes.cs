@@ -15,15 +15,35 @@ public static class ExtensionesPesajes
         servicios.AddScoped(p => p.GetRequiredService<IOptions<OpcionesInferencia>>().Value);
         servicios.AddScoped<IColaInferencia, ColaInferencia>();
         servicios.AddScoped<IConsultasPesajes, ConsultasPesajes>();
-        servicios.AddSingleton<IEstimadorPeso, EstimadorPesoSimulado>();
+        servicios.AgregarEstimador(configuracion.GetSection(OpcionesEstimador.Seccion));
         servicios.AddHostedService<ServicioInferencia>();
         return servicios;
     }
+
+    private static void AgregarEstimador(this IServiceCollection servicios, IConfigurationSection seccion)
+    {
+        if (string.IsNullOrWhiteSpace(seccion[nameof(OpcionesEstimador.UrlBase)]))
+        {
+            servicios.AddSingleton<IEstimadorPeso, EstimadorPesoSimulado>();
+            return;
+        }
+
+        servicios.AddOptions<OpcionesEstimador>().Bind(seccion)
+            .Validate(o => Uri.TryCreate(o.UrlBase, UriKind.Absolute, out var url) && url.Scheme is "http" or "https"
+                    && !string.IsNullOrWhiteSpace(o.Token) && o.IntervaloConsultaMilisegundos >= 0,
+                "Estimador necesita una UrlBase http(s) absoluta, un Token y un intervalo de consulta no negativo").ValidateOnStart();
+        servicios.AddHttpClient<IEstimadorPeso, EstimadorPesoHttp>((proveedor, cliente) =>
+        {
+            var opciones = proveedor.GetRequiredService<IOptions<OpcionesEstimador>>().Value;
+            cliente.BaseAddress = new Uri($"{opciones.UrlBase!.TrimEnd('/')}/");
+            cliente.DefaultRequestHeaders.Authorization = new("Bearer", opciones.Token);
+        });
+    }
 }
 
-/// <summary>Adaptador usado hasta integrar el servicio de visión real; peso simulado determinístico.</summary>
+/// <summary>Adaptador usado cuando no se configura el servicio de estimación; peso simulado determinístico.</summary>
 internal sealed class EstimadorPesoSimulado : IEstimadorPeso
 {
-    public Task<ResultadoEstimacion> EstimarAsync(string referenciaImagen, CancellationToken cancelacion = default) =>
+    public Task<ResultadoEstimacion> EstimarAsync(TrabajoInferencia trabajo, CancellationToken cancelacion = default) =>
         Task.FromResult(new ResultadoEstimacion(400m, "simulado-v1"));
 }

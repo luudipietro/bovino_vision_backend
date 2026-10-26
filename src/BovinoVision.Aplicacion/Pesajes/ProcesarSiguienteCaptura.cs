@@ -19,17 +19,15 @@ public sealed class ProcesarSiguienteCaptura(
         if (trabajo is null) { return false; }
 
         ResultadoEstimacion resultado;
-        var reintentable = false;
         try
         {
             using var limite = CancellationTokenSource.CreateLinkedTokenSource(cancelacion);
             limite.CancelAfter(TimeSpan.FromSeconds(opciones.ArrendamientoSegundos));
-            resultado = await estimador.EstimarAsync(trabajo.ReferenciaImagen, limite.Token).WaitAsync(limite.Token);
+            resultado = await estimador.EstimarAsync(trabajo, limite.Token).WaitAsync(limite.Token);
         }
         catch (Exception error) when (!cancelacion.IsCancellationRequested && error is HttpRequestException or TimeoutException or OperationCanceledException)
         {
-            resultado = new(null, "", "El servicio de estimación no está disponible");
-            reintentable = true;
+            resultado = new(null, "", "El servicio de estimación no está disponible", Reintentable: true);
         }
 
         await cola.ConCapturaBloqueadaAsync(trabajo.IdCaptura, async captura =>
@@ -49,7 +47,7 @@ public sealed class ProcesarSiguienteCaptura(
             {
                 var motivo = resultado.MotivoFallo ?? "El estimador devolvió un resultado inválido";
                 motivo = motivo[..Math.Min(motivo.Length, 500)];
-                if (reintentable && captura.Intentos < opciones.MaximoIntentos)
+                if (resultado.Reintentable && captura.Intentos < opciones.MaximoIntentos)
                 {
                     captura.ReintentarDespues(motivo, tiempo.GetUtcNow().AddSeconds(opciones.DemoraReintentoSegundos));
                 }

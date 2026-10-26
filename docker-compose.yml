@@ -25,6 +25,8 @@ services:
       ConnectionStrings__BovinoVision: "Host=db;Port=5432;Database=bovinovision;Username=bovinovision;Password=bovinovision"
       BaseDeDatos__AplicarMigracionesAlIniciar: "true"
       Almacenamiento__DirectorioImagenes: "/app/uploads"
+      Estimador__UrlBase: "${ESTIMADOR_URL_BASE:-}"
+      Estimador__Token: "${ESTIMADOR_TOKEN:-}"
     ports:
       - "8000:8000"
     volumes:

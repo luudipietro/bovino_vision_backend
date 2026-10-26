@@ -140,6 +140,8 @@ public sealed class FabricaApi : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("Autenticacion:DuracionSesionHoras", "87600");
         // Los hosts derivados lo habilitan explícitamente; un host compartido nunca debe tomar sus trabajos.
         builder.UseSetting("Inferencia:ProcesarEnSegundoPlano", _procesarEnSegundoPlano.ToString());
+        // Un servicio de estimación configurado en la máquina no debe alcanzar a los tests.
+        builder.UseSetting("Estimador:UrlBase", "");
         builder.ConfigureLogging(logging => logging.AddProvider(_registro));
     }
 

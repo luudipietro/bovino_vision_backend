@@ -117,6 +117,29 @@ public class PesajesApiTests(FabricaApi fabrica) : PruebaDeCapturas(fabrica)
     }
 
     [Fact]
+    public async Task Un_fallo_reintentable_informado_por_el_estimador_se_reintenta_con_su_motivo()
+    {
+        var captura = await CrearCapturaAsync();
+        _estimador.Resultado = new(null, "", "El modelo de estimación no está disponible", Reintentable: true);
+        using var solicitud = await ClienteCapturas.PostAsJsonAsync("/pesajes", new { id_captura = captura.Id }, Cancelacion);
+        Assert.Equal(HttpStatusCode.Accepted, solicitud.StatusCode);
+
+        Assert.True(await ProcesarAsync());
+        var reintento = (await ConsultarAsync(captura.Id))!;
+        Assert.Equal(EstadoCaptura.Pendiente, reintento.Estado);
+        Assert.Equal("El modelo de estimación no está disponible", reintento.MotivoFallo);
+
+        _estimador.Resultado = new(380.5m, "fake-v1");
+        _reloj.Ahora = _reloj.Ahora.AddSeconds(31);
+        Assert.True(await ProcesarAsync());
+        var final = (await ConsultarAsync(captura.Id))!;
+        Assert.Equal(EstadoCaptura.Procesada, final.Estado);
+        Assert.Equal(2, final.Intentos);
+        Assert.NotNull(final.IdEventoPesaje);
+        Assert.Equal([1, 2], _estimador.Intentos);
+    }
+
+    [Fact]
     public async Task Reclamo_vencido_se_recupera_y_el_trabajador_anterior_no_puede_publicar()
     {
         var captura = await CrearCapturaAsync();

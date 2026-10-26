@@ -9,7 +9,7 @@ El pesaje se solicita sobre una captura con imagen y se procesa en segundo plano
 3. Consultar `GET /capturas/{id}` hasta que `estado` sea `procesada` o `fallida`. Los estados intermedios son `pendiente` y `procesando`; antes de solicitar, la captura está `registrada`.
 4. Si está `procesada`, consultar `GET /pesajes/{id_evento_pesaje}` y, cuando el operador revise el resultado, enviar `POST /capturas/{id}/confirmar` sin cuerpo.
 
-El JSON usa `snake_case` y los identificadores son UUID v7 en texto. La captura expone `intentos`, `motivo_fallo`, `id_evento_pesaje` y `fecha_revision`. Una falla no crea evento ni alerta; requiere registrar otra captura. Una imagen inválida se rechaza con 422 antes de guardar captura o archivo (tipo permitido JPEG, PNG o WebP, contenido no vacío y máximo 10 MiB).
+El JSON usa `snake_case` y los identificadores son UUID v7 en texto. La captura expone `intentos`, `motivo_fallo`, `id_evento_pesaje` y `fecha_revision`. Una falla no crea evento ni alerta; requiere registrar otra captura. Una imagen inválida se rechaza con 422 antes de guardar captura o archivo (tipo permitido JPEG o PNG, contenido no vacío y máximo 10 MiB).
 
 | Ruta | Respuesta y errores |
 | --- | --- |
@@ -34,7 +34,7 @@ Sección `Inferencia` de configuración (variables de entorno con `__`, por ejem
 | `ArrendamientoSegundos` | `120` | Vigencia del reclamo y timeout de inferencia. |
 | `IntervaloSegundos` | `1` | Intervalo de consulta de la cola. |
 
-Los límites e intervalos deben ser positivos. El adaptador actual es simulado: devuelve 400 kg y `version_modelo: simulado-v1`; todavía no conecta un modelo de visión real. Los resultados inválidos fallan sin reintento; los errores de transporte y timeouts se reintentan hasta el límite.
+Los límites e intervalos deben ser positivos. Sin `Estimador:UrlBase` se usa el adaptador simulado (400 kg, `version_modelo: simulado-v1`); con ella, `EstimadorPesoHttp` consume el servicio de estimación (ver [Estimador de peso](../../../../README.md#estimador-de-peso)). Solo un peso confiable crea el evento. Los resultados inválidos o no confiables fallan sin reintento; los errores de transporte, los timeouts y las fallas que el servicio marca como reintentables se reintentan hasta el límite.
 
 ## Persistencia y arranque
 

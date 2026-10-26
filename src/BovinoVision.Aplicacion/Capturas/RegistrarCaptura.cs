@@ -29,7 +29,7 @@ public sealed class RegistrarCaptura(
     public static readonly TimeSpan ToleranciaRelojCliente = TimeSpan.FromMinutes(5);
 
     private static readonly HashSet<string> TiposDeImagenValidos =
-        new(["image/jpeg", "image/png", "image/webp"], StringComparer.OrdinalIgnoreCase);
+        new(["image/jpeg", "image/png"], StringComparer.OrdinalIgnoreCase);
 
     public async Task<CapturaRespuesta> EjecutarAsync(RegistrarCapturaComando comando, CancellationToken cancelacion = default)
     {

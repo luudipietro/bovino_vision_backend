@@ -150,7 +150,7 @@ El adaptador `EstimadorPesoHttp` consume la API asincrónica del servicio de est
 
 Para usarlo en local:
 
-1. En `Estimador_Bovino_V2`, usar la rama del servicio (`feat/api-base` hasta que se integre a `main`), descargar los pesos con `python estimador/descargar_modelos.py` y seguir `servicio-estimacion/AGENTS.md` (Python 3.13 y `uv`). Para el rodeo propio conviene el modelo v2 (`CARPETA_MODELOS=../estimador/modelos_v2`, `RESOLUCION_MINIMA_MP=0.5`), cuyos pesos se pasan aparte.
+1. En `Estimador_Bovino_V2` (rama `main`), descargar los pesos con `python estimador/descargar_modelos.py` y seguir `servicio-estimacion/AGENTS.md` (Python 3.13 y `uv`). Para el rodeo propio conviene el modelo v2 (`CARPETA_MODELOS=../estimador/modelos_v2`, `RESOLUCION_MINIMA_MP=0.5`), cuyos pesos se pasan aparte.
 2. Arrancar el servicio en el puerto 8001 con un `TOKEN_SERVICIO` y un `SECRETO_HMAC` propios.
 3. Configurar el backend con el mismo token, sin escribirlo en el repositorio:
 

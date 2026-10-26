@@ -3,13 +3,16 @@ using BovinoVision.Dominio.Pesajes;
 
 namespace BovinoVision.Aplicacion.Pesajes;
 
-public sealed record TrabajoInferencia(Guid IdCaptura, int Intento, string ReferenciaImagen);
-public sealed record ResultadoEstimacion(decimal? PesoKg, string VersionModelo, string? MotivoFallo = null);
+/// <summary>El intento identifica el pedido al servicio externo: cada reintento es un trabajo nuevo.</summary>
+public sealed record TrabajoInferencia(Guid IdCaptura, int Intento, string ReferenciaImagen, string TipoContenido);
+
+/// <summary>Sin peso, <see cref="MotivoFallo"/> explica la falla y <see cref="Reintentable"/> indica si vale otro intento.</summary>
+public sealed record ResultadoEstimacion(decimal? PesoKg, string VersionModelo, string? MotivoFallo = null, bool Reintentable = false);
 
 /// <summary>Frontera del adaptador para el servicio de visión externo; las fallas de transporte se pueden reintentar.</summary>
 public interface IEstimadorPeso
 {
-    Task<ResultadoEstimacion> EstimarAsync(string referenciaImagen, CancellationToken cancelacion = default);
+    Task<ResultadoEstimacion> EstimarAsync(TrabajoInferencia trabajo, CancellationToken cancelacion = default);
 }
 
 /// <summary>Bloqueos de fila cortos protegen las transiciones; no se mantiene ningún bloqueo mientras se estima.</summary>

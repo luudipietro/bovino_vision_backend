@@ -14,6 +14,7 @@ internal sealed class ModuloCapturas : IModulo
     {
         servicios.AddScoped<IniciarSesionCaptura>();
         servicios.AddScoped<FinalizarSesionCaptura>();
+        servicios.AddScoped<FinalizarSesionesInactivas>();
         servicios.AddScoped<ListarCapturasDeSesion>();
         servicios.AddScoped<ListarSesionesRecientes>();
         servicios.AddScoped<RegistrarCaptura>();

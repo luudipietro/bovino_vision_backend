@@ -17,6 +17,12 @@ public static class ExtensionesCapturas
         servicios.AddScoped<IAnimalesDeCaptura, AnimalesDeCaptura>();
         servicios.AddScoped<IConsultasCapturas, ConsultasCapturas>();
         servicios.AgregarAlmacenamiento(configuracion);
+
+        servicios.AddOptions<OpcionesSesionesCaptura>().Bind(configuracion.GetSection(OpcionesSesionesCaptura.Seccion))
+            .Validate(o => o.HorasInactividad > 0 && o.IntervaloMinutos > 0,
+                "Las horas de inactividad y el intervalo de cierre de sesiones deben ser positivos").ValidateOnStart();
+        servicios.AddScoped(p => p.GetRequiredService<IOptions<OpcionesSesionesCaptura>>().Value);
+        servicios.AddHostedService<ServicioCierreSesiones>();
         return servicios;
     }
 

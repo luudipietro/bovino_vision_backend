@@ -112,6 +112,8 @@ dotnet run --project src/BovinoVision.Api
 | `Almacenamiento__DirectorioImagenes` | `uploads`, relativo a la raíz de contenido de la aplicación; `/app/uploads` en Compose |
 | `Almacenamiento__S3__Bucket` | Vacío: imágenes en disco local (`DirectorioImagenes`). Con valor, se guardan en ese bucket S3 compatible (Neon Object Storage) y todas las instancias de la API ven las mismas fotos |
 | `Almacenamiento__S3__UrlServicio`, `__Region`, `__IdClaveAcceso`, `__ClaveSecreta` | Obligatorios si hay `Bucket`. En Neon salen de `neon env pull -s object-storage` (`AWS_ENDPOINT_URL_S3`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`); guardarlos en User Secrets o en el entorno. Paso a paso: [Imágenes en Neon Object Storage](docs/neon-desarrollo-local.md#imágenes-en-neon-object-storage) |
+| `SesionesCaptura__FinalizarInactivasEnSegundoPlano` | `true`; finaliza las sesiones de captura que el cliente no cerró (pestaña cerrada, red caída). La fecha de fin es su última captura, o el inicio si no tiene |
+| `SesionesCaptura__HorasInactividad` / `SesionesCaptura__IntervaloMinutos` | `6` horas sin capturas para dar una sesión por abandonada / revisión cada `15` minutos |
 | `Inferencia__ProcesarEnSegundoPlano` | `true`; con `false` las solicitudes quedan en cola sin este consumidor |
 | `Inferencia__MaximoIntentos` | `3` |
 | `Inferencia__DemoraReintentoSegundos` | `30` |

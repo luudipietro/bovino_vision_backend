@@ -48,6 +48,23 @@ internal sealed class SesionesEnMemoria : IRepositorioSesionesCaptura
         Task.FromResult(Sesiones.SingleOrDefault(s => s.Id == id));
 
     public void Agregar(SesionCaptura sesion) => Sesiones.Add(sesion);
+
+    /// <summary>Fecha de la última captura de cada sesión; las ausentes no tienen capturas.</summary>
+    public Dictionary<Guid, DateTimeOffset> UltimaCaptura { get; } = [];
+
+    public DateTimeOffset? UltimoLimiteConsultado { get; private set; }
+
+    public Task<IReadOnlyList<SesionInactiva>> ListarInactivasAsync(DateTimeOffset sinActividadDesde, CancellationToken cancelacion = default)
+    {
+        UltimoLimiteConsultado = sinActividadDesde;
+        IReadOnlyList<SesionInactiva> inactivas = Sesiones
+            .Where(s => s.Estado == EstadoSesionCaptura.Activa)
+            .Select(s => new SesionInactiva(
+                s, UltimaCaptura.TryGetValue(s.Id, out var ultima) && ultima > s.FechaInicio ? ultima : s.FechaInicio))
+            .Where(s => s.UltimaActividad < sinActividadDesde)
+            .ToList();
+        return Task.FromResult(inactivas);
+    }
 }
 
 internal sealed class CapturasEnMemoria : IRepositorioCapturas

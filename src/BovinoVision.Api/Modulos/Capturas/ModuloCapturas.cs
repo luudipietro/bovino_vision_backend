@@ -67,9 +67,11 @@ internal sealed class ModuloCapturas : IModulo
     private static async Task<Ok<IReadOnlyList<SesionRecienteRespuesta>>> ListarSesionesAsync(
         int? limite,
         int? desplazamiento,
+        DateTimeOffset? desde,
+        DateTimeOffset? hasta,
         ListarSesionesRecientes casoDeUso,
         CancellationToken cancelacion) =>
-        TypedResults.Ok(await casoDeUso.EjecutarAsync(new ListarSesionesRecientesConsulta(limite, desplazamiento), cancelacion));
+        TypedResults.Ok(await casoDeUso.EjecutarAsync(new ListarSesionesRecientesConsulta(limite, desplazamiento, desde, hasta), cancelacion));
 
     private static async Task<Ok<SesionCapturaRespuesta>> FinalizarSesionAsync(
         Guid id,

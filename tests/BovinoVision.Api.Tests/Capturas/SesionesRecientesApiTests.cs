@@ -139,6 +139,45 @@ public class SesionesRecientesApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica
     }
 
     [Fact]
+    public async Task Filtra_por_inicio_incluyendo_desde_y_excluyendo_hasta_antes_de_paginar()
+    {
+        await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio.AddTicks(-10));
+        var primera = await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio);
+        var ultima = await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio.AddDays(1).AddTicks(-10));
+        await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio.AddDays(1));
+        await CrearSesionAsync(DatosSemilla.IdUsuarioSistema, Inicio.AddHours(1));
+        const string Rango = "/sesiones-captura?desde=2026-03-01T09:00:00-03:00&hasta=2026-03-02T09:00:00-03:00";
+
+        var filtradas = await ListarAsync(Rango);
+        var segundaPagina = await ListarAsync(Rango + "&limite=1&desplazamiento=1");
+        var desde = await ListarAsync("/sesiones-captura?desde=2026-03-02T12:00:00Z");
+        var hasta = await ListarAsync("/sesiones-captura?hasta=2026-03-01T12:00:00Z");
+
+        Assert.Equal([ultima, primera], filtradas.EnumerateArray().Select(s => s.GetProperty("id").GetGuid()));
+        Assert.Equal(primera, Assert.Single(segundaPagina.EnumerateArray()).GetProperty("id").GetGuid());
+        Assert.Single(desde.EnumerateArray());
+        Assert.Single(hasta.EnumerateArray());
+    }
+
+    [Theory]
+    [InlineData("desde=2026-03-02T00:00:00Z&hasta=2026-03-01T00:00:00Z", HttpStatusCode.UnprocessableEntity)]
+    [InlineData("desde=2026-03-01T00:00:00Z&hasta=2026-03-01T00:00:00Z", HttpStatusCode.UnprocessableEntity)]
+    [InlineData("desde=no-es-fecha", HttpStatusCode.BadRequest)]
+    [InlineData("hasta=no-es-fecha", HttpStatusCode.BadRequest)]
+    public async Task Rechaza_fechas_invalidas_sin_modificar_el_historial(string filtro, HttpStatusCode estado)
+    {
+        await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio, procesadas: 1);
+        var antes = await ListarAsync();
+
+        using var respuesta = await Cliente.GetAsync(new Uri("/sesiones-captura?" + filtro, UriKind.Relative), Cancelacion);
+
+        Assert.Equal(estado, respuesta.StatusCode);
+        var problema = await respuesta.LeerAsync<JsonElement>();
+        Assert.False(string.IsNullOrWhiteSpace(problema.GetProperty("detail").GetString()));
+        Assert.Equal(antes.GetRawText(), (await ListarAsync()).GetRawText());
+    }
+
+    [Fact]
     public async Task Un_desplazamiento_negativo_responde_422()
     {
         using var respuesta = await Cliente.GetAsync(new Uri("/sesiones-captura?desplazamiento=-1", UriKind.Relative), Cancelacion);

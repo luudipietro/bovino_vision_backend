@@ -129,6 +129,7 @@ internal sealed class ConsultasCapturasEnMemoria : IConsultasCapturas
     public Task<IReadOnlyList<CapturaDeSesionRespuesta>> ListarDeSesionAsync(Guid idSesion, CancellationToken cancelacion = default) =>
         throw new NotSupportedException();
 
-    public Task<IReadOnlyList<SesionRecienteRespuesta>> ListarSesionesRecientesAsync(Guid idUsuario, int limite, CancellationToken cancelacion = default) =>
+    public Task<IReadOnlyList<SesionRecienteRespuesta>> ListarSesionesRecientesAsync(
+        Guid idUsuario, int limite, int desplazamiento, CancellationToken cancelacion = default) =>
         throw new NotSupportedException();
 }

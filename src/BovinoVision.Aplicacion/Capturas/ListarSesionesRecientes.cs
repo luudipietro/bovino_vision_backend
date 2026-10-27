@@ -4,7 +4,8 @@ using BovinoVision.Dominio.Comun;
 namespace BovinoVision.Aplicacion.Capturas;
 
 /// <param name="Limite">Cuántas sesiones devolver; <see cref="ListarSesionesRecientes.LimitePorDefecto"/> cuando es null.</param>
-public sealed record ListarSesionesRecientesConsulta(int? Limite = null);
+/// <param name="Desplazamiento">Cuántas de las más nuevas saltear, para paginar el historial; 0 cuando es null.</param>
+public sealed record ListarSesionesRecientesConsulta(int? Limite = null, int? Desplazamiento = null);
 
 /// <summary>Las últimas sesiones de captura del usuario de la solicitud, de la más reciente a la más antigua, con sus cantidades de capturas.</summary>
 public sealed class ListarSesionesRecientes(IConsultasCapturas consultas, IContextoUsuario usuario)
@@ -22,6 +23,12 @@ public sealed class ListarSesionesRecientes(IConsultasCapturas consultas, IConte
             throw new OperacionInvalidaError($"El parámetro limite debe estar entre 1 y {LimiteMaximo}");
         }
 
-        return await consultas.ListarSesionesRecientesAsync(usuario.IdUsuario, limite, cancelacion);
+        var desplazamiento = consulta.Desplazamiento ?? 0;
+        if (desplazamiento < 0)
+        {
+            throw new OperacionInvalidaError("El parámetro desplazamiento no puede ser negativo");
+        }
+
+        return await consultas.ListarSesionesRecientesAsync(usuario.IdUsuario, limite, desplazamiento, cancelacion);
     }
 }

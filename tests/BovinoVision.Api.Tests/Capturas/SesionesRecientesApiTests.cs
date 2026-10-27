@@ -120,6 +120,34 @@ public class SesionesRecientesApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica
         Assert.Equal(7, todas.GetArrayLength());
     }
 
+    [Fact]
+    public async Task Desplazamiento_saltea_las_sesiones_mas_nuevas_para_paginar()
+    {
+        var ids = new List<Guid>();
+        for (var i = 0; i < 7; i++)
+        {
+            ids.Add(await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio.AddDays(i)));
+        }
+
+        var segundaPagina = await ListarAsync("/sesiones-captura?limite=2&desplazamiento=2");
+        var ultima = await ListarAsync("/sesiones-captura?limite=5&desplazamiento=5");
+        var pasada = await ListarAsync("/sesiones-captura?desplazamiento=7");
+
+        Assert.Equal([ids[4], ids[3]], segundaPagina.EnumerateArray().Select(s => s.GetProperty("id").GetGuid()));
+        Assert.Equal([ids[1], ids[0]], ultima.EnumerateArray().Select(s => s.GetProperty("id").GetGuid()));
+        Assert.Equal(0, pasada.GetArrayLength());
+    }
+
+    [Fact]
+    public async Task Un_desplazamiento_negativo_responde_422()
+    {
+        using var respuesta = await Cliente.GetAsync(new Uri("/sesiones-captura?desplazamiento=-1", UriKind.Relative), Cancelacion);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, respuesta.StatusCode);
+        var cuerpo = await respuesta.LeerAsync<JsonElement>();
+        Assert.Contains("desplazamiento", cuerpo.GetProperty("detail").GetString(), StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("0")]
     [InlineData("21")]

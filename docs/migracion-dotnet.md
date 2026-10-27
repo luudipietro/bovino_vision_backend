@@ -49,6 +49,7 @@ Las rutas de negocio se definen en `src/BovinoVision.Api/Modulos/{Trazabilidad,C
 | `GET /animales/{id}/historial-lotes` | Asignaciones desde la más reciente |
 | `POST /sesiones-captura` | Sin cuerpo; sesión activa, 201 |
 | `POST /sesiones-captura/{id}/finalizar` | Sin cuerpo; sesión finalizada, 200 |
+| `GET /sesiones-captura` | Sesiones del usuario, de la más nueva a la más vieja; `limite` de 1 a 20 (5 por defecto) y `desplazamiento` para paginar |
 | `GET /sesiones-captura/{id}/capturas` | Galería por fecha de captura, con `id_imagen` de cada captura |
 | `POST /capturas` | Multipart `id_sesion`, `id_animal`, `imagen`, `fecha_captura` opcional; 201 |
 | `GET /capturas/{id}` | Estado, intentos, motivo de fallo, revisión e id de evento |

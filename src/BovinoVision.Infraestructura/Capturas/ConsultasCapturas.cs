@@ -23,10 +23,11 @@ internal sealed class ConsultasCapturas(BovinoVisionDbContext contexto) : IConsu
             .SingleOrDefaultAsync(cancelacion);
 
     public async Task<IReadOnlyList<SesionRecienteRespuesta>> ListarSesionesRecientesAsync(
-        Guid idUsuario, int limite, CancellationToken cancelacion = default) =>
+        Guid idUsuario, int limite, int desplazamiento, CancellationToken cancelacion = default) =>
         await contexto.SesionesCaptura.AsNoTracking()
             .Where(s => s.IdUsuario == idUsuario)
             .OrderByDescending(s => s.FechaInicio).ThenByDescending(s => s.Id)
+            .Skip(desplazamiento)
             .Take(limite)
             .Select(s => new SesionRecienteRespuesta(
                 s.Id,

@@ -8,8 +8,9 @@ public interface IConsultasCapturas
     /// <summary>Capturas de la sesión ordenadas por fecha de captura; vacío cuando no tiene ninguna.</summary>
     Task<IReadOnlyList<CapturaDeSesionRespuesta>> ListarDeSesionAsync(Guid idSesion, CancellationToken cancelacion = default);
 
-    /// <summary>Últimas sesiones del usuario, de la más reciente a la más antigua, con cuántas capturas tienen y cuántas están procesadas.</summary>
-    Task<IReadOnlyList<SesionRecienteRespuesta>> ListarSesionesRecientesAsync(Guid idUsuario, int limite, CancellationToken cancelacion = default);
+    /// <summary>Sesiones del usuario, de la más reciente a la más antigua, salteando las <paramref name="desplazamiento"/> más nuevas, con cuántas capturas tienen y cuántas están procesadas.</summary>
+    Task<IReadOnlyList<SesionRecienteRespuesta>> ListarSesionesRecientesAsync(
+        Guid idUsuario, int limite, int desplazamiento, CancellationToken cancelacion = default);
 
     /// <summary>La imagen cuando pertenece a una captura de un animal del establecimiento; null en otro caso.</summary>
     Task<ImagenAlmacenada?> ObtenerImagenAsync(Guid idImagen, Guid idEstablecimiento, CancellationToken cancelacion = default);

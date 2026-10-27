@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using BovinoVision.Aplicacion.Capturas;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -13,18 +12,16 @@ public sealed class OpcionesAlmacenamiento
     public string DirectorioImagenes { get; set; } = "uploads";
 }
 
-/// <summary>Escribe las imágenes en un directorio local; en producción lo reemplaza un adaptador de bucket.</summary>
-internal sealed partial class AlmacenamientoLocalImagenes(IOptions<OpcionesAlmacenamiento> opciones, IHostEnvironment entorno)
+/// <summary>Escribe las imágenes en un directorio local; con un bucket configurado lo reemplaza <see cref="AlmacenamientoS3Imagenes"/>.</summary>
+internal sealed class AlmacenamientoLocalImagenes(IOptions<OpcionesAlmacenamiento> opciones, IHostEnvironment entorno)
     : IAlmacenamientoImagenes
 {
-    private const string ExtensionPorDefecto = ".jpg";
-
     private readonly string _directorio = Path.GetFullPath(opciones.Value.DirectorioImagenes, entorno.ContentRootPath);
 
     public async Task<string> GuardarAsync(string nombreSugerido, ReadOnlyMemory<byte> contenido, CancellationToken cancelacion = default)
     {
         Directory.CreateDirectory(_directorio);
-        var referencia = $"{Guid.CreateVersion7():N}{ExtensionSegura(nombreSugerido)}";
+        var referencia = ReferenciasDeImagen.Nueva(nombreSugerido);
         await File.WriteAllBytesAsync(Path.Combine(_directorio, referencia), contenido, cancelacion);
         return referencia;
     }
@@ -52,7 +49,7 @@ internal sealed partial class AlmacenamientoLocalImagenes(IOptions<OpcionesAlmac
 
     public Task EliminarAsync(string referencia, CancellationToken cancelacion = default)
     {
-        if (Path.GetFileName(referencia) != referencia)
+        if (!ReferenciasDeImagen.EsNombreDeArchivo(referencia))
         {
             throw new ArgumentException($"Referencia de imagen inválida: {referencia}", nameof(referencia));
         }
@@ -84,14 +81,4 @@ internal sealed partial class AlmacenamientoLocalImagenes(IOptions<OpcionesAlmac
         var comparacion = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
         return ruta.StartsWith(prefijo, comparacion) ? ruta : null;
     }
-
-    // El cliente elige el nombre del archivo, así que solo se conservan extensiones alfanuméricas cortas.
-    private static string ExtensionSegura(string nombreSugerido)
-    {
-        var extension = Path.GetExtension(nombreSugerido);
-        return ExtensionValida().IsMatch(extension) ? extension.ToLowerInvariant() : ExtensionPorDefecto;
-    }
-
-    [GeneratedRegex(@"^\.[A-Za-z0-9]{1,5}$")]
-    private static partial Regex ExtensionValida();
 }

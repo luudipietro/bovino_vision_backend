@@ -16,7 +16,7 @@ dotnet run --project src/BovinoVision.Api
 
 La API escucha en `http://localhost:8000`. El perfil local activa `Development`, usa PostgreSQL en `localhost:5433` salvo que se sobrescriba la conexión y aplica las migraciones al iniciar. En ese entorno están disponibles `/openapi/v1.json` y `/scalar/v1`. `GET /health` devuelve `{"status":"ok"}`; no es una comprobación de conectividad con la base.
 
-**Alternativa con Neon:** la API admite User Secrets con ID `bovinovision-api-neon-local` en Development. Con `ConnectionStrings:BovinoVision` configurada fuera del repositorio, usar una conexión **directa** exclusivamente a `develop` / `neondb`; el arranque aplica las migraciones existentes. Las variables de entorno prevalecen sobre los secretos. User Secrets almacena texto plano, no cifra credenciales. Consultar [la guía local de Neon](docs/neon-desarrollo-local.md); no modifica `production`, `neon_auth` ni los tests con Testcontainers.
+**Alternativa con Neon:** la API admite User Secrets con ID `bovinovision-api-neon-local` en Development. Con `ConnectionStrings:BovinoVision` configurada fuera del repositorio, usar una conexión **directa** exclusivamente a `develop` / `neondb`; el arranque aplica las migraciones existentes. Las variables de entorno prevalecen sobre los secretos. User Secrets almacena texto plano, no cifra credenciales. Consultar [la guía local de Neon](docs/neon-desarrollo-local.md); no modifica `production`, `neon_auth` ni los tests con Testcontainers. Para que las fotos se compartan entre PCs, configurar también el bucket de imágenes siguiendo [Imágenes en Neon Object Storage](docs/neon-desarrollo-local.md#imágenes-en-neon-object-storage).
 
 Alternativa en contenedores:
 
@@ -110,6 +110,8 @@ dotnet run --project src/BovinoVision.Api
 | `BaseDeDatos__AplicarMigracionesAlIniciar` | `false`; `true` en Development y Compose |
 | `Cors__OrigenesPermitidos__0` | `http://localhost:5173`; Development también permite `http://localhost:5174` (`__1`), el puerto que toma Vite cuando 5173 está ocupado |
 | `Almacenamiento__DirectorioImagenes` | `uploads`, relativo a la raíz de contenido de la aplicación; `/app/uploads` en Compose |
+| `Almacenamiento__S3__Bucket` | Vacío: imágenes en disco local (`DirectorioImagenes`). Con valor, se guardan en ese bucket S3 compatible (Neon Object Storage) y todas las instancias de la API ven las mismas fotos |
+| `Almacenamiento__S3__UrlServicio`, `__Region`, `__IdClaveAcceso`, `__ClaveSecreta` | Obligatorios si hay `Bucket`. En Neon salen de `neon env pull -s object-storage` (`AWS_ENDPOINT_URL_S3`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`); guardarlos en User Secrets o en el entorno. Paso a paso: [Imágenes en Neon Object Storage](docs/neon-desarrollo-local.md#imágenes-en-neon-object-storage) |
 | `Inferencia__ProcesarEnSegundoPlano` | `true`; con `false` las solicitudes quedan en cola sin este consumidor |
 | `Inferencia__MaximoIntentos` | `3` |
 | `Inferencia__DemoraReintentoSegundos` | `30` |

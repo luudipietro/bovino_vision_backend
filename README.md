@@ -110,6 +110,8 @@ dotnet run --project src/BovinoVision.Api
 | `BaseDeDatos__AplicarMigracionesAlIniciar` | `false`; `true` en Development y Compose |
 | `Cors__OrigenesPermitidos__0` | `http://localhost:5173`; Development también permite `http://localhost:5174` (`__1`), el puerto que toma Vite cuando 5173 está ocupado |
 | `Almacenamiento__DirectorioImagenes` | `uploads`, relativo a la raíz de contenido de la aplicación; `/app/uploads` en Compose |
+| `Almacenamiento__S3__Bucket` | Vacío: imágenes en disco local (`DirectorioImagenes`). Con valor, se guardan en ese bucket S3 compatible (Neon Object Storage) y todas las instancias de la API ven las mismas fotos |
+| `Almacenamiento__S3__UrlServicio`, `__Region`, `__IdClaveAcceso`, `__ClaveSecreta` | Obligatorios si hay `Bucket`. En Neon salen de `neon env pull -s object-storage` (`AWS_ENDPOINT_URL_S3`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`); guardarlos en User Secrets o en el entorno |
 | `Inferencia__ProcesarEnSegundoPlano` | `true`; con `false` las solicitudes quedan en cola sin este consumidor |
 | `Inferencia__MaximoIntentos` | `3` |
 | `Inferencia__DemoraReintentoSegundos` | `30` |

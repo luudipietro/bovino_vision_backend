@@ -1,0 +1,243 @@
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using BovinoVision.Api.Tests.Infraestructura;
+using BovinoVision.Aplicacion.Usuarios;
+using BovinoVision.Dominio.Capturas;
+using BovinoVision.Dominio.Trazabilidad;
+using BovinoVision.Dominio.Usuarios;
+using BovinoVision.Infraestructura.Persistencia;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace BovinoVision.Api.Tests.Capturas;
+
+/// <summary>GET /sesiones-captura: las últimas sesiones de captura del usuario con sesión iniciada.</summary>
+public class SesionesRecientesApiTests(FabricaApi fabrica) : PruebaDeApi(fabrica)
+{
+    private static readonly DateTimeOffset Inicio = new(2026, 3, 1, 12, 0, 0, TimeSpan.Zero);
+
+    private static CancellationToken Cancelacion => TestContext.Current.CancellationToken;
+
+    private async Task<Guid> CrearSesionAsync(
+        Guid idUsuario, DateTimeOffset inicio, int procesadas = 0, int pendientes = 0, DateTimeOffset? fin = null)
+    {
+        await using var alcance = Fabrica.Services.CreateAsyncScope();
+        var contexto = alcance.ServiceProvider.GetRequiredService<BovinoVisionDbContext>();
+        var sesion = new SesionCaptura(idUsuario, inicio);
+        if (fin is { } fecha)
+        {
+            sesion.Finalizar(fecha);
+        }
+
+        contexto.SesionesCaptura.Add(sesion);
+        for (var i = 0; i < procesadas + pendientes; i++)
+        {
+            var animal = new Animal(DatosSemilla.IdEstablecimiento, $"AR-{sesion.Id:N}-{i}");
+            var captura = new Captura(animal.Id, idUsuario, sesion.Id, inicio.AddMinutes(i));
+            captura.AgregarImagen($"capturas/{captura.Id}.jpg", Guid.NewGuid().ToString("N"), "image/jpeg");
+            if (i < procesadas)
+            {
+                captura.SolicitarEstimacion();
+                captura.IniciarProcesamiento();
+                captura.MarcarProcesada();
+            }
+
+            contexto.AddRange(animal, captura);
+        }
+
+        await contexto.SaveChangesAsync(Cancelacion);
+        return sesion.Id;
+    }
+
+    private async Task<JsonElement> ListarAsync(string ruta = "/sesiones-captura")
+    {
+        using var respuesta = await Cliente.GetAsync(new Uri(ruta, UriKind.Relative), Cancelacion);
+        Assert.Equal(HttpStatusCode.OK, respuesta.StatusCode);
+        return await respuesta.LeerAsync<JsonElement>();
+    }
+
+    [Fact]
+    public async Task Lista_las_sesiones_del_usuario_de_la_mas_nueva_a_la_mas_vieja_con_sus_cantidades()
+    {
+        var vieja = await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio, procesadas: 1, pendientes: 1, fin: Inicio.AddHours(1));
+        var nueva = await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio.AddDays(1), procesadas: 2);
+
+        var sesiones = await ListarAsync();
+
+        Assert.Equal([nueva, vieja], sesiones.EnumerateArray().Select(s => s.GetProperty("id").GetGuid()));
+        var primera = sesiones[0];
+        Assert.Equal(Inicio.AddDays(1), primera.GetProperty("fecha_inicio").GetDateTimeOffset());
+        Assert.Equal(JsonValueKind.Null, primera.GetProperty("fecha_fin").ValueKind);
+        Assert.Equal("activa", primera.GetProperty("estado").GetString());
+        Assert.Equal(2, primera.GetProperty("cantidad_capturas").GetInt32());
+        Assert.Equal(2, primera.GetProperty("cantidad_procesadas").GetInt32());
+        var segunda = sesiones[1];
+        Assert.Equal(Inicio.AddHours(1), segunda.GetProperty("fecha_fin").GetDateTimeOffset());
+        Assert.Equal("finalizada", segunda.GetProperty("estado").GetString());
+        Assert.Equal(2, segunda.GetProperty("cantidad_capturas").GetInt32());
+        Assert.Equal(1, segunda.GetProperty("cantidad_procesadas").GetInt32());
+    }
+
+    [Fact]
+    public async Task Una_sesion_sin_capturas_cuenta_cero()
+    {
+        await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio);
+
+        var sesion = Assert.Single((await ListarAsync()).EnumerateArray());
+
+        Assert.Equal(0, sesion.GetProperty("cantidad_capturas").GetInt32());
+        Assert.Equal(0, sesion.GetProperty("cantidad_procesadas").GetInt32());
+    }
+
+    [Fact]
+    public async Task No_incluye_las_sesiones_de_otros_usuarios()
+    {
+        var propia = await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio);
+        await CrearSesionAsync(DatosSemilla.IdUsuarioSistema, Inicio.AddDays(1), procesadas: 1);
+
+        var sesiones = await ListarAsync();
+
+        Assert.Equal(propia, Assert.Single(sesiones.EnumerateArray()).GetProperty("id").GetGuid());
+    }
+
+    [Fact]
+    public async Task Por_defecto_devuelve_las_cinco_mas_recientes_y_limite_la_acota()
+    {
+        var ids = new List<Guid>();
+        for (var i = 0; i < 7; i++)
+        {
+            ids.Add(await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio.AddDays(i)));
+        }
+
+        var porDefecto = await ListarAsync();
+        var dos = await ListarAsync("/sesiones-captura?limite=2");
+        var todas = await ListarAsync("/sesiones-captura?limite=20");
+
+        Assert.Equal(5, porDefecto.GetArrayLength());
+        Assert.Equal(ids[6], porDefecto[0].GetProperty("id").GetGuid());
+        Assert.Equal(ids[2], porDefecto[4].GetProperty("id").GetGuid());
+        Assert.Equal([ids[6], ids[5]], dos.EnumerateArray().Select(s => s.GetProperty("id").GetGuid()));
+        Assert.Equal(7, todas.GetArrayLength());
+    }
+
+    [Fact]
+    public async Task Desplazamiento_saltea_las_sesiones_mas_nuevas_para_paginar()
+    {
+        var ids = new List<Guid>();
+        for (var i = 0; i < 7; i++)
+        {
+            ids.Add(await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio.AddDays(i)));
+        }
+
+        var segundaPagina = await ListarAsync("/sesiones-captura?limite=2&desplazamiento=2");
+        var ultima = await ListarAsync("/sesiones-captura?limite=5&desplazamiento=5");
+        var pasada = await ListarAsync("/sesiones-captura?desplazamiento=7");
+
+        Assert.Equal([ids[4], ids[3]], segundaPagina.EnumerateArray().Select(s => s.GetProperty("id").GetGuid()));
+        Assert.Equal([ids[1], ids[0]], ultima.EnumerateArray().Select(s => s.GetProperty("id").GetGuid()));
+        Assert.Equal(0, pasada.GetArrayLength());
+    }
+
+    [Fact]
+    public async Task Filtra_por_inicio_incluyendo_desde_y_excluyendo_hasta_antes_de_paginar()
+    {
+        await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio.AddTicks(-10));
+        var primera = await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio);
+        var ultima = await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio.AddDays(1).AddTicks(-10));
+        await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio.AddDays(1));
+        await CrearSesionAsync(DatosSemilla.IdUsuarioSistema, Inicio.AddHours(1));
+        const string Rango = "/sesiones-captura?desde=2026-03-01T09:00:00-03:00&hasta=2026-03-02T09:00:00-03:00";
+
+        var filtradas = await ListarAsync(Rango);
+        var segundaPagina = await ListarAsync(Rango + "&limite=1&desplazamiento=1");
+        var desde = await ListarAsync("/sesiones-captura?desde=2026-03-02T12:00:00Z");
+        var hasta = await ListarAsync("/sesiones-captura?hasta=2026-03-01T12:00:00Z");
+
+        Assert.Equal([ultima, primera], filtradas.EnumerateArray().Select(s => s.GetProperty("id").GetGuid()));
+        Assert.Equal(primera, Assert.Single(segundaPagina.EnumerateArray()).GetProperty("id").GetGuid());
+        Assert.Single(desde.EnumerateArray());
+        Assert.Single(hasta.EnumerateArray());
+    }
+
+    [Theory]
+    [InlineData("desde=2026-03-02T00:00:00Z&hasta=2026-03-01T00:00:00Z", HttpStatusCode.UnprocessableEntity)]
+    [InlineData("desde=2026-03-01T00:00:00Z&hasta=2026-03-01T00:00:00Z", HttpStatusCode.UnprocessableEntity)]
+    [InlineData("desde=no-es-fecha", HttpStatusCode.BadRequest)]
+    [InlineData("hasta=no-es-fecha", HttpStatusCode.BadRequest)]
+    public async Task Rechaza_fechas_invalidas_sin_modificar_el_historial(string filtro, HttpStatusCode estado)
+    {
+        await CrearSesionAsync(Fabrica.IdUsuarioPruebas, Inicio, procesadas: 1);
+        var antes = await ListarAsync();
+
+        using var respuesta = await Cliente.GetAsync(new Uri("/sesiones-captura?" + filtro, UriKind.Relative), Cancelacion);
+
+        Assert.Equal(estado, respuesta.StatusCode);
+        var problema = await respuesta.LeerAsync<JsonElement>();
+        Assert.False(string.IsNullOrWhiteSpace(problema.GetProperty("detail").GetString()));
+        Assert.Equal(antes.GetRawText(), (await ListarAsync()).GetRawText());
+    }
+
+    [Fact]
+    public async Task Un_desplazamiento_negativo_responde_422()
+    {
+        using var respuesta = await Cliente.GetAsync(new Uri("/sesiones-captura?desplazamiento=-1", UriKind.Relative), Cancelacion);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, respuesta.StatusCode);
+        var cuerpo = await respuesta.LeerAsync<JsonElement>();
+        Assert.Contains("desplazamiento", cuerpo.GetProperty("detail").GetString(), StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("0")]
+    [InlineData("21")]
+    [InlineData("-1")]
+    public async Task Un_limite_fuera_de_1_a_20_responde_422(string limite)
+    {
+        using var respuesta = await Cliente.GetAsync(new Uri($"/sesiones-captura?limite={limite}", UriKind.Relative), Cancelacion);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, respuesta.StatusCode);
+        var cuerpo = await respuesta.LeerAsync<JsonElement>();
+        Assert.Contains("limite", cuerpo.GetProperty("detail").GetString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Un_limite_que_no_es_un_numero_responde_400()
+    {
+        using var respuesta = await Cliente.GetAsync(new Uri("/sesiones-captura?limite=muchas", UriKind.Relative), Cancelacion);
+
+        Assert.Equal(HttpStatusCode.BadRequest, respuesta.StatusCode);
+    }
+
+    [Fact]
+    public async Task Sin_sesion_responde_401_y_sin_capturas_registrar_403()
+    {
+        using var anonimo = Fabrica.CrearClienteAnonimo();
+        using var sinSesion = await anonimo.GetAsync(new Uri("/sesiones-captura", UriKind.Relative), Cancelacion);
+
+        // El rol inicial de administrador solo gestiona usuarios y roles.
+        using var administrador = Fabrica.CrearClienteConSesion(await IniciarSesionComoAdministradorAsync());
+        using var sinPermiso = await administrador.GetAsync(new Uri("/sesiones-captura", UriKind.Relative), Cancelacion);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, sinSesion.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, sinPermiso.StatusCode);
+    }
+
+    private async Task<string> IniciarSesionComoAdministradorAsync()
+    {
+        const string Correo = "admin-sesiones@campo.com";
+        const string Contrasena = "admin-sesiones-123";
+        await using (var alcance = Fabrica.Services.CreateAsyncScope())
+        {
+            var contexto = alcance.ServiceProvider.GetRequiredService<BovinoVisionDbContext>();
+            var hasher = alcance.ServiceProvider.GetRequiredService<IHasherContrasenas>();
+            contexto.Usuarios.Add(new Usuario(
+                DatosSemilla.IdEstablecimiento, DatosSemilla.IdRolAdministrador, "Administrador", Correo, hasher.Generar(Contrasena)));
+            await contexto.SaveChangesAsync(Cancelacion);
+        }
+
+        using var anonimo = Fabrica.CrearClienteAnonimo();
+        using var login = await anonimo.PostAsJsonAsync("/auth/sesion", new { correo = Correo, contrasena = Contrasena }, Cancelacion);
+        login.EnsureSuccessStatusCode();
+        return FabricaApi.LeerCookieDeSesion(login)!;
+    }
+}

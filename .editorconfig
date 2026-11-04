@@ -1,0 +1,24 @@
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cs,csx}]
+indent_size = 4
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_prefer_braces = true:warning
+dotnet_style_qualification_for_field = false:warning
+
+# Identifiers are in Spanish by project decision, so English naming suffix rules do not apply.
+dotnet_diagnostic.CA1710.severity = none
+dotnet_diagnostic.CA1711.severity = none
+
+# Generated EF Core migrations are not hand-written code.
+[**/Migraciones/*.cs]
+generated_code = true
+
+[*.{csproj,props,targets,json,slnx}]
+indent_size = 2

@@ -5,3 +5,10 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 uploads/
+.claude/
+CLAUDE.md
+.codegraph/
+.atl/
+.pi/
+.mcp.json
+skills-lock.json
